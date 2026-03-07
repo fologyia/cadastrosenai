@@ -329,13 +329,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div style="margin-bottom:14px">
         <label class="nota-lbl">💬 Observação (opcional)</label>
         <div class="tags" id="tagsCont">
-          <span class="tag d" data-t="Fora da tolerância">Fora da tolerância</span>
-          <span class="tag d" data-t="Sem EPI">Sem EPI</span>
-          <span class="tag d" data-t="Bancada desorganizada">Bancada desorganizada</span>
-          <span class="tag d" data-t="Erro procedimental">Erro procedimental</span>
-          <span class="tag"   data-t="Boa evolução">Boa evolução</span>
-          <span class="tag"   data-t="Esforço notável">Esforço notável</span>
-          <span class="tag"   data-t="Liderança">Liderança</span>
+          <!-- Tags carregadas dinamicamente da planilha em irFormulario() -->
         </div>
         <textarea class="obs-ta" id="obsTA" rows="2" placeholder="Detalhe adicional..."></textarea>
       </div>
@@ -703,11 +697,13 @@ function carregarPlanilha(cb){
     var crits = colValsByKey(['criterios','criterio','crit']);
     var vets  = colValsByKey(['vetores','vetor','vet']);
     var insts = colValsByKey(['instrumentos','instrumento','inst','metodo','metodos','metodologia']);
+    var tags  = colValsByKey(['tagsobservacao','tags','tag','observacao','obs']);
 
     if(ucs.length)   novosDados.ucs          = ucs;
     if(crits.length) novosDados.criterios     = crits;
     if(vets.length)  novosDados.vetores       = vets;
     if(insts.length) novosDados.instrumentos  = insts;
+    if(tags.length)  novosDados.tags          = tags;
 
     // Defaults para campos sem correspondência na aba
     if(!novosDados.vetores.length)      novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
@@ -811,7 +807,24 @@ function irFormulario(nome){
   document.getElementById('selNm').textContent = nome;
   document.getElementById('selTr').textContent = turmaAtual || '';
   document.getElementById('obsTA').value = '';
-  document.querySelectorAll('.tag').forEach(function(t){ t.classList.remove('on'); });
+  // Renderiza tags da planilha (ou defaults se não houver)
+  var tagsList = (dados.tags && dados.tags.length) ? dados.tags : [
+    'Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental',
+    'Boa evolução','Esforço notável','Liderança'
+  ];
+  var tagsCont = document.getElementById('tagsCont');
+  tagsCont.innerHTML = '';
+  // Tags negativas (primeiras 4 do default ou metade da lista da planilha)
+  var negativas = ['fora','sem epi','desorganiz','erro','atraso','falta'];
+  tagsList.forEach(function(t){
+    var isNeg = negativas.some(function(n){ return t.toLowerCase().indexOf(n)>=0; });
+    var sp = document.createElement('span');
+    sp.className = 'tag' + (isNeg?' d':'');
+    sp.setAttribute('data-t', t);
+    sp.textContent = t;
+    sp.addEventListener('click', function(){ this.classList.toggle('on'); });
+    tagsCont.appendChild(sp);
+  });
   document.getElementById('slider').value = 7;
   notaUI(7);
   fillForms();
