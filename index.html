@@ -505,19 +505,29 @@ function csvUrl(aba){
 }
 
 function parseCSV(csv){
-  // Parser simples que respeita campos entre aspas
-  var linhas = csv.split('\n').filter(function(l){ return l.trim(); });
-  return linhas.map(function(l){
-    var cols=[], cur='', inQ=false;
-    for(var i=0;i<l.length;i++){
+  // Parser robusto: BOM, \r\n, aspas duplas escapadas ("")
+  csv = csv.replace(/^\uFEFF/,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var linhas = csv.split('\n');
+  var resultado = [];
+  for(var li=0;li<linhas.length;li++){
+    var l=linhas[li]; if(!l.trim()) continue;
+    var cols=[], cur='', inQ=false, i=0;
+    while(i<l.length){
       var ch=l[i];
-      if(ch==='"'){ inQ=!inQ; }
-      else if(ch===',' && !inQ){ cols.push(cur.trim()); cur=''; }
-      else cur+=ch;
+      if(inQ){
+        if(ch==='"' && l[i+1]==='"'){ cur+='"'; i+=2; }
+        else if(ch==='"'){ inQ=false; i++; }
+        else { cur+=ch; i++; }
+      } else {
+        if(ch==='"'){ inQ=true; i++; }
+        else if(ch===','){ cols.push(cur.trim()); cur=''; i++; }
+        else { cur+=ch; i++; }
+      }
     }
     cols.push(cur.trim());
-    return cols;
-  });
+    resultado.push(cols);
+  }
+  return resultado;
 }
 
 function carregarPlanilha(cb){
@@ -609,24 +619,47 @@ function carregarPlanilha(cb){
     if(!csv){ usarDefaults(); novosDados.colunas={}; feito(true); return; }
 
     var rows = parseCSV(csv);
+    if(rows.length < 1){ usarDefaults(); feito(true); return; }
 
-    // Detecta linha de cabeçalho: primeira com >= 3 células não-vazias
+    // ── Detecta linha de cabeçalho da aba Configurações ──────────────────────
+    // Procura linha que contenha palavras-chave de configuração (uc, crit, vetor, etc.)
+    // Funciona com 1 coluna ou 10 colunas, com ou sem título decorativo
+    var kwCfg = ['uc','ucs','crit','vetor','vet','instrumento','inst','turma','tag','metodo'];
     var hdrIdx = -1;
-    for(var ri=0; ri<Math.min(rows.length,6); ri++){
-      if(rows[ri].filter(function(c){ return c.trim().length>0; }).length >= 3){ hdrIdx=ri; break; }
+
+    // 1ª tentativa: linha com ao menos 1 célula batendo com keyword de configuração
+    for(var ri=0; ri<Math.min(rows.length,8); ri++){
+      var temKw = rows[ri].some(function(cel){
+        var n = normStr(cel);
+        return n.length>=2 && kwCfg.some(function(kw){ return n===kw || n.indexOf(kw)===0; });
+      });
+      if(temKw){ hdrIdx=ri; break; }
+    }
+
+    // 2ª tentativa: primeira linha não-decorativa com >= 1 célula não-vazia
+    if(hdrIdx < 0){
+      for(var ri=0; ri<Math.min(rows.length,6); ri++){
+        var nonEmpty = rows[ri].filter(function(cel){ return cel.trim().length>0; });
+        if(nonEmpty.length>=1 && normStr(nonEmpty[0]).indexOf('senai')<0){ hdrIdx=ri; break; }
+      }
     }
     if(hdrIdx < 0) hdrIdx = 0;
-    if(hdrIdx >= rows.length-1){ usarDefaults(); feito(true); return; }
 
     var hdrRaw = rows[hdrIdx];
+    // Filtra linhas de dados removendo linhas completamente vazias
+    var dataRows = rows.slice(hdrIdx+1).filter(function(r){
+      return r.some(function(cel){ return cel.trim().length>0; });
+    });
 
-    // ── Lê TODAS as colunas dinamicamente ──
-    // Qualquer coluna nova que você adicionar na planilha aparece aqui
+    if(dataRows.length === 0){ usarDefaults(); feito(true); return; }
+
+    // ── Lê TODAS as colunas dinamicamente ────────────────────────────────────
+    // Adicionar ou remover colunas na planilha reflete automaticamente no app
     hdrRaw.forEach(function(colNome, ci){
       var nome = colNome.trim();
       if(!nome) return;
       var seen = {};
-      var vals = rows.slice(hdrIdx+1).map(function(r){ return (r[ci]||'').trim(); }).filter(function(v){
+      var vals = dataRows.map(function(r){ return (r[ci]||'').trim(); }).filter(function(v){
         if(!v || seen[v]) return false;
         seen[v]=true; return true;
       });
