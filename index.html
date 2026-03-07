@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#00539F">
@@ -20,46 +21,32 @@ body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);height:
 .bg{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0a1628 0%,#00274d 50%,#0a1628 100%);}
 .bg::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,83,159,0.3) 0%,transparent 70%);top:-150px;right:-150px;animation:pulse 6s ease-in-out infinite;}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-
-/* APP */
 .app{position:fixed;inset:0;z-index:1;max-width:480px;margin:0 auto;display:flex;flex-direction:column;}
-
-/* HEADER */
 .header{flex-shrink:0;padding:52px 24px 14px;display:flex;align-items:center;justify-content:space-between;}
 .logo-badge{background:var(--vermelho);color:white;font-weight:800;font-size:0.75rem;letter-spacing:0.12em;padding:5px 10px;border-radius:8px;}
 .logo-txt{color:rgba(255,255,255,0.55);font-size:0.8rem;margin-left:10px;}
 .hdate{color:rgba(255,255,255,0.4);font-size:0.7rem;text-align:right;line-height:1.5;}
-
-/* TURMA BADGE — aparece quando turma está selecionada */
 .turma-bar{flex-shrink:0;display:none;align-items:center;justify-content:space-between;padding:0 20px 12px;}
 .turma-bar.on{display:flex;}
 .turma-pill{background:rgba(0,83,159,0.3);border:1px solid rgba(0,83,159,0.5);border-radius:50px;padding:6px 14px;color:white;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:6px;}
 .turma-pill span{color:rgba(255,255,255,0.5);font-weight:400;}
 .turma-trocar{color:rgba(255,255,255,0.35);font-size:0.72rem;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:6px 0;}
-
-/* STEPS */
 .steps{flex-shrink:0;display:flex;gap:6px;padding:0 24px 14px;}
 .dot{height:4px;border-radius:4px;background:rgba(255,255,255,0.15);flex:1;transition:background 0.4s;}
 .dot.a{background:var(--azul)}.dot.d{background:var(--verde)}
-
-/* TELAS */
 .scr{display:none;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px 48px;}
 .scr.on{display:flex;animation:fadeIn 0.2s ease;}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .scr-title{color:white;font-size:1.4rem;font-weight:700;margin-bottom:4px;}
 .scr-sub{color:rgba(255,255,255,0.4);font-size:0.82rem;margin-bottom:18px;}
-
-/* INPUTS */
-.inp,.txta{-webkit-appearance:none;appearance:none;width:100%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:14px 16px;font-family:'Sora',sans-serif;font-size:16px;color:white;outline:none;display:block;transition:border-color 0.2s;}
-.inp::placeholder,.txta::placeholder{color:rgba(255,255,255,0.3);}
-.inp:focus,.txta:focus{border-color:var(--azul);background:rgba(255,255,255,0.15);}
+.inp{-webkit-appearance:none;appearance:none;width:100%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:14px 16px;font-family:'Sora',sans-serif;font-size:16px;color:white;outline:none;display:block;transition:border-color 0.2s;}
+.inp::placeholder{color:rgba(255,255,255,0.3);}
+.inp:focus{border-color:var(--azul);background:rgba(255,255,255,0.15);}
 .flbl{display:block;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-bottom:6px;}
 .fwrap{margin-bottom:16px;}
 .info-box{background:rgba(0,83,159,0.2);border:1px solid rgba(0,83,159,0.4);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:0.82rem;color:rgba(255,255,255,0.7);line-height:1.7;}
 .info-box strong{color:white;}
 .hint{color:rgba(255,255,255,0.3);font-size:0.72rem;margin-top:5px;line-height:1.5;}
-
-/* BOTÕES */
 .btn{-webkit-appearance:none;appearance:none;width:100%;padding:17px;border:none;border-radius:13px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;}
 .btn:active{opacity:0.82}.btn:disabled{opacity:0.45}
 .btn-primary{background:linear-gradient(135deg,var(--azul),var(--azul-dark));color:white;box-shadow:0 4px 20px rgba(0,83,159,0.35);margin-top:4px;margin-bottom:16px;}
@@ -67,14 +54,10 @@ body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);height:
 .btn-dim{background:rgba(0,83,159,0.25);color:white;border:none;margin-bottom:10px;}
 .btn-orange{background:linear-gradient(135deg,var(--laranja),#C2410C);color:white;box-shadow:0 4px 20px rgba(234,88,12,0.35);margin-top:4px;margin-bottom:16px;}
 .btn-back{-webkit-appearance:none;background:none;border:none;color:rgba(255,255,255,0.5);font-family:'Sora',sans-serif;font-size:0.85rem;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;padding:4px 0;-webkit-tap-highlight-color:transparent;}
-
-/* LOADING */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;}
 .spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,0.1);border-top-color:var(--azul);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{color:rgba(255,255,255,0.5);font-size:0.85rem;}
-
-/* CARDS DE TURMA */
 .turma-grid{display:flex;flex-direction:column;gap:10px;}
 .turma-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:18px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:all 0.2s;}
 .turma-card:active{background:rgba(0,83,159,0.3);border-color:var(--azul);transform:scale(0.98);}
@@ -83,16 +66,12 @@ body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);height:
 .tc-nome{color:white;font-size:0.95rem;font-weight:700;}
 .tc-info{color:rgba(255,255,255,0.4);font-size:0.75rem;margin-top:3px;}
 .tc-arrow{margin-left:auto;color:rgba(255,255,255,0.25);font-size:1.2rem;}
-
-/* MODO SELECTOR */
 .modo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
 .modo-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:20px 14px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:all 0.2s;}
 .modo-card:active{transform:scale(0.96);}
 .modo-icon{font-size:2rem;margin-bottom:8px;}
 .modo-title{color:white;font-size:0.9rem;font-weight:700;margin-bottom:4px;}
 .modo-desc{color:rgba(255,255,255,0.4);font-size:0.72rem;line-height:1.4;}
-
-/* BUSCA / LISTA ALUNOS */
 .search-box{background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:13px;display:flex;align-items:center;padding:0 14px;margin-bottom:14px;}
 .search-box input{-webkit-appearance:none;background:transparent;border:none;outline:none;color:white;font-family:'Sora',sans-serif;font-size:16px;padding:14px 0;flex:1;}
 .search-box input::placeholder{color:rgba(255,255,255,0.3);}
@@ -101,8 +80,6 @@ body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);height:
 .av{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--azul),var(--azul-dark));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.85rem;}
 .an{color:white;font-size:0.92rem;font-weight:500;}
 .as{color:rgba(255,255,255,0.38);font-size:0.72rem;margin-top:2px;}
-
-/* FORM CARD */
 .form-card{background:white;border-radius:22px 22px 0 0;padding:22px 18px 20px;margin:0 -20px;flex:1;}
 .sel-box{display:flex;align-items:center;gap:12px;background:var(--cinza);border-radius:11px;padding:11px 13px;margin-bottom:18px;}
 .sel-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--azul),var(--azul-dark));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.78rem;}
@@ -132,8 +109,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .obs-ta:focus{border-color:var(--azul);background:white;}
 .btn-salvar{-webkit-appearance:none;appearance:none;width:100%;padding:17px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--azul),var(--azul-dark));color:white;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:10px;box-shadow:0 4px 20px rgba(0,83,159,0.35);display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .btn-salvar:active{opacity:0.85}.btn-salvar:disabled{opacity:0.45}
-
-/* VARREDURA */
 .sweep-header{background:rgba(234,88,12,0.15);border:1px solid rgba(234,88,12,0.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
 .sweep-title{color:#FB923C;font-size:0.88rem;font-weight:700;margin-bottom:2px;}
 .sweep-sub{color:rgba(255,255,255,0.45);font-size:0.76rem;}
@@ -152,8 +127,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .sw-btn{-webkit-appearance:none;appearance:none;padding:8px 2px;border:2px solid var(--cinza2);border-radius:8px;background:white;font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;color:var(--texto2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .sw-btn:active{transform:scale(0.9)}.sw-btn.on{border-color:var(--azul);background:var(--azul);color:white;}
 .sw-confirm{-webkit-appearance:none;appearance:none;width:100%;margin-top:10px;padding:11px;border:none;border-radius:10px;background:var(--verde);color:white;font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-
-/* SUCESSO */
 .suc-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:16px 0;text-align:center;}
 .suc-icon{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.3rem;margin-bottom:20px;animation:popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);}
 .suc-icon.verde{background:linear-gradient(135deg,var(--verde),#047857);box-shadow:0 8px 32px rgba(5,150,105,0.4);}
@@ -164,8 +137,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .suc-card{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:13px;padding:14px 18px;margin-bottom:22px;text-align:left;}
 .sr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.07);}
 .sr:last-child{border:none}.sl{color:rgba(255,255,255,0.38);font-size:0.76rem}.sv{color:white;font-size:0.86rem;font-weight:600;}
-
-/* TOAST / PENDING */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:#1e293b;color:white;padding:12px 20px;border-radius:50px;font-size:0.82rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:200;transition:transform 0.3s ease;white-space:nowrap;}
 .toast.on{transform:translateX(-50%) translateY(0);}
 .toast.err{background:var(--vermelho)}.toast.ok{background:var(--verde)}.toast.wrn{background:var(--amarelo);color:#1a1a1a;}
@@ -181,7 +152,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 <div class="toast" id="toast"></div>
 
 <div class="app">
-  <!-- HEADER -->
   <div class="header">
     <div style="display:flex;align-items:center">
       <span class="logo-badge">SENAI</span>
@@ -190,20 +160,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="hdate" id="hdate"></div>
   </div>
 
-  <!-- TURMA ATIVA (aparece depois de selecionar turma) -->
   <div class="turma-bar" id="turmaBar">
     <div class="turma-pill">🏫 <span>Turma:</span> <strong id="turmaNomeBar">—</strong></div>
     <div class="turma-trocar" id="btnTrocarTurma">Trocar turma ›</div>
   </div>
 
-  <!-- STEPS -->
   <div class="steps">
     <div class="dot a" id="d1"></div>
     <div class="dot"   id="d2"></div>
     <div class="dot"   id="d3"></div>
   </div>
 
-  <!-- ══ TELA 0: SETUP ══ -->
+  <!-- TELA 0: SETUP -->
   <div class="scr on" id="s0">
     <div class="scr-title">Configuração Inicial</div>
     <div class="scr-sub">Preencha uma vez, use sempre.</div>
@@ -221,10 +189,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="hint">Encontre na URL da planilha: docs.google.com/spreadsheets/d/<strong style="color:rgba(255,255,255,0.6)">ID_AQUI</strong>/edit</div>
     </div>
     <button class="btn btn-primary" id="btnSetup">✅ Salvar e Carregar Dados</button>
-    <div class="clink"><a>v1.4 · SENAI Avaliador</a></div>
+    <div class="clink"><a>v1.5 · SENAI Avaliador</a></div>
   </div>
 
-  <!-- ══ TELA 1: LOADING ══ -->
+  <!-- TELA 1: LOADING -->
   <div class="scr" id="s1">
     <div class="loading">
       <div class="spinner"></div>
@@ -232,7 +200,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
   </div>
 
-  <!-- ══ TELA 2: ESCOLHER TURMA ══ -->
+  <!-- TELA 2: ESCOLHER TURMA -->
   <div class="scr" id="s2">
     <div class="scr-title">Qual turma?</div>
     <div class="scr-sub" id="s2sub">Selecione para começar a avaliar</div>
@@ -242,7 +210,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="clink"><a id="lkCfg">⚙️ Reconfigurar</a></div>
   </div>
 
-  <!-- ══ TELA 3: MODO DE AVALIAÇÃO ══ -->
+  <!-- TELA 3: MODO -->
   <div class="scr" id="s3">
     <div class="scr-title">Como avaliar?</div>
     <div class="scr-sub">Escolha o modo</div>
@@ -264,7 +232,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
   </div>
 
-  <!-- ══ TELA 4A: LISTA DE ALUNOS (INDIVIDUAL) ══ -->
+  <!-- TELA 4A: LISTA ALUNOS -->
   <div class="scr" id="s4a">
     <div class="scr-title">Quem você está avaliando?</div>
     <div class="scr-sub">Toque no nome para iniciar</div>
@@ -276,7 +244,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="clink"><a id="lkVoltar4a">← Voltar</a></div>
   </div>
 
-  <!-- ══ TELA 4B: CONFIG VARREDURA ══ -->
+  <!-- TELA 4B: CONFIG VARREDURA -->
   <div class="scr" id="s4b">
     <button class="btn-back" id="btnBack4b">← Voltar</button>
     <div class="scr-title">⚡ Configurar Varredura</div>
@@ -285,13 +253,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="swrap"><label>📚 Unidade Curricular</label>
         <select id="swUcSel"><option value="">Selecione a UC...</option></select></div>
       <div class="two">
-        <div class="swrap"><label>🎯 Vetor</label>
-          <select id="swVetSel"></select></div>
-        <div class="swrap"><label>📝 Instrumento</label>
-          <select id="swInstSel"></select></div>
+        <div class="swrap"><label>🎯 Vetor</label><select id="swVetSel"></select></div>
+        <div class="swrap"><label>📝 Instrumento</label><select id="swInstSel"></select></div>
       </div>
-      <div class="swrap"><label>🔬 Critério</label>
-        <select id="swCritSel"></select></div>
+      <div class="swrap"><label>🔬 Critério</label><select id="swCritSel"></select></div>
       <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;color:#166534;">
         💡 Esses valores valem para <strong>todos os alunos</strong>. Você só define a nota de cada um.
       </div>
@@ -299,7 +264,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
   </div>
 
-  <!-- ══ TELA 5A: FORMULÁRIO INDIVIDUAL ══ -->
+  <!-- TELA 5A: FORMULÁRIO INDIVIDUAL -->
   <div class="scr" id="s5a">
     <button class="btn-back" id="btnBack5a">← Trocar aluno</button>
     <div class="form-card">
@@ -328,21 +293,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       </div>
       <div style="margin-bottom:14px">
         <label class="nota-lbl">💬 Observação (opcional)</label>
-        <div class="tags" id="tagsCont">
-          <!-- Tags carregadas dinamicamente da planilha em irFormulario() -->
-        </div>
+        <div class="tags" id="tagsCont"></div>
         <textarea class="obs-ta" id="obsTA" rows="2" placeholder="Detalhe adicional..."></textarea>
       </div>
       <button class="btn-salvar" id="btnSalvar">💾 Registrar Avaliação</button>
     </div>
   </div>
 
-  <!-- ══ TELA 5B: VARREDURA ══ -->
+  <!-- TELA 5B: VARREDURA -->
   <div class="scr" id="s5b">
     <button class="btn-back" id="btnBack5b">← Reconfigurar</button>
     <div class="sweep-header">
       <div class="sweep-title" id="swTitle">⚡ Varredura</div>
-      <div class="sweep-sub"   id="swSub"></div>
+      <div class="sweep-sub" id="swSub"></div>
       <div style="height:8px"></div>
       <div style="display:flex;align-items:center">
         <span style="color:rgba(255,255,255,0.5);font-size:0.72rem">Progresso</span>
@@ -357,7 +320,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
   </div>
 
-  <!-- ══ TELA 6A: SUCESSO INDIVIDUAL ══ -->
+  <!-- TELA 6A: SUCESSO INDIVIDUAL -->
   <div class="scr" id="s6a">
     <div class="suc-wrap">
       <div class="suc-icon verde">✓</div>
@@ -369,7 +332,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
   </div>
 
-  <!-- ══ TELA 6B: SUCESSO VARREDURA ══ -->
+  <!-- TELA 6B: SUCESSO VARREDURA -->
   <div class="scr" id="s6b">
     <div class="suc-wrap">
       <div class="suc-icon laranja">⚡</div>
@@ -380,31 +343,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <button class="btn btn-ghost"  id="btnVoltarModo">🏠 Início</button>
     </div>
   </div>
-</div><!-- /app -->
+</div>
 
 <script>
-// ══════════════════════════════════════════
-// ESTADO GLOBAL
-// ══════════════════════════════════════════
-var cfg      = {};   // configuração salva
-var dados    = {};   // { turmas: [...], alunos: {turma: [...]}, ucs, vetores, instrumentos, criterios }
-var turmaAtual = null;
-var alunoAtual = null;
-var queue    = [];
-var swNotas  = {};
-var swCfg    = {};
+var cfg = {}, dados = {}, turmaAtual = null, alunoAtual = null, queue = [], swNotas = {}, swCfg = {};
 
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 window.addEventListener('load', function(){
-  // Data no header
   var n = new Date();
   document.getElementById('hdate').innerHTML =
     n.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}) +
     '<br>' + n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  // ── Registra TODOS os botões SEMPRE — independente do fluxo ──────────────
+  // Registra TODOS os botões UMA VEZ
   on('btnSetup',           'click', setup);
   on('btnTrocarTurma',     'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
   on('btnRecarregar',      'click', function(){
@@ -437,15 +390,12 @@ window.addEventListener('load', function(){
       notaUI(+this.dataset.v);
     });
   });
-  document.querySelectorAll('.tag').forEach(function(t){
-    t.addEventListener('click', function(){ this.classList.toggle('on'); });
-  });
   notaUI(7);
   pendUI();
   window.addEventListener('online',  sync);
   window.addEventListener('offline', function(){ toast('📴 Offline','wrn'); });
 
-  // ── Decide qual tela mostrar ──────────────────────────────────────────────
+  // Carrega config salva
   try {
     var s = localStorage.getItem('snc4');
     if(s){
@@ -455,7 +405,9 @@ window.addEventListener('load', function(){
       if(d) dados = JSON.parse(d);
       pendUI();
       if(dados.turmas && dados.turmas.length > 0){
+        // Mostra imediatamente com cache, re-busca em background
         irTelas2();
+        carregarPlanilha(function(ok){ if(ok){ renderTurmas(); fillForms(); } });
       } else {
         show('s1');
         carregarPlanilha(function(){ irTelas2(); });
@@ -464,7 +416,6 @@ window.addEventListener('load', function(){
     }
   } catch(e){}
 
-  // Sem config: vai para setup
   show('s0'); dots(0);
 });
 
@@ -476,14 +427,10 @@ function setup(){
   var sheetId = (document.getElementById('fSheetId').value||'').trim();
   if(!url)     { toast('⚠️ Cole a URL do Apps Script','err'); return; }
   if(!sheetId) { toast('⚠️ Cole o ID da planilha','err'); return; }
-
-  cfg = { url: url, sheetId: sheetId };
+  cfg = { url:url, sheetId:sheetId };
   try{ localStorage.setItem('snc4', JSON.stringify(cfg)); }catch(e){}
-
-  show('s1');
-  setLoadingTxt('Carregando turmas e alunos...');
+  show('s1'); setLoadingTxt('Carregando turmas e alunos...');
   carregarPlanilha(function(ok){
-    registrarBotoes(); // registra botões que dependem de dados carregados
     if(ok) irTelas2();
     else { toast('⚠️ Erro ao carregar — verifique o ID','err'); irSetup(); }
   });
@@ -496,7 +443,8 @@ function irSetup(){
 }
 
 // ══════════════════════════════════════════
-// CARREGAMENTO DA PLANILHA
+// PLANILHA — igual ao código que funcionava,
+// só corrigido o bug de promessas=2 com 2 fetches
 // ══════════════════════════════════════════
 function csvUrl(aba){
   return 'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+
@@ -504,23 +452,21 @@ function csvUrl(aba){
 }
 
 function parseCSV(csv){
-  // Parser robusto: BOM, \r\n, aspas duplas escapadas ("")
   csv = csv.replace(/^\uFEFF/,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  var linhas = csv.split('\n');
-  var resultado = [];
-  for(var li=0;li<linhas.length;li++){
+  var linhas = csv.split('\n'), resultado = [];
+  for(var li=0; li<linhas.length; li++){
     var l=linhas[li]; if(!l.trim()) continue;
     var cols=[], cur='', inQ=false, i=0;
     while(i<l.length){
       var ch=l[i];
       if(inQ){
-        if(ch==='"' && l[i+1]==='"'){ cur+='"'; i+=2; }
-        else if(ch==='"'){ inQ=false; i++; }
-        else { cur+=ch; i++; }
+        if(ch==='"'&&l[i+1]==='"'){cur+='"';i+=2;}
+        else if(ch==='"'){inQ=false;i++;}
+        else{cur+=ch;i++;}
       } else {
-        if(ch==='"'){ inQ=true; i++; }
-        else if(ch===','){ cols.push(cur.trim()); cur=''; i++; }
-        else { cur+=ch; i++; }
+        if(ch==='"'){inQ=true;i++;}
+        else if(ch===','){cols.push(cur.trim());cur='';i++;}
+        else{cur+=ch;i++;}
       }
     }
     cols.push(cur.trim());
@@ -530,52 +476,35 @@ function parseCSV(csv){
 }
 
 function carregarPlanilha(cb){
-  var promessas = 0, feitos = 0, erros = 0;
-  var novosDados = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[] };
+  var total=2, feitos=0, erros=0;
+  var nd = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[], tags:[] };
 
-  function feito(ok){ feitos++; if(!ok) erros++; if(feitos===promessas) finalizar(); }
-
-  function finalizar(){
-    if(erros === promessas){ cb(false); return; }
-    dados = novosDados;
+  function feito(ok){
+    feitos++; if(!ok) erros++;
+    if(feitos < total) return;
+    if(erros===total){ cb(false); return; }
+    dados = nd;
     try{ localStorage.setItem('snd4', JSON.stringify(dados)); }catch(e){}
     cb(true);
   }
 
-  promessas = 2; // Alunos + Configurações
-
-  // ── Aba Alunos ────────────────────────────────────────────────────────────
+  // ── Aba Alunos ─────────────────────────────────────────────────────────
   fetch(csvUrl('Alunos'))
     .then(function(r){ return r.text(); })
     .then(function(csv){
       var rows = parseCSV(csv);
       if(rows.length < 2){ feito(false); return; }
 
-      // Detecta linha de cabeçalho dinamicamente (pula título mesclado se houver)
-      // Procura primeira linha que contenha palavras-chave de cabeçalho
-      var hdrIdx = -1;
-      var kwHdr = ['nome','aluno','turma','curso','id','matricula'];
-      for(var ri=0; ri<Math.min(rows.length,5); ri++){
-        var nonEmpty = rows[ri].filter(function(c){ return c.trim().length>0; }).length;
-        if(nonEmpty < 2) continue;
-        var temKw = rows[ri].some(function(cel){
-          var n = normStr(cel);
-          return kwHdr.some(function(kw){ return n.indexOf(kw)>=0; });
-        });
-        if(temKw){ hdrIdx=ri; break; }
+      // Linha 1 (idx 0) = título decorativo, Linha 2 (idx 1) = cabeçalhos reais
+      var hdrIdx = 1;
+      // Segurança: se a linha 1 já parecer cabeçalho (sem título), usa idx 0
+      if(rows[0].some(function(c){ return c.toLowerCase().indexOf('nome')>=0||c.toLowerCase().indexOf('turma')>=0; })){
+        hdrIdx = 0;
       }
-      // Fallback: primeira linha com >= 3 células não-vazias
-      if(hdrIdx < 0){
-        for(var ri=0; ri<Math.min(rows.length,5); ri++){
-          if(rows[ri].filter(function(c){ return c.trim().length>0; }).length>=3){ hdrIdx=ri; break; }
-        }
-      }
-      if(hdrIdx < 0) hdrIdx = 0;
 
-      // Passa hdrRaw direto — idxHdr chama normStr internamente
-      var hdrRaw = rows[hdrIdx];
-      var iNome  = idxHdr(hdrRaw, ['nomecompleto','nome','aluno']);
-      var iTurma = idxHdr(hdrRaw, ['turmacurso','turmacursos','turma','curso']);
+      var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase().trim(); });
+      var iNome  = idxCol(hdr, ['nome completo','nome','aluno']);
+      var iTurma = idxCol(hdr, ['turma / curso','turma/curso','turma','curso']);
 
       if(iNome < 0){ feito(false); return; }
 
@@ -584,200 +513,97 @@ function carregarPlanilha(cb){
         var turma = iTurma>=0 ? (r[iTurma]||'').trim() : 'Geral';
         if(!nome) return;
         if(!turma) turma = 'Geral';
-        if(!novosDados.alunos[turma]) novosDados.alunos[turma] = [];
-        if(novosDados.turmas.indexOf(turma) < 0) novosDados.turmas.push(turma);
-        novosDados.alunos[turma].push(nome);
+        if(!nd.alunos[turma]) nd.alunos[turma] = [];
+        if(nd.turmas.indexOf(turma) < 0) nd.turmas.push(turma);
+        nd.alunos[turma].push(nome);
       });
-      novosDados.turmas.sort();
+      nd.turmas.sort();
       feito(true);
     })
     .catch(function(){ feito(false); });
 
-  // ── Aba Configurações (tenta múltiplos nomes em cascata) ─────────────────
-  // Suporta: '⚙ Configurações', 'Configurações', 'Configuracoes', etc.
-  // A aba é DINÂMICA: colunas podem ser adicionadas/removidas livremente
-  function fetchCfgAba(nomes, idx, onDone){
-    if(idx >= nomes.length){ onDone(null); return; }
+  // ── Aba Configurações ──────────────────────────────────────────────────
+  // Tenta '⚙ Configurações' e 'Configurações' em sequência
+  function fetchCfg(nomes, idx){
+    if(idx >= nomes.length){
+      // Nenhum funcionou — usa defaults
+      aplicarDefaults(nd); feito(true); return;
+    }
     fetch(csvUrl(nomes[idx]))
       .then(function(r){ return r.text(); })
-      .then(function(txt){
-        // Sheets retorna HTML quando aba não existe
-        if(!txt || txt.trim().charAt(0)==='<'){ fetchCfgAba(nomes, idx+1, onDone); return; }
-        onDone(txt);
+      .then(function(csv){
+        // Google retorna HTML quando a aba não existe
+        if(!csv || csv.trim().charAt(0)==='<'){
+          fetchCfg(nomes, idx+1); return;
+        }
+        var rows = parseCSV(csv);
+        if(rows.length < 2){ fetchCfg(nomes, idx+1); return; }
+
+        // Linha 1 (idx 0) = título, Linha 2 (idx 1) = cabeçalhos
+        var hdrIdx = 1;
+        if(rows[0].some(function(c){ return c.toLowerCase().indexOf('uc')>=0||c.toLowerCase().indexOf('crit')>=0||c.toLowerCase().indexOf('vetor')>=0; })){
+          hdrIdx = 0;
+        }
+
+        var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase().trim(); });
+
+        function colVals(keywords){
+          var idx2 = -1;
+          for(var i=0; i<hdr.length; i++){
+            for(var k=0; k<keywords.length; k++){
+              if(hdr[i].indexOf(keywords[k]) >= 0){ idx2=i; break; }
+            }
+            if(idx2 >= 0) break;
+          }
+          if(idx2 < 0) return [];
+          var seen = {};
+          return rows.slice(hdrIdx+1).map(function(r){ return (r[idx2]||'').trim(); }).filter(function(v){
+            if(!v||seen[v]) return false; seen[v]=true; return true;
+          });
+        }
+
+        var ucs   = colVals(['uc','unidade']);
+        var crits = colVals(['crit']);
+        var vets  = colVals(['vetor']);
+        var insts = colVals(['instru']);
+        var tags  = colVals(['tag','observa']);
+
+        if(ucs.length)   nd.ucs          = ucs;
+        if(crits.length) nd.criterios    = crits;
+        if(vets.length)  nd.vetores      = vets;
+        if(insts.length) nd.instrumentos = insts;
+        if(tags.length)  nd.tags         = tags;
+
+        aplicarDefaults(nd);
+        feito(true);
       })
-      .catch(function(){ fetchCfgAba(nomes, idx+1, onDone); });
+      .catch(function(){ fetchCfg(nomes, idx+1); });
   }
 
-  fetchCfgAba(['⚙ Configurações','Configurações','Configuracoes','configuracoes','Configuração','Configuracao'], 0, function(csv){
-    function usarDefaults(){
-      novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
-      novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
-      novosDados.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
-    }
-
-    if(!csv){
-      console.warn('[SENAI] Aba Configuracoes nao encontrada — usando defaults');
-      usarDefaults(); novosDados.colunas={}; feito(true); return;
-    }
-
-    var rows = parseCSV(csv);
-    console.log('[SENAI] CSV Configuracoes — primeiras linhas:', rows.slice(0,4));
-    if(rows.length < 1){ usarDefaults(); feito(true); return; }
-
-    // ── Detecta linha de cabeçalho da aba Configurações ──────────────────────
-    // Procura linha que contenha palavras-chave de configuração (uc, crit, vetor, etc.)
-    // Funciona com 1 coluna ou 10 colunas, com ou sem título decorativo
-    var kwCfg = ['uc','ucs','crit','vetor','vet','instrumento','inst','turma','tag','metodo'];
-    var hdrIdx = -1;
-
-    // 1ª tentativa: linha com ao menos 1 célula batendo com keyword de configuração
-    for(var ri=0; ri<Math.min(rows.length,8); ri++){
-      var temKw = rows[ri].some(function(cel){
-        var n = normStr(cel);
-        return n.length>=2 && kwCfg.some(function(kw){ return n===kw || n.indexOf(kw)===0; });
-      });
-      if(temKw){ hdrIdx=ri; break; }
-    }
-
-    // 2ª tentativa: primeira linha não-decorativa com >= 1 célula não-vazia
-    if(hdrIdx < 0){
-      for(var ri=0; ri<Math.min(rows.length,6); ri++){
-        var nonEmpty = rows[ri].filter(function(cel){ return cel.trim().length>0; });
-        if(nonEmpty.length>=1 && normStr(nonEmpty[0]).indexOf('senai')<0){ hdrIdx=ri; break; }
-      }
-    }
-    if(hdrIdx < 0) hdrIdx = 0;
-    console.log('[SENAI] hdrIdx:', hdrIdx, 'cabecalho:', rows[hdrIdx]);
-
-    var hdrRaw = rows[hdrIdx];
-    // Filtra linhas de dados removendo linhas completamente vazias
-    var dataRows = rows.slice(hdrIdx+1).filter(function(r){
-      return r.some(function(cel){ return cel.trim().length>0; });
-    });
-
-    if(dataRows.length === 0){ usarDefaults(); feito(true); return; }
-
-    // ── Lê TODAS as colunas dinamicamente ────────────────────────────────────
-    // Adicionar ou remover colunas na planilha reflete automaticamente no app
-    hdrRaw.forEach(function(colNome, ci){
-      var nome = colNome.trim();
-      if(!nome) return;
-      var seen = {};
-      var vals = dataRows.map(function(r){ return (r[ci]||'').trim(); }).filter(function(v){
-        if(!v || seen[v]) return false;
-        seen[v]=true; return true;
-      });
-      if(vals.length>0) novosDados.colunas[nome] = vals;
-    });
-    console.log('[SENAI] Colunas:', JSON.stringify(novosDados.colunas).substring(0,400));
-
-    // ── Mapeia para campos fixos usando normStr ──
-    // Funciona mesmo com acentos: "Critérios" bate com keyword "criterios"
-    function colValsByKey(keywords){
-      var kwN = keywords.map(normStr);
-      var nomes = Object.keys(novosDados.colunas);
-      // 1) match exato
-      for(var k=0;k<kwN.length;k++)
-        for(var n=0;n<nomes.length;n++)
-          if(normStr(nomes[n])===kwN[k]) return novosDados.colunas[nomes[n]];
-      // 2) keyword contida no nome da coluna
-      for(var k=0;k<kwN.length;k++)
-        for(var n=0;n<nomes.length;n++)
-          if(normStr(nomes[n]).indexOf(kwN[k])>=0) return novosDados.colunas[nomes[n]];
-      // 3) nome da coluna contido na keyword
-      for(var k=0;k<kwN.length;k++)
-        for(var n=0;n<nomes.length;n++){
-          var nn=normStr(nomes[n]);
-          if(nn.length>=2 && kwN[k].indexOf(nn)>=0) return novosDados.colunas[nomes[n]];
-        }
-      return [];
-    }
-
-    var ucs   = colValsByKey(['ucs','uc','unidadecurricular','unidade']);
-    var crits = colValsByKey(['criterios','criterio','crit']);
-    var vets  = colValsByKey(['vetores','vetor','vet']);
-    var insts = colValsByKey(['instrumentos','instrumento','inst','metodo','metodos','metodologia']);
-    var tags  = colValsByKey(['tagsobservacao','tags','tag','observacao','obs']);
-
-    if(ucs.length)   novosDados.ucs          = ucs;
-    if(crits.length) novosDados.criterios     = crits;
-    if(vets.length)  novosDados.vetores       = vets;
-    if(insts.length) novosDados.instrumentos  = insts;
-    if(tags.length)  novosDados.tags          = tags;
-
-    // Defaults para campos sem correspondência na aba
-    if(!novosDados.vetores.length)      novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
-    if(!novosDados.instrumentos.length) novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
-    if(!novosDados.criterios.length)    novosDados.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
-
-    console.log('[SENAI] Configuracoes OK:', {ucs:novosDados.ucs.length, criterios:novosDados.criterios.length, vetores:novosDados.vetores.length, colunas:Object.keys(novosDados.colunas)});
-    feito(true);
-  });
+  fetchCfg(['⚙ Configurações','Configurações','Configuracoes'], 0);
 }
 
-// normStr: normaliza acentos (NFD) + remove não-letras + lowercase
-// Garante que "Critérios" -> "criterios", "Turma / Curso" -> "turmacurso"
-function normStr(s){
-  if(!s) return '';
-  var r = (s.normalize ? s.normalize('NFD').replace(/[\u0300-\u036f]/g,'') : s);
-  return r.replace(/[^a-zA-Z]/g,'').toLowerCase();
+function aplicarDefaults(nd){
+  if(!nd.vetores.length)      nd.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
+  if(!nd.instrumentos.length) nd.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
+  if(!nd.criterios.length)    nd.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
+  if(!nd.tags.length)         nd.tags         = ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
 }
 
-function idxHdr(hdr, keywords){
-  // hdr = array de strings originais (não normalizadas)
-  var kwN = keywords.map(normStr);
-  var hN  = hdr.map(normStr);
-  // 1) Match exato normalizado
-  for(var k=0;k<kwN.length;k++)
-    for(var i=0;i<hN.length;i++)
-      if(hN[i] && hN[i]===kwN[k]) return i;
-  // 2) Keyword contida no header (ex: 'nome' dentro de 'nomecompleto')
-  for(var k=0;k<kwN.length;k++)
-    for(var i=0;i<hN.length;i++)
-      if(hN[i] && hN[i].indexOf(kwN[k])>=0) return i;
-  // 3) Header contido na keyword (ex: 'uc' dentro de 'ucs')
-  for(var k=0;k<kwN.length;k++)
-    for(var i=0;i<hN.length;i++)
-      if(hN[i] && hN[i].length>=2 && kwN[k].indexOf(hN[i])>=0) return i;
+// Busca índice da coluna pelo nome (comparação simples, igual ao código que funcionava)
+function idxCol(hdr, keywords){
+  // 1) match exato
+  for(var k=0;k<keywords.length;k++)
+    for(var i=0;i<hdr.length;i++)
+      if(hdr[i]===keywords[k]) return i;
+  // 2) match parcial
+  for(var k=0;k<keywords.length;k++)
+    for(var i=0;i<hdr.length;i++)
+      if(hdr[i].indexOf(keywords[k])>=0) return i;
   return -1;
 }
 
 function setLoadingTxt(t){ document.getElementById('loadingTxt').textContent=t; }
-
-// ══════════════════════════════════════════
-// REGISTRA BOTÕES (após dados carregados)
-// ══════════════════════════════════════════
-function registrarBotoes(){
-  on('btnTrocarTurma',   'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
-  on('btnRecarregar',    'click', function(){ show('s1'); setLoadingTxt('Recarregando...'); carregarPlanilha(function(){ irTelas2(); }); });
-  on('lkCfg',           'click', function(e){ e.preventDefault(); irSetup(); });
-  on('modoIndividual',  'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('modoVarredura',   'click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnBack4b',       'click', function(){ show('s3'); dots(2); });
-  on('lkVoltar4a',      'click', function(){ show('s3'); dots(2); });
-  on('btnBack5a',       'click', function(){ show('s4a'); dots(3); });
-  on('btnChg',          'click', function(){ show('s4a'); dots(3); });
-  on('btnBack5b',       'click', function(){ show('s4b'); dots(3); });
-  on('btnSalvar',       'click', salvar);
-  on('btnMesmo',        'click', function(){ irFormulario(alunoAtual); });
-  on('btnNova',         'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('btnIniciarVarredura','click', iniciarVarredura);
-  on('btnEnviarTudo',   'click', enviarVarredura);
-  on('btnCancelarSw',   'click', function(){ show('s3'); dots(2); });
-  on('btnNovaVarredura','click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnVoltarModo',   'click', function(){ show('s3'); dots(2); });
-  on('slider', 'input', function(){ notaUI(+this.value); });
-  on('srch',   'input', function(){ listaAlunos(this.value); });
-  document.querySelectorAll('.nb').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.getElementById('slider').value=this.dataset.v; notaUI(+this.dataset.v);
-    });
-  });
-  document.querySelectorAll('.tag').forEach(function(t){
-    t.addEventListener('click', function(){ this.classList.toggle('on'); });
-  });
-  notaUI(7);
-}
 
 // ══════════════════════════════════════════
 // NAVEGAÇÃO
@@ -785,58 +611,29 @@ function registrarBotoes(){
 var ALL_SCR = ['s0','s1','s2','s3','s4a','s4b','s5a','s5b','s6a','s6b'];
 function show(id){
   ALL_SCR.forEach(function(x){ document.getElementById(x).classList.remove('on'); });
-  var el = document.getElementById(id);
-  el.classList.add('on');
-  el.scrollTop = 0;
+  var el=document.getElementById(id); el.classList.add('on'); el.scrollTop=0;
 }
-
-function irTelas2(){
-  atualizarTurmaBar();
-  renderTurmas();
-  show('s2'); dots(1);
-}
-
-function irModo(){
-  show('s3'); dots(2);
-}
+function irTelas2(){ atualizarTurmaBar(); renderTurmas(); show('s2'); dots(1); }
+function irModo(){ show('s3'); dots(2); }
 
 function irFormulario(nome){
   alunoAtual = nome;
   var ini = nome.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
   document.getElementById('selAv').textContent = ini;
   document.getElementById('selNm').textContent = nome;
-  document.getElementById('selTr').textContent = turmaAtual || '';
+  document.getElementById('selTr').textContent = turmaAtual||'';
   document.getElementById('obsTA').value = '';
-  // Renderiza tags da planilha (ou defaults se não houver)
-  var tagsList = (dados.tags && dados.tags.length) ? dados.tags : [
-    'Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental',
-    'Boa evolução','Esforço notável','Liderança'
-  ];
-  var tagsCont = document.getElementById('tagsCont');
-  tagsCont.innerHTML = '';
-  // Tags negativas (primeiras 4 do default ou metade da lista da planilha)
-  var negativas = ['fora','sem epi','desorganiz','erro','atraso','falta'];
-  tagsList.forEach(function(t){
-    var isNeg = negativas.some(function(n){ return t.toLowerCase().indexOf(n)>=0; });
-    var sp = document.createElement('span');
-    sp.className = 'tag' + (isNeg?' d':'');
-    sp.setAttribute('data-t', t);
-    sp.textContent = t;
-    sp.addEventListener('click', function(){ this.classList.toggle('on'); });
-    tagsCont.appendChild(sp);
-  });
   document.getElementById('slider').value = 7;
   notaUI(7);
   fillForms();
+  renderTags();
   show('s5a'); dots(3);
 }
 
 function dots(s){
   for(var i=1;i<=3;i++){
-    var d=document.getElementById('d'+i);
-    d.className='dot';
-    if(i<s) d.classList.add('d');
-    else if(i===s) d.classList.add('a');
+    var d=document.getElementById('d'+i); d.className='dot';
+    if(i<s) d.classList.add('d'); else if(i===s) d.classList.add('a');
   }
 }
 
@@ -844,82 +641,52 @@ function dots(s){
 // TURMA BAR
 // ══════════════════════════════════════════
 function atualizarTurmaBar(){
-  var bar = document.getElementById('turmaBar');
-  if(turmaAtual){
-    bar.classList.add('on');
-    document.getElementById('turmaNomeBar').textContent = turmaAtual;
-  } else {
-    bar.classList.remove('on');
-  }
+  var bar=document.getElementById('turmaBar');
+  if(turmaAtual){ bar.classList.add('on'); document.getElementById('turmaNomeBar').textContent=turmaAtual; }
+  else bar.classList.remove('on');
 }
 
 // ══════════════════════════════════════════
 // RENDER TURMAS
 // ══════════════════════════════════════════
 function renderTurmas(){
-  var grid = document.getElementById('turmaGrid');
-  var turmas = dados.turmas || [];
-  grid.innerHTML = '';
-
+  var grid=document.getElementById('turmaGrid');
+  var turmas=dados.turmas||[];
+  grid.innerHTML='';
   if(!turmas.length){
-    grid.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7">Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.</div>';
-    document.getElementById('s2sub').textContent = 'Nenhuma turma encontrada';
-    return;
+    grid.innerHTML='<div style="color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7">Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.</div>';
+    document.getElementById('s2sub').textContent='Nenhuma turma encontrada'; return;
   }
-
-  var n = turmas.reduce(function(acc,t){ return acc+(dados.alunos[t]||[]).length; }, 0);
-  document.getElementById('s2sub').textContent = turmas.length+' turma(s) · '+n+' aluno(s)';
-
-  turmas.forEach(function(turma){
-    var alunos = dados.alunos[turma] || [];
-    var icons = ['🏭','⚙️','🔧','📐','🛠️','💡','🔩','📊'];
-    var icon  = icons[turmas.indexOf(turma) % icons.length];
-
-    var card = document.createElement('div');
-    card.className = 'turma-card' + (turmaAtual===turma?' sel':'');
-    card.innerHTML =
-      '<div class="tc-icon">'+icon+'</div>'+
-      '<div style="flex:1">'+
-        '<div class="tc-nome">'+turma+'</div>'+
-        '<div class="tc-info">'+alunos.length+' aluno'+(alunos.length!==1?'s':'')+'</div>'+
-      '</div>'+
+  var n=turmas.reduce(function(acc,t){ return acc+(dados.alunos[t]||[]).length; },0);
+  document.getElementById('s2sub').textContent=turmas.length+' turma(s) · '+n+' aluno(s)';
+  var icons=['🏭','⚙️','🔧','📐','🛠️','💡','🔩','📊'];
+  turmas.forEach(function(turma,idx){
+    var alunos=dados.alunos[turma]||[];
+    var card=document.createElement('div');
+    card.className='turma-card'+(turmaAtual===turma?' sel':'');
+    card.innerHTML=
+      '<div class="tc-icon">'+icons[idx%icons.length]+'</div>'+
+      '<div style="flex:1"><div class="tc-nome">'+turma+'</div>'+
+      '<div class="tc-info">'+alunos.length+' aluno'+(alunos.length!==1?'s':'')+'</div></div>'+
       '<span class="tc-arrow">›</span>';
-
-    card.addEventListener('click', (function(t){
-      return function(){
-        turmaAtual = t;
-        atualizarTurmaBar();
-        irModo();
-      };
-    })(turma));
-
+    card.addEventListener('click',(function(t){ return function(){ turmaAtual=t; atualizarTurmaBar(); irModo(); }; })(turma));
     grid.appendChild(card);
   });
 }
 
 // ══════════════════════════════════════════
-// LISTA DE ALUNOS
+// LISTA ALUNOS
 // ══════════════════════════════════════════
 function listaAlunos(q){
-  var alunos = turmaAtual ? (dados.alunos[turmaAtual]||[]) : [];
-  var lista  = alunos.filter(function(a){ return a.toLowerCase().indexOf(q.toLowerCase())>=0; });
-  var cont   = document.getElementById('aList');
-  cont.innerHTML = '';
-
-  if(!lista.length){
-    cont.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem">Nenhum aluno encontrado</div>';
-    return;
-  }
-
+  var alunos=turmaAtual?(dados.alunos[turmaAtual]||[]):[];
+  var lista=alunos.filter(function(a){ return a.toLowerCase().indexOf(q.toLowerCase())>=0; });
+  var cont=document.getElementById('aList'); cont.innerHTML='';
+  if(!lista.length){ cont.innerHTML='<div style="color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem">Nenhum aluno encontrado</div>'; return; }
   lista.forEach(function(nm){
-    var ini = nm.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
-    var d   = document.createElement('div');
-    d.className = 'ai';
-    d.innerHTML =
-      '<div class="av">'+ini+'</div>'+
-      '<div><div class="an">'+nm+'</div><div class="as">'+(turmaAtual||'')+'</div></div>'+
-      '<span style="margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem">›</span>';
-    d.addEventListener('click', (function(n){ return function(){ irFormulario(n); }; })(nm));
+    var ini=nm.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
+    var d=document.createElement('div'); d.className='ai';
+    d.innerHTML='<div class="av">'+ini+'</div><div><div class="an">'+nm+'</div><div class="as">'+(turmaAtual||'')+'</div></div><span style="margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem">›</span>';
+    d.addEventListener('click',(function(n){ return function(){ irFormulario(n); }; })(nm));
     cont.appendChild(d);
   });
 }
@@ -927,13 +694,11 @@ function listaAlunos(q){
 // ══════════════════════════════════════════
 // FILL SELECTS
 // ══════════════════════════════════════════
-function fillSelect(id, vals, placeholder){
+function fillSelect(id,vals,placeholder){
   var s=document.getElementById(id); if(!s) return;
   var prev=s.value;
   s.innerHTML='<option value="">'+(placeholder||'Selecione...')+'</option>';
-  (vals||[]).forEach(function(v){
-    var o=document.createElement('option'); o.value=v; o.textContent=v; s.appendChild(o);
-  });
+  (vals||[]).forEach(function(v){ var o=document.createElement('option'); o.value=v; o.textContent=v; s.appendChild(o); });
   if(prev) s.value=prev;
 }
 
@@ -948,6 +713,22 @@ function fillForms(){
   fillSelect('swCritSel',dados.criterios||[],     'Critério...');
 }
 
+// Tags dinâmicas da planilha (coluna Tags Observação)
+function renderTags(){
+  var tagsList = dados.tags && dados.tags.length ? dados.tags :
+    ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
+  var cont = document.getElementById('tagsCont'); cont.innerHTML='';
+  var negKw = ['fora','sem epi','desorganiz','erro','atraso','falta','ausente'];
+  tagsList.forEach(function(t){
+    var isNeg = negKw.some(function(k){ return t.toLowerCase().indexOf(k)>=0; });
+    var sp = document.createElement('span');
+    sp.className='tag'+(isNeg?' d':'');
+    sp.setAttribute('data-t',t); sp.textContent=t;
+    sp.addEventListener('click',function(){ this.classList.toggle('on'); });
+    cont.appendChild(sp);
+  });
+}
+
 // ══════════════════════════════════════════
 // NOTA
 // ══════════════════════════════════════════
@@ -955,9 +736,7 @@ function notaUI(v){
   var el=document.getElementById('notaNum');
   el.innerHTML=v.toFixed(1).replace('.',',')+'<span>/10</span>';
   el.style.color=v<5?'#E30613':v<7?'#F59E0B':'#059669';
-  document.querySelectorAll('.nb').forEach(function(b){
-    b.classList.toggle('on',parseFloat(b.dataset.v)===v);
-  });
+  document.querySelectorAll('.nb').forEach(function(b){ b.classList.toggle('on',parseFloat(b.dataset.v)===v); });
 }
 
 // ══════════════════════════════════════════
@@ -967,7 +746,7 @@ function salvar(){
   var uc=document.getElementById('ucSel').value;
   if(!uc){ toast('⚠️ Selecione a Unidade Curricular','err'); return; }
   var tags=[];
-  document.querySelectorAll('.tag.on').forEach(function(t){ tags.push(t.dataset.t); });
+  document.querySelectorAll('#tagsCont .tag.on').forEach(function(t){ tags.push(t.dataset.t); });
   var obs=tags.join(' · ');
   var extra=(document.getElementById('obsTA').value||'').trim();
   if(extra) obs+=(obs?' · ':'')+extra;
@@ -981,13 +760,13 @@ function salvar(){
   };
   var btn=document.getElementById('btnSalvar');
   btn.disabled=true; btn.textContent='⏳ Enviando...';
-  enviar(reg, function(st){
+  enviar(reg,function(st){
     btn.disabled=false; btn.innerHTML='💾 Registrar Avaliação';
     show('s6a'); dots(3);
     document.getElementById('sucInfo').textContent =
       st==='offline'?'⏳ Salvo localmente — enviará ao reconectar.':'✅ Enviado ao Google Sheets.';
     document.getElementById('sucCard').innerHTML =
-      rw('Aluno',reg.aluno)+rw('UC',reg.uc.split(':')[0])+
+      rw('Aluno',reg.aluno)+rw('UC',reg.uc)+
       rw('Critério',reg.criterio)+
       rw('Nota',reg.nota.toFixed(1).replace('.',','),reg.nota>=6?'#059669':'#E30613')+
       rw('Vetor',reg.vetor)+(reg.observacao?rw('Obs.',reg.observacao):'');
@@ -1000,37 +779,26 @@ function salvar(){
 function iniciarVarredura(){
   var uc=document.getElementById('swUcSel').value;
   if(!uc){ toast('⚠️ Selecione a UC','err'); return; }
-  swCfg={
-    uc:uc,
-    vetor:document.getElementById('swVetSel').value,
-    instrumento:document.getElementById('swInstSel').value,
-    criterio:document.getElementById('swCritSel').value
-  };
+  swCfg={uc:uc,vetor:document.getElementById('swVetSel').value,instrumento:document.getElementById('swInstSel').value,criterio:document.getElementById('swCritSel').value};
   swNotas={};
   renderVarredura();
   show('s5b'); dots(3);
 }
 
 function renderVarredura(){
-  var alunos = turmaAtual ? (dados.alunos[turmaAtual]||[]) : [];
-  var feitos = Object.keys(swNotas).length;
-  var total  = alunos.length;
-  var pct    = total>0 ? Math.round(feitos/total*100) : 0;
-
-  document.getElementById('swTitle').textContent = '⚡ '+swCfg.criterio;
-  document.getElementById('swSub').textContent   = swCfg.uc+' · '+swCfg.vetor;
-  document.getElementById('swBar').style.width   = pct+'%';
-  document.getElementById('swCt').textContent    = feitos+'/'+total;
-  document.getElementById('swActions').style.display = feitos>0?'block':'none';
-
+  var alunos=turmaAtual?(dados.alunos[turmaAtual]||[]):[];
+  var feitos=Object.keys(swNotas).length, total=alunos.length;
+  var pct=total>0?Math.round(feitos/total*100):0;
+  document.getElementById('swTitle').textContent='⚡ '+swCfg.criterio;
+  document.getElementById('swSub').textContent=swCfg.uc+' · '+swCfg.vetor;
+  document.getElementById('swBar').style.width=pct+'%';
+  document.getElementById('swCt').textContent=feitos+'/'+total;
+  document.getElementById('swActions').style.display=feitos>0?'block':'none';
   var list=document.getElementById('swList'); list.innerHTML='';
   alunos.forEach(function(nm){
-    var ini  = nm.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
-    var nota = swNotas[nm];
-    var done = nota!==undefined;
-    var cor  = nota>=6?'#059669':nota>=5?'#F59E0B':'#E30613';
-    var nmk  = nm.replace(/\s/g,'_');
-
+    var nota=swNotas[nm], done=nota!==undefined;
+    var cor=nota>=6?'#059669':nota>=5?'#F59E0B':'#E30613';
+    var nmk=nm.replace(/\s/g,'_');
     var item=document.createElement('div');
     item.className='sw-item'+(done?' done':'');
     item.innerHTML=
@@ -1046,39 +814,30 @@ function renderVarredura(){
           '<span id="swN-'+nmk+'" style="font-size:1.5rem;font-weight:800;color:#00539F">'+(done?nota.toFixed(1).replace('.',','):'7,0')+'</span>'+
         '</div>'+
         '<input type="range" id="swS-'+nmk+'" min="0" max="10" step="0.5" value="'+(done?nota:7)+'">'+
-        '<div class="sw-quick">'+
-          [0,4,5,6,7.5,9].map(function(v){
-            return '<button class="sw-btn'+(done&&nota===v?' on':'')+'" data-v="'+v+'">'+
-                   (v===0?'0,0':v.toFixed(1).replace('.',','))+'</button>';
-          }).join('')+
-        '</div>'+
+        '<div class="sw-quick">'+[0,4,5,6,7.5,9].map(function(v){
+          return '<button class="sw-btn'+(done&&nota===v?' on':'')+'" data-v="'+v+'">'+(v===0?'0,0':v.toFixed(1).replace('.',','))+'</button>';
+        }).join('')+'</div>'+
         '<button class="sw-confirm">✓ Confirmar</button>'+
       '</div>';
-
-    item.querySelector('.sw-top').addEventListener('click', (function(it){
-      return function(){
-        document.querySelectorAll('.sw-item.open').forEach(function(x){if(x!==it)x.classList.remove('open');});
-        it.classList.toggle('open');
-      };
+    item.querySelector('.sw-top').addEventListener('click',(function(it){
+      return function(){ document.querySelectorAll('.sw-item.open').forEach(function(x){if(x!==it)x.classList.remove('open');}); it.classList.toggle('open'); };
     })(item));
-
     var sl=item.querySelector('input[type=range]');
     var numEl=item.querySelector('#swN-'+nmk);
-    sl.addEventListener('input', function(){
+    sl.addEventListener('input',function(){
       numEl.textContent=parseFloat(this.value).toFixed(1).replace('.',',');
       item.querySelectorAll('.sw-btn').forEach(function(b){b.classList.toggle('on',parseFloat(b.dataset.v)===parseFloat(sl.value));});
     });
     item.querySelectorAll('.sw-btn').forEach(function(b){
-      b.addEventListener('click', function(){
+      b.addEventListener('click',function(){
         var v=parseFloat(this.dataset.v); sl.value=v;
         numEl.textContent=v.toFixed(1).replace('.',',');
         item.querySelectorAll('.sw-btn').forEach(function(x){x.classList.toggle('on',parseFloat(x.dataset.v)===v);});
       });
     });
-    item.querySelector('.sw-confirm').addEventListener('click', (function(n,it){
+    item.querySelector('.sw-confirm').addEventListener('click',(function(n,it){
       return function(){ swNotas[n]=parseFloat(it.querySelector('input[type=range]').value); it.classList.remove('open'); renderVarredura(); };
     })(nm,item));
-
     list.appendChild(item);
   });
 }
@@ -1101,11 +860,10 @@ function enviarVarredura(){
         var media=notas.reduce(function(a,b){return a+b;},0)/notas.length;
         var aprov=notas.filter(function(n){return n>=6;}).length;
         show('s6b'); dots(3);
-        document.getElementById('sucSwInfo').textContent =
-          erros>0 ? erros+' offline, '+(nomes.length-erros)+' enviados.' : '✅ '+nomes.length+' registros enviados.';
-        document.getElementById('sucSwCard').innerHTML =
+        document.getElementById('sucSwInfo').textContent=erros>0?erros+' offline, '+(nomes.length-erros)+' enviados.':'✅ '+nomes.length+' registros enviados.';
+        document.getElementById('sucSwCard').innerHTML=
           rw('Turma',turmaAtual)+rw('Critério',swCfg.criterio)+
-          rw('UC',swCfg.uc.split(':')[0])+rw('Avaliados',nomes.length+' alunos')+
+          rw('UC',swCfg.uc)+rw('Avaliados',nomes.length+' alunos')+
           rw('Média',media.toFixed(1).replace('.',','),media>=6?'#059669':'#E30613')+
           rw('Aprovados',aprov+'/'+nomes.length,aprov===nomes.length?'#059669':'#F59E0B');
       }
@@ -1114,13 +872,12 @@ function enviarVarredura(){
 }
 
 // ══════════════════════════════════════════
-// ENVIO / FILA OFFLINE
+// ENVIO / OFFLINE
 // ══════════════════════════════════════════
 function enviar(reg,cb){
   if(!navigator.onLine){ enqueue(reg); cb('offline'); return; }
   fetch(cfg.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg)})
-    .then(function(){cb('ok');})
-    .catch(function(){enqueue(reg);cb('offline');});
+    .then(function(){cb('ok');}).catch(function(){enqueue(reg);cb('offline');});
 }
 function enqueue(r){
   queue.push(r);
@@ -1148,9 +905,7 @@ function pendUI(){
 // ══════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════
-function rw(l,v,c){
-  return '<div class="sr"><span class="sl">'+l+'</span><span class="sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</span></div>';
-}
+function rw(l,v,c){ return '<div class="sr"><span class="sl">'+l+'</span><span class="sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</span></div>'; }
 function on(id,ev,fn){ var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
 var _tt;
 function toast(m,t){
