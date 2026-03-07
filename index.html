@@ -554,24 +554,36 @@ function carregarPlanilha(cb){
       var rows = parseCSV(csv);
       if(rows.length < 2){ feito(false); return; }
 
-      // Descobre índices pelo cabeçalho
-      var hdrRaw = rows[0];
+      // Encontra a linha real de cabeçalho (pula linhas de título decorativo)
+      // A linha de cabeçalho real é a primeira que contém pelo menos 2 colunas não-vazias
+      // e que contenha palavras-chave típicas de cabeçalho
+      var hdrIdx = 0;
+      var hdrKeywords = ['nome','aluno','turma','curso','id','matricula','cpf'];
+      for(var ri=0; ri<Math.min(rows.length,5); ri++){
+        var rowClean = rows[ri].map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
+        var nonEmpty = rowClean.filter(function(c){ return c.length>0; }).length;
+        var hasKw = hdrKeywords.some(function(kw){
+          return rowClean.some(function(c){ return c.indexOf(kw)>=0; });
+        });
+        if(nonEmpty >= 2 && hasKw){ hdrIdx = ri; break; }
+      }
+
+      var hdrRaw = rows[hdrIdx];
       var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
 
       // Debug: mostra cabeçalhos encontrados no toast
-      toast('Colunas: ' + hdrRaw.join(' | '), 'wrn');
-      console.log('HDR raw:', hdrRaw);
-      console.log('HDR limpo:', hdr);
+      toast('Colunas (linha '+(hdrIdx+1)+'): ' + hdrRaw.join(' | '), 'wrn');
+      console.log('HDR linha:', hdrIdx, 'raw:', hdrRaw, 'limpo:', hdr);
 
-      var iId    = idxHdr(hdr, ['idaluno','id']);
+      var iId    = idxHdr(hdr, ['idaluno','id','matricula']);
       var iNome  = idxHdr(hdr, ['nomecompleto','nome','aluno']);
-      var iTurma = idxHdr(hdr, ['turmacurso','turma','curso','class','turno']);
+      var iTurma = idxHdr(hdr, ['turmacurso','turma','curso','class']);
 
       console.log('iId='+iId, 'iNome='+iNome, 'iTurma='+iTurma);
 
-      if(iNome < 0){ toast('❌ Coluna Nome não encontrada!','err'); feito(false); return; }
+      if(iNome < 0){ toast('❌ Coluna Nome não encontrada! HDR: '+hdr.join(','),'err'); feito(false); return; }
 
-      rows.slice(1).forEach(function(r){
+      rows.slice(hdrIdx+1).forEach(function(r){
         var nome  = (r[iNome]||'').trim();
         var turma = iTurma>=0 ? (r[iTurma]||'').trim() : 'Geral';
         if(!nome) return;
