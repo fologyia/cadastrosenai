@@ -1,3 +1,4 @@
+altere no codigo aqui pra mim, outra coisa essa aba configuração é dinamica, então eu posso adicionar ou tirar algum metodo:
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -534,7 +535,9 @@ function parseCSV(csv){
 
 function carregarPlanilha(cb){
   var promessas = 0, feitos = 0, erros = 0;
-  var novosDados = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[] };
+  // colunas: objeto dinâmico com TODAS as colunas da aba Configurações
+  // Ex: { 'UCs': [...], 'Critérios': [...], 'Vetores': [...], 'Instrumentos': [...], 'Minha Nova Col': [...] }
+  var novosDados = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[], colunas:{} };
 
   function feito(ok){ feitos++; if(!ok) erros++; if(feitos===promessas) finalizar(); }
 
@@ -602,37 +605,40 @@ function carregarPlanilha(cb){
       }
 
       var hdrRaw = rows[hdrIdx];
-      var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z0-9 \/]/g,'').trim(); });
-      var hdrClean = hdr.map(function(h){ return h.replace(/[^a-z]/g,''); });
+      var hdrClean = hdrRaw.map(function(h){ return h.replace(/[^a-z]/gi,'').toLowerCase(); });
 
-
-      function colIdx(keywords){
-        // 1) match exato limpo
-        for(var k=0;k<keywords.length;k++)
-          for(var i=0;i<hdrClean.length;i++)
-            if(hdrClean[i]===keywords[k] && hdrClean[i].length>0) return i;
-        // 2) match parcial
-        for(var k=0;k<keywords.length;k++)
-          for(var i=0;i<hdrClean.length;i++)
-            if(hdrClean[i].length>0 && hdrClean[i].indexOf(keywords[k])>=0) return i;
-        return -1;
-      }
-
-      function colVals(keywords){
-        var idx = colIdx(keywords);
-        if(idx < 0) return [];
+      // ── Lê TODAS as colunas dinamicamente ──────────────────────────────────
+      // Para cada coluna com cabeçalho não-vazio, coleta todos os valores únicos
+      hdrRaw.forEach(function(colNome, ci){
+        var nome = colNome.trim();
+        if(!nome) return; // ignora colunas sem cabeçalho
         var seen = {};
-        return rows.slice(hdrIdx + 1).map(function(r){ return (r[idx]||'').trim(); }).filter(function(v){
+        var vals = rows.slice(hdrIdx + 1).map(function(r){ return (r[ci]||'').trim(); }).filter(function(v){
           if(!v || seen[v]) return false;
           seen[v] = true;
           return true;
         });
+        if(vals.length > 0) novosDados.colunas[nome] = vals;
+      });
+
+      // ── Mapeia colunas conhecidas para os campos fixos ──────────────────────
+      function colValsByKey(keywords){
+        // Tenta encontrar uma coluna cujo nome limpo bate com alguma keyword
+        var nomes = Object.keys(novosDados.colunas);
+        for(var k=0;k<keywords.length;k++){
+          for(var n=0;n<nomes.length;n++){
+            var limpo = nomes[n].replace(/[^a-z]/gi,'').toLowerCase();
+            if(limpo === keywords[k] || limpo.indexOf(keywords[k]) >= 0)
+              return novosDados.colunas[nomes[n]];
+          }
+        }
+        return [];
       }
 
-      var ucs   = colVals(['ucs','uc','unidadecurricular','unidade']);
-      var crits = colVals(['criterios','criterio','crit']);
-      var vets  = colVals(['vetores','vetor','vet']);
-      var insts = colVals(['instrumentos','instrumento','inst']);
+      var ucs   = colValsByKey(['ucs','uc','unidadecurricular','unidade']);
+      var crits = colValsByKey(['criterios','criterio','crit']);
+      var vets  = colValsByKey(['vetores','vetor','vet']);
+      var insts = colValsByKey(['instrumentos','instrumento','inst','metodo','metodos','metododeavaliacao']);
 
       if(ucs.length)   novosDados.ucs           = ucs;
       if(crits.length) novosDados.criterios      = crits;
@@ -647,10 +653,11 @@ function carregarPlanilha(cb){
       feito(true);
     })
     .catch(function(){
-      // Sem Configurações: usa defaults
+      // Sem aba Configurações: usa defaults
       novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
       novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
       novosDados.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
+      novosDados.colunas      = {};
       feito(true);
     });
 }
