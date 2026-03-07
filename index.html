@@ -554,19 +554,25 @@ function carregarPlanilha(cb){
       var rows = parseCSV(csv);
       if(rows.length < 2){ feito(false); return; }
 
-      // Encontra a linha real de cabeçalho (pula linhas de título decorativo)
-      // A linha de cabeçalho real é a primeira que contém pelo menos 2 colunas não-vazias
-      // e que contenha palavras-chave típicas de cabeçalho
-      var hdrIdx = 0;
-      var hdrKeywords = ['nome','aluno','turma','curso','id','matricula','cpf'];
-      for(var ri=0; ri<Math.min(rows.length,5); ri++){
+      // Encontra a linha real de cabeçalho (pula linhas de título decorativo como células mescladas)
+      // Procura a primeira linha que contenha palavras-chave típicas de cabeçalho
+      var hdrIdx = -1;
+      var hdrKeywords = ['nome','aluno','turma','curso','id','matricula','cpf','completo'];
+      for(var ri=0; ri<Math.min(rows.length,6); ri++){
         var rowClean = rows[ri].map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
-        var nonEmpty = rowClean.filter(function(c){ return c.length>0; }).length;
         var hasKw = hdrKeywords.some(function(kw){
-          return rowClean.some(function(c){ return c.indexOf(kw)>=0; });
+          return rowClean.some(function(c){ return c.length>0 && c.indexOf(kw)>=0; });
         });
-        if(nonEmpty >= 2 && hasKw){ hdrIdx = ri; break; }
+        if(hasKw){ hdrIdx = ri; break; }
       }
+      // Se não encontrou por keyword, usa a primeira linha com mais de 2 colunas não-vazias
+      if(hdrIdx < 0){
+        for(var ri=0; ri<Math.min(rows.length,6); ri++){
+          var nonEmpty = rows[ri].filter(function(c){ return c.trim().length>0; }).length;
+          if(nonEmpty >= 2){ hdrIdx = ri; break; }
+        }
+      }
+      if(hdrIdx < 0) hdrIdx = 0;
 
       var hdrRaw = rows[hdrIdx];
       var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
