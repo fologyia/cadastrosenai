@@ -1,1285 +1,667 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#00539F">
-<title>SENAI · Avaliador</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import os
+from datetime import datetime
+
+# ==========================================
+# CONFIGURAÇÃO DA PÁGINA
+# ==========================================
+st.set_page_config(
+    page_title="SENAI | Painel Docente",
+    page_icon="🎓",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ==========================================
+# IDENTIDADE VISUAL
+# ==========================================
+COR_AZUL     = '#00539F'
+COR_VERMELHO = '#E30613'
+COR_CINZA    = '#F4F6F9'
+COR_TEXTO    = '#1A1A2E'
+COR_AMARELO  = '#F59E0B'
+COR_VERDE    = '#10B981'
+
+# ==========================================
+# CSS
+# ==========================================
+st.markdown(f"""
 <style>
-  :root {
-    --azul: #00539F;
-    --azul-dark: #003d7a;
-    --vermelho: #E30613;
-    --verde: #059669;
-    --amarelo: #F59E0B;
-    --cinza: #F1F5F9;
-    --cinza2: #E2E8F0;
-    --texto: #0F172A;
-    --texto2: #64748B;
-    --branco: #FFFFFF;
-    --radius: 16px;
-    --shadow: 0 4px 24px rgba(0,83,159,0.13);
-  }
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
+    html, body, [class*="css"] {{ font-family: 'Inter', sans-serif; color: {COR_TEXTO}; }}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    section[data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, {COR_AZUL} 0%, #003d7a 100%);
+    }}
+    section[data-testid="stSidebar"] * {{ color: white !important; }}
+    section[data-testid="stSidebar"] .stSelectbox > div > div {{
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 8px;
+    }}
+    section[data-testid="stSidebar"] hr {{ border-color: rgba(255,255,255,0.2) !important; }}
 
-  body {
-    font-family: 'Sora', sans-serif;
-    background: #0a1628;
-    color: var(--texto);
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
+    .header-wrapper {{
+        background: linear-gradient(135deg, {COR_AZUL} 0%, #003d7a 60%, {COR_VERMELHO} 100%);
+        border-radius: 16px; padding: 28px 36px; margin-bottom: 28px;
+        display: flex; align-items: center; justify-content: space-between;
+        box-shadow: 0 8px 32px rgba(0,83,159,0.25);
+    }}
+    .header-title {{
+        font-family: 'Montserrat', sans-serif; font-size: 1.7rem;
+        font-weight: 800; color: white; margin: 0; letter-spacing: -0.02em;
+    }}
+    .header-sub {{ font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 4px; }}
+    .header-badge {{
+        background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 50px; padding: 6px 16px; font-size: 0.78rem; color: white; font-weight: 500;
+    }}
 
-  /* ── FUNDO ANIMADO ── */
-  .bg {
-    position: fixed; inset: 0; z-index: 0;
-    background: linear-gradient(135deg, #0a1628 0%, #00274d 50%, #0a1628 100%);
-    overflow: hidden;
-  }
-  .bg::before {
-    content: '';
-    position: absolute;
-    width: 600px; height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,83,159,0.25) 0%, transparent 70%);
-    top: -200px; right: -200px;
-    animation: pulse 6s ease-in-out infinite;
-  }
-  .bg::after {
-    content: '';
-    position: absolute;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(227,6,19,0.12) 0%, transparent 70%);
-    bottom: -100px; left: -100px;
-    animation: pulse 8s ease-in-out infinite reverse;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.15); opacity: 0.7; }
-  }
+    .kpi-card {{
+        background: white; border-radius: 14px; padding: 22px 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-top: 4px solid {COR_AZUL};
+        transition: transform 0.2s ease, box-shadow 0.2s ease; height: 100%;
+    }}
+    .kpi-card:hover {{ transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }}
+    .kpi-card.danger {{ border-top-color: {COR_VERMELHO}; }}
+    .kpi-card.success {{ border-top-color: {COR_VERDE}; }}
+    .kpi-card.warning {{ border-top-color: {COR_AMARELO}; }}
+    .kpi-label {{ font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.08em; color: #6B7280; margin-bottom: 8px; }}
+    .kpi-value {{ font-family: 'Montserrat', sans-serif; font-size: 2.1rem;
+        font-weight: 800; color: {COR_TEXTO}; line-height: 1; }}
+    .kpi-desc {{ font-size: 0.78rem; color: #9CA3AF; margin-top: 6px; }}
 
-  /* ── LAYOUT ── */
-  .app {
-    position: relative; z-index: 1;
-    max-width: 480px;
-    margin: 0 auto;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    padding: 0 0 32px;
-  }
+    .section-title {{
+        font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 700;
+        color: {COR_TEXTO}; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }}
+    .section-title::after {{
+        content: ''; flex: 1; height: 2px;
+        background: linear-gradient(90deg, {COR_AZUL}30, transparent); border-radius: 2px;
+    }}
 
-  /* ── HEADER ── */
-  .header {
-    padding: 52px 24px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-logo {
-    display: flex; align-items: center; gap: 10px;
-  }
-  .logo-badge {
-    background: var(--vermelho);
-    color: white;
-    font-weight: 800;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    padding: 5px 10px;
-    border-radius: 8px;
-  }
-  .logo-text {
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 500;
-    opacity: 0.7;
-    letter-spacing: 0.05em;
-  }
-  .header-date {
-    color: rgba(255,255,255,0.5);
-    font-size: 0.75rem;
-    text-align: right;
-    line-height: 1.4;
-  }
+    .alert-item {{
+        background: #FFF5F5; border-left: 4px solid {COR_VERMELHO};
+        border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 10px;
+        display: flex; align-items: center; gap: 14px;
+    }}
+    .alert-nota {{ font-family: 'Montserrat'; font-size: 1.4rem; font-weight: 800;
+        color: {COR_VERMELHO}; min-width: 52px; text-align: center; }}
+    .alert-info span {{ font-size: 0.8rem; color: #6B7280; }}
+    .alert-info strong {{ display: block; font-size: 0.9rem; color: {COR_TEXTO}; }}
 
-  /* ── STEPS INDICATOR ── */
-  .steps {
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    margin-bottom: 24px;
-    gap: 6px;
-  }
-  .step-dot {
-    height: 4px;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.15);
-    flex: 1;
-    transition: all 0.4s ease;
-  }
-  .step-dot.active { background: var(--azul); }
-  .step-dot.done { background: var(--verde); }
+    .rec-item {{
+        background: #FFFBEB; border-left: 4px solid {COR_AMARELO};
+        border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 10px;
+        display: flex; align-items: center; gap: 14px;
+    }}
+    .obs-card {{
+        background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px;
+        padding: 16px 20px; margin-bottom: 12px;
+    }}
+    .obs-card p {{ font-size: 0.88rem; color: #0369A1; margin: 0; font-style: italic; }}
+    .obs-card span {{ font-size: 0.75rem; color: #64748B; display: block; margin-bottom: 6px; }}
 
-  /* ── CARDS / TELAS ── */
-  .screen {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    padding: 0 20px;
-    animation: slideUp 0.35s ease;
-  }
-  .screen.active { display: flex; }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .screen-title {
-    color: white;
-    font-size: 1.45rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-    line-height: 1.2;
-  }
-  .screen-sub {
-    color: rgba(255,255,255,0.45);
-    font-size: 0.82rem;
-    margin-bottom: 20px;
-  }
-
-  /* ── SEARCH ── */
-  .search-box {
-    background: rgba(255,255,255,0.08);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    margin-bottom: 16px;
-    transition: border-color 0.2s;
-  }
-  .search-box:focus-within { border-color: var(--azul); }
-  .search-icon { color: rgba(255,255,255,0.4); font-size: 1rem; margin-right: 10px; }
-  .search-box input {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.95rem;
-    padding: 14px 0;
-    flex: 1;
-  }
-  .search-box input::placeholder { color: rgba(255,255,255,0.3); }
-
-  /* ── LISTA DE ALUNOS ── */
-  .aluno-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
-    max-height: calc(100dvh - 280px);
-    padding-right: 2px;
-  }
-  .aluno-list::-webkit-scrollbar { width: 3px; }
-  .aluno-list::-webkit-scrollbar-track { background: transparent; }
-  .aluno-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-
-  .aluno-item {
-    background: rgba(255,255,255,0.07);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    padding: 14px 18px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .aluno-item:active { transform: scale(0.97); }
-  .aluno-item:hover { background: rgba(0,83,159,0.25); border-color: var(--azul); }
-
-  .aluno-avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--azul), var(--azul-dark));
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700;
-    color: white;
-    font-size: 0.85rem;
-    flex-shrink: 0;
-  }
-  .aluno-nome {
-    color: white;
-    font-size: 0.95rem;
-    font-weight: 500;
-  }
-  .aluno-turma {
-    color: rgba(255,255,255,0.4);
-    font-size: 0.75rem;
-    margin-top: 2px;
-  }
-  .aluno-arrow {
-    margin-left: auto;
-    color: rgba(255,255,255,0.25);
-    font-size: 1rem;
-  }
-
-  /* ── CARD BRANCO (formulário) ── */
-  .form-card {
-    background: white;
-    border-radius: 24px 24px 0 0;
-    padding: 28px 22px 16px;
-    flex: 1;
-    margin: 0 -20px;
-    box-shadow: 0 -8px 40px rgba(0,0,0,0.3);
-  }
-
-  .selected-aluno {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--cinza);
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 22px;
-  }
-  .selected-avatar {
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--azul), var(--azul-dark));
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 700; font-size: 0.8rem;
-    flex-shrink: 0;
-  }
-  .selected-name { font-weight: 600; font-size: 0.9rem; color: var(--texto); }
-  .selected-change {
-    margin-left: auto;
-    font-size: 0.75rem;
-    color: var(--azul);
-    font-weight: 600;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: rgba(0,83,159,0.08);
-  }
-
-  /* ── FORM FIELDS ── */
-  .field-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--texto2);
-    margin-bottom: 8px;
-    display: block;
-  }
-  .field-group { margin-bottom: 18px; }
-
-  /* Select estilizado */
-  .select-wrap { position: relative; }
-  .select-wrap select {
-    width: 100%;
-    appearance: none;
-    background: var(--cinza);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    padding: 13px 40px 13px 14px;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.9rem;
-    color: var(--texto);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .select-wrap select:focus { border-color: var(--azul); background: white; }
-  .select-wrap::after {
-    content: '▾';
-    position: absolute;
-    right: 14px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--texto2);
-    pointer-events: none;
-    font-size: 0.9rem;
-  }
-
-  /* ── NOTA SLIDER ── */
-  .nota-display {
-    text-align: center;
-    margin: 12px 0 8px;
-  }
-  .nota-numero {
-    font-size: 3.5rem;
-    font-weight: 800;
-    line-height: 1;
-    transition: color 0.3s;
-  }
-  .nota-max { font-size: 1rem; color: var(--texto2); font-weight: 400; }
-
-  .nota-slider {
-    width: 100%;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 8px;
-    border-radius: 8px;
-    background: var(--cinza2);
-    outline: none;
-    cursor: pointer;
-    margin-bottom: 8px;
-  }
-  .nota-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: var(--azul);
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0,83,159,0.4);
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  .nota-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    color: var(--texto2);
-    padding: 0 2px;
-  }
-
-  /* ── BOTÕES DE NOTA RÁPIDA ── */
-  .nota-quick {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    margin-top: 12px;
-  }
-  .nota-btn {
-    padding: 8px 4px;
-    border: 2px solid var(--cinza2);
-    border-radius: 10px;
-    background: white;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--texto2);
-  }
-  .nota-btn:active { transform: scale(0.93); }
-  .nota-btn.selected { border-color: var(--azul); background: var(--azul); color: white; }
-
-  /* ── TAGS DE OBSERVAÇÃO ── */
-  .tags-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 10px;
-  }
-  .tag {
-    padding: 6px 12px;
-    border-radius: 50px;
-    border: 1.5px solid var(--cinza2);
-    background: white;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--texto2);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tag:active { transform: scale(0.95); }
-  .tag.selected {
-    border-color: var(--azul);
-    background: rgba(0,83,159,0.08);
-    color: var(--azul);
-    font-weight: 600;
-  }
-  .tag.danger.selected {
-    border-color: var(--vermelho);
-    background: rgba(227,6,19,0.07);
-    color: var(--vermelho);
-  }
-
-  textarea {
-    width: 100%;
-    border: 2px solid var(--cinza2);
-    border-radius: 12px;
-    padding: 12px 14px;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.88rem;
-    color: var(--texto);
-    resize: none;
-    outline: none;
-    transition: border-color 0.2s;
-    background: var(--cinza);
-  }
-  textarea:focus { border-color: var(--azul); background: white; }
-
-  /* ── BOTÃO PRINCIPAL ── */
-  .btn-salvar {
-    width: 100%;
-    padding: 17px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-dark) 100%);
-    color: white;
-    font-family: 'Sora', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-    box-shadow: 0 4px 20px rgba(0,83,159,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    letter-spacing: 0.02em;
-  }
-  .btn-salvar:active { transform: scale(0.97); box-shadow: 0 2px 10px rgba(0,83,159,0.3); }
-  .btn-salvar:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .btn-voltar {
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.6);
-    font-family: 'Sora', sans-serif;
-    font-size: 0.85rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0;
-    margin-bottom: 20px;
-  }
-
-  /* ── TELA DE SUCESSO ── */
-  .success-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    padding: 40px 24px;
-    text-align: center;
-    animation: slideUp 0.4s ease;
-  }
-  .success-screen.active { display: flex; }
-
-  .success-icon {
-    width: 90px; height: 90px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--verde), #047857);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2.5rem;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(5,150,105,0.4);
-    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
-  }
-
-  .success-title {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .success-info {
-    color: rgba(255,255,255,0.5);
-    font-size: 0.88rem;
-    line-height: 1.6;
-    margin-bottom: 32px;
-  }
-  .success-card {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 16px;
-    padding: 18px 22px;
-    width: 100%;
-    text-align: left;
-    margin-bottom: 28px;
-  }
-  .success-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-  .success-row:last-child { border: none; }
-  .success-row-label { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
-  .success-row-value { color: white; font-size: 0.88rem; font-weight: 600; }
-
-  .btn-nova {
-    width: 100%;
-    padding: 16px;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-radius: 14px;
-    background: transparent;
-    color: white;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 12px;
-  }
-  .btn-nova:active { background: rgba(255,255,255,0.1); }
-
-  .btn-mesmo {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    background: rgba(0,83,159,0.3);
-    color: white;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-mesmo:active { background: rgba(0,83,159,0.5); }
-
-  /* ── TOAST / OFFLINE ── */
-  .toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #1e293b;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 50px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    z-index: 100;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.offline { background: var(--amarelo); color: #1a1a1a; }
-  .toast.error { background: var(--vermelho); }
-  .toast.success-t { background: var(--verde); }
-
-  /* ── PENDENTES BADGE ── */
-  .pending-badge {
-    position: fixed;
-    top: 48px; right: 20px;
-    background: var(--amarelo);
-    color: #1a1a1a;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 50px;
-    z-index: 10;
-    display: none;
-  }
-
-  /* ── SETUP SCREEN ── */
-  .setup-screen {
-    padding: 0 20px;
-    flex: 1;
-    overflow-y: auto;
-  }
-  .setup-field {
-    margin-bottom: 16px;
-  }
-  .setup-input {
-    width: 100%;
-    background: rgba(255,255,255,0.08);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 13px 16px;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.9rem;
-    color: white;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .setup-input::placeholder { color: rgba(255,255,255,0.3); }
-  .setup-input:focus { border-color: var(--azul); }
-  .setup-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 6px;
-    display: block;
-  }
-  .setup-info {
-    background: rgba(0,83,159,0.2);
-    border: 1px solid rgba(0,83,159,0.4);
-    border-radius: 12px;
-    padding: 14px 16px;
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.7);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-  .setup-info strong { color: white; }
-  .alunos-textarea {
-    width: 100%;
-    background: rgba(255,255,255,0.08);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 13px 16px;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.85rem;
-    color: white;
-    outline: none;
-    resize: none;
-    height: 160px;
-    transition: border-color 0.2s;
-  }
-  .alunos-textarea::placeholder { color: rgba(255,255,255,0.3); }
-  .alunos-textarea:focus { border-color: var(--azul); }
-  .btn-setup {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--azul), var(--azul-dark));
-    color: white;
-    font-family: 'Sora', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 8px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 20px rgba(0,83,159,0.4);
-  }
-  .config-link {
-    text-align: center;
-    margin-top: 16px;
-  }
-  .config-link a {
-    color: rgba(255,255,255,0.35);
-    font-size: 0.75rem;
-    text-decoration: none;
-  }
-
-  /* Scrollbar geral */
-  ::-webkit-scrollbar { width: 0; }
+    .divider {{
+        height: 1px; background: linear-gradient(90deg, transparent, #E5E7EB, transparent);
+        margin: 28px 0;
+    }}
+    #MainMenu, footer, header {{ visibility: hidden; }}
+    .block-container {{ padding-top: 1.5rem; padding-bottom: 2rem; }}
 </style>
-</head>
-<body>
+""", unsafe_allow_html=True)
 
-<div class="bg"></div>
-<div id="pendingBadge" class="pending-badge">⏳ <span id="pendingCount">0</span> pendentes</div>
 
-<div class="app">
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-logo">
-      <span class="logo-badge">SENAI</span>
-      <span class="logo-text">Avaliador</span>
-    </div>
-    <div class="header-date" id="headerDate"></div>
-  </div>
+# ==========================================
+# CONFIGURAÇÃO DO GOOGLE SHEETS
+# ==========================================
+# Preencha com o ID da sua planilha Google Sheets
+# O ID está na URL: docs.google.com/spreadsheets/d/SEU_ID_AQUI/edit
+SHEET_ID = "SEU_ID_AQUI"
 
-  <!-- STEPS -->
-  <div class="steps">
-    <div class="step-dot active" id="dot1"></div>
-    <div class="step-dot" id="dot2"></div>
-    <div class="step-dot" id="dot3"></div>
-  </div>
-
-  <!-- ══════════════════════════════ -->
-  <!-- TELA 0: SETUP (primeira vez) -->
-  <!-- ══════════════════════════════ -->
-  <div class="screen active" id="screenSetup">
-    <div class="screen-title">Configuração Inicial</div>
-    <div class="screen-sub">Configure uma vez, use sempre.</div>
-
-    <div class="setup-info">
-      <strong>📋 Como funciona:</strong><br>
-      Cole a URL do seu Google Apps Script abaixo. Os dados serão enviados direto para sua planilha. 
-      Veja o guia no final desta tela para criar o script em 2 minutos.
-    </div>
-
-    <div class="setup-field">
-      <label class="setup-label">URL do Google Apps Script (Webhook)</label>
-      <input class="setup-input" id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/..." />
-    </div>
-
-    <div class="setup-field">
-      <label class="setup-label">Nome da Turma / Curso</label>
-      <input class="setup-input" id="nomeTurma" type="text" placeholder="Ex: Técnico Mecânica – Turma A" />
-    </div>
-
-    <div class="setup-field">
-      <label class="setup-label">Lista de Alunos (um por linha)</label>
-      <textarea class="alunos-textarea" id="listaAlunos" placeholder="Ana Costa&#10;Bruno Souza&#10;Carlos Ribeiro&#10;Diana Silva&#10;Eduardo Lima&#10;..."></textarea>
-    </div>
-
-    <button class="btn-setup" onclick="salvarConfig()">✅ Salvar e Começar</button>
-
-    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:16px;margin-bottom:24px;">
-      <div style="color:rgba(255,255,255,0.7);font-size:0.8rem;font-weight:600;margin-bottom:10px;">📖 Guia rápido — Google Apps Script</div>
-      <div style="color:rgba(255,255,255,0.45);font-size:0.75rem;line-height:1.9;">
-        1. Abra sua planilha Google Sheets<br>
-        2. Menu <strong style="color:rgba(255,255,255,0.7)">Extensões → Apps Script</strong><br>
-        3. Apague o código e cole o script abaixo<br>
-        4. Clique em <strong style="color:rgba(255,255,255,0.7)">Implantar → Nova implantação</strong><br>
-        5. Tipo: "App da Web" · Acesso: "Qualquer pessoa"<br>
-        6. Copie a URL gerada e cole acima
-      </div>
-      <div style="background:#0a1628;border-radius:10px;padding:14px;margin-top:12px;font-family:monospace;font-size:0.7rem;color:#7dd3fc;line-height:1.8;overflow-x:auto;white-space:pre-wrap;word-break:break-all;">
-function doPost(e) {
-  var sheet = SpreadsheetApp
-    .getActiveSpreadsheet()
-    .getSheetByName("Respostas") 
-    || SpreadsheetApp
-    .getActiveSpreadsheet()
-    .getActiveSheet();
-  
-  var data = JSON.parse(e.postData.contents);
-  
-  sheet.appendRow([
-    data.data,
-    data.aluno,
-    data.uc,
-    data.vetor,
-    data.instrumento,
-    data.criterio,
-    data.nota,
-    data.observacao
-  ]);
-  
-  return ContentService
-    .createTextOutput(
-      JSON.stringify({status:"ok"})
+# Monta a URL pública de exportação CSV por aba (a planilha precisa estar
+# compartilhada como "Visualizador" para leitura, OU use Service Account)
+def url_aba(sheet_id, nome_aba):
+    import urllib.parse
+    return (
+        f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq"
+        f"?tqx=out:csv&sheet={urllib.parse.quote(nome_aba)}"
     )
-    .setMimeType(
-      ContentService.MimeType.JSON
-    );
-}
 
-function doGet(e) {
-  return ContentService
-    .createTextOutput(
-      JSON.stringify({status:"online"})
+
+# ==========================================
+# CARREGAMENTO DE DADOS
+# ==========================================
+@st.cache_data(ttl=120)  # Atualiza a cada 2 minutos
+def carregar_dados():
+    """
+    Tenta ler do Google Sheets. Se não conseguir (sem internet ou SHEET_ID
+    não configurado), cai para o arquivo local planilha_notas.xlsx como fallback.
+    """
+    fonte = "google_sheets"
+
+    if SHEET_ID == "SEU_ID_AQUI":
+        fonte = "local"
+    else:
+        try:
+            df_aval  = pd.read_csv(url_aba(SHEET_ID, "Avaliações"))
+            df_aluno = pd.read_csv(url_aba(SHEET_ID, "Alunos"))
+            df_rec   = pd.read_csv(url_aba(SHEET_ID, "Recuperações"))
+            return df_aval, df_aluno, df_rec, fonte
+        except Exception:
+            fonte = "local_fallback"
+
+    # ── Fallback: lê do arquivo local ──────────────────────────────────────
+    try:
+        xls = pd.ExcelFile("planilha_notas.xlsx", engine="openpyxl")
+        abas = xls.sheet_names
+
+        if "Avaliações" in abas:
+            df_aval  = pd.read_excel(xls, sheet_name="Avaliações")
+            df_aluno = pd.read_excel(xls, sheet_name="Alunos") if "Alunos" in abas else pd.DataFrame()
+            df_rec   = pd.read_excel(xls, sheet_name="Recuperações") if "Recuperações" in abas else pd.DataFrame()
+        else:
+            # Compatibilidade com planilha antiga (aba única)
+            df_aval  = pd.read_excel(xls, sheet_name=0)
+            df_aluno = pd.DataFrame()
+            df_rec   = pd.DataFrame()
+
+        return df_aval, df_aluno, df_rec, fonte
+    except FileNotFoundError:
+        st.error("⚠️ Planilha não encontrada. Configure o SHEET_ID ou coloque 'planilha_notas.xlsx' na pasta.")
+        st.stop()
+
+
+def limpar_avaliacoes(df):
+    df = df.copy()
+    # Suporte a nomes de coluna antigos e novos
+    rename = {
+        "Unidade Curricular (UC)": "UC",
+        "Observação Técnica (Log)": "Observação",
+        "Observação Técnica": "Observação",
+        "Nome do Aluno": "Aluno",
+    }
+    df.rename(columns={k: v for k, v in rename.items() if k in df.columns}, inplace=True)
+    if "Aluno" not in df.columns and "Nome do Aluno" in df.columns:
+        df["Aluno"] = df["Nome do Aluno"]
+    df["Data"] = pd.to_datetime(df["Data"], dayfirst=True, errors="coerce")
+    df["Nota"] = pd.to_numeric(df["Nota"], errors="coerce")
+    df = df.dropna(subset=["Data", "Nota"])
+    return df
+
+
+def limpar_alunos(df):
+    if df.empty:
+        return df
+    df = df.copy()
+    rename = {"Nome Completo": "Aluno", "Turma / Curso": "Turma"}
+    df.rename(columns={k: v for k, v in rename.items() if k in df.columns}, inplace=True)
+    return df
+
+
+def limpar_recuperacoes(df):
+    if df.empty:
+        return df
+    df = df.copy()
+    rename = {"Nome do Aluno": "Aluno", "Data Original": "Data_Orig",
+              "Data Recuperação": "Data_Rec", "Nota Original": "Nota_Orig",
+              "Nota Recuperação": "Nota_Rec"}
+    df.rename(columns={k: v for k, v in rename.items() if k in df.columns}, inplace=True)
+    for col in ["Data_Orig", "Data_Rec"]:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], dayfirst=True, errors="coerce")
+    for col in ["Nota_Orig", "Nota_Rec"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+
+# ── Carrega e limpa ────────────────────────────────────────────────────────
+raw_aval, raw_alunos, raw_rec, fonte_dados = carregar_dados()
+df        = limpar_avaliacoes(raw_aval)
+df_alunos = limpar_alunos(raw_alunos)
+df_rec    = limpar_recuperacoes(raw_rec)
+
+# Garante coluna Turma em df a partir de df_alunos
+if not df_alunos.empty and "Aluno" in df_alunos.columns and "Turma" in df_alunos.columns:
+    turma_map = df_alunos.set_index("Aluno")["Turma"].to_dict()
+    df["Turma"] = df["Aluno"].map(turma_map).fillna("Sem turma")
+elif "Turma" not in df.columns:
+    df["Turma"] = "Geral"
+
+
+def calcular_ranking(df_base):
+    return (
+        df_base.groupby("Aluno")["Nota"]
+        .mean().reset_index().rename(columns={"Nota": "Média"})
+        .sort_values("Média", ascending=False).reset_index(drop=True)
     )
-    .setMimeType(
-      ContentService.MimeType.JSON
-    );
-}
-      </div>
+
+
+# ==========================================
+# SIDEBAR
+# ==========================================
+with st.sidebar:
+    if os.path.exists("logo_senai.png"):
+        st.image("logo_senai.png", use_container_width=True)
+    else:
+        st.markdown("""
+        <div style='text-align:center;padding:16px 0 24px'>
+            <div style='font-family:Montserrat,sans-serif;font-size:1.8rem;
+                        font-weight:900;color:white;letter-spacing:-0.03em'>SENAI</div>
+            <div style='font-size:0.7rem;color:rgba(255,255,255,0.6);
+                        letter-spacing:0.15em;margin-top:2px'>PAINEL DOCENTE</div>
+        </div>""", unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Filtro de Turma (novo!)
+    lista_turmas = sorted(df["Turma"].dropna().unique().tolist())
+    lista_turmas.insert(0, "Todas as Turmas")
+    turma_sel = st.selectbox("🏫 Turma / Curso", lista_turmas)
+
+    # Filtra alunos pela turma
+    df_turma_filter = df if turma_sel == "Todas as Turmas" else df[df["Turma"] == turma_sel]
+    lista_alunos = sorted(df_turma_filter["Aluno"].dropna().unique().tolist())
+
+    aluno_sel = st.selectbox("👤 Aluno", lista_alunos) if lista_alunos else None
+
+    col_uc = "UC" if "UC" in df.columns else "Unidade Curricular (UC)"
+    lista_uc = sorted(df[col_uc].dropna().unique().tolist())
+    lista_uc.insert(0, "Todas as Unidades")
+    uc_sel = st.selectbox("📚 Unidade Curricular", lista_uc)
+
+    lista_vetores = sorted(df["Vetor (Peso)"].dropna().unique().tolist())
+    lista_vetores.insert(0, "Todos os Vetores")
+    vetor_sel = st.selectbox("🎯 Vetor", lista_vetores)
+
+    st.markdown("---")
+    comparar_turma  = st.checkbox("📊 Comparar com a Turma", value=False)
+    mostrar_ranking = st.checkbox("🏆 Ranking da Turma", value=False)
+
+    # Badge de fonte dos dados
+    st.markdown("---")
+    cor_fonte = "#10B981" if fonte_dados == "google_sheets" else "#F59E0B"
+    icone     = "🟢" if fonte_dados == "google_sheets" else "🟡"
+    label     = "Google Sheets" if fonte_dados == "google_sheets" else "Arquivo local"
+    st.markdown(f"""
+    <div style='font-size:0.72rem;color:rgba(255,255,255,0.5)'>
+        {icone} Fonte: <b style='color:rgba(255,255,255,0.8)'>{label}</b>
+    </div>""", unsafe_allow_html=True)
+
+    if fonte_dados == "google_sheets":
+        if st.button("🔄 Atualizar dados", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+
+
+# ==========================================
+# PROCESSAMENTO
+# ==========================================
+if not aluno_sel:
+    st.warning("Nenhum aluno encontrado para os filtros selecionados.")
+    st.stop()
+
+df_aluno = df[df["Aluno"] == aluno_sel].copy()
+df_turma = df_turma_filter.copy()
+
+if uc_sel != "Todas as Unidades":
+    df_aluno = df_aluno[df_aluno[col_uc] == uc_sel]
+    df_turma = df_turma[df_turma[col_uc] == uc_sel]
+
+if vetor_sel != "Todos os Vetores":
+    df_aluno = df_aluno[df_aluno["Vetor (Peso)"] == vetor_sel]
+    df_turma = df_turma[df_turma["Vetor (Peso)"] == vetor_sel]
+
+# Recuperações do aluno
+df_rec_aluno = pd.DataFrame()
+if not df_rec.empty and "Aluno" in df_rec.columns:
+    df_rec_aluno = df_rec[df_rec["Aluno"] == aluno_sel].copy()
+
+# Observações gerais (aba Alunos)
+obs_geral = ""
+if not df_alunos.empty and "Aluno" in df_alunos.columns:
+    row_aluno = df_alunos[df_alunos["Aluno"] == aluno_sel]
+    if not row_aluno.empty and "Observações Gerais" in row_aluno.columns:
+        obs_geral = str(row_aluno.iloc[0].get("Observações Gerais", "") or "").strip()
+
+
+# ==========================================
+# HEADER
+# ==========================================
+data_hoje   = datetime.now().strftime("%d de %B de %Y")
+total_alunos = df["Aluno"].nunique()
+
+turma_label = turma_sel if turma_sel != "Todas as Turmas" else "Todas as turmas"
+if not df_alunos.empty and "Aluno" in df_alunos.columns and "Turma" in df_alunos.columns:
+    row = df_alunos[df_alunos["Aluno"] == aluno_sel]
+    if not row.empty:
+        turma_label = row.iloc[0].get("Turma", turma_label)
+
+st.markdown(f"""
+<div class="header-wrapper">
+    <div>
+        <div class="header-title">📊 {aluno_sel}</div>
+        <div class="header-sub">Painel Individualizado · {turma_label}</div>
     </div>
-  </div>
-
-  <!-- ══════════════════════════════ -->
-  <!-- TELA 1: SELECIONAR ALUNO     -->
-  <!-- ══════════════════════════════ -->
-  <div class="screen" id="screen1">
-    <div class="screen-title">Quem você está avaliando?</div>
-    <div class="screen-sub">Selecione o aluno para registrar a nota</div>
-
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchAluno" placeholder="Buscar aluno..." oninput="filtrarAlunos(this.value)">
+    <div style="text-align:right">
+        <div class="header-badge">🏫 {total_alunos} alunos cadastrados</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:6px">{data_hoje}</div>
     </div>
-
-    <div class="aluno-list" id="alunoList"></div>
-
-    <div class="config-link" style="margin-top:16px;">
-      <a href="#" onclick="irParaSetup()">⚙️ Reconfigurar app</a>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════ -->
-  <!-- TELA 2: FORMULÁRIO            -->
-  <!-- ══════════════════════════════ -->
-  <div class="screen" id="screen2">
-    <button class="btn-voltar" onclick="voltarTela1()">← Trocar aluno</button>
-
-    <div class="form-card">
-      <!-- Aluno selecionado -->
-      <div class="selected-aluno">
-        <div class="selected-avatar" id="selAvatar"></div>
-        <div>
-          <div class="selected-name" id="selNome"></div>
-          <div style="font-size:0.72rem;color:var(--texto2)" id="selTurma"></div>
-        </div>
-        <div class="selected-change" onclick="voltarTela1()">Trocar</div>
-      </div>
-
-      <!-- UC -->
-      <div class="field-group">
-        <label class="field-label">📚 Unidade Curricular</label>
-        <div class="select-wrap">
-          <select id="ucSelect" onchange="atualizarNota()">
-            <option value="">Selecione a UC...</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Vetor + Instrumento lado a lado -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="field-group" style="margin-bottom:0">
-          <label class="field-label">🎯 Vetor</label>
-          <div class="select-wrap">
-            <select id="vetorSelect">
-              <option value="Fazer (40%)">Fazer (40%)</option>
-              <option value="Saber (30%)">Saber (30%)</option>
-              <option value="Comport. (30%)">Comport. (30%)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-group" style="margin-bottom:0">
-          <label class="field-label">📝 Instrumento</label>
-          <div class="select-wrap">
-            <select id="instrumentoSelect">
-              <option value="Observação Oficina">Observação</option>
-              <option value="Micro-Quiz">Micro-Quiz</option>
-              <option value="Projeto Prático">Projeto</option>
-              <option value="Apresentação Pitch">Pitch</option>
-              <option value="Prova de Consulta">Prova</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div style="height:18px;"></div>
-
-      <!-- Critério -->
-      <div class="field-group">
-        <label class="field-label">🔬 Critério Avaliado</label>
-        <div class="select-wrap">
-          <select id="criterioSelect">
-            <option value="Exatidão Dimensional">Exatidão Dimensional</option>
-            <option value="Segurança e EPI">Segurança e EPI</option>
-            <option value="Retenção Teórica">Retenção Teórica</option>
-            <option value="Resolução de Problemas">Resolução de Problemas</option>
-            <option value="Organização / 5S">Organização / 5S</option>
-            <option value="Planejamento / Lógica">Planejamento / Lógica</option>
-            <option value="Trabalho em Equipe">Trabalho em Equipe</option>
-            <option value="Aplicação de Normas">Aplicação de Normas</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- NOTA -->
-      <div class="field-group">
-        <label class="field-label">⭐ Nota</label>
-        <div class="nota-display">
-          <span class="nota-numero" id="notaDisplay">7.0</span>
-          <span class="nota-max">/10</span>
-        </div>
-        <input type="range" class="nota-slider" id="notaSlider"
-               min="0" max="10" step="0.5" value="7"
-               oninput="atualizarNota()">
-        <div class="nota-labels"><span>0</span><span>2.5</span><span>5</span><span>7.5</span><span>10</span></div>
-
-        <!-- Botões rápidos -->
-        <div class="nota-quick">
-          <button class="nota-btn" onclick="setNota(4)">4,0</button>
-          <button class="nota-btn" onclick="setNota(5)">5,0</button>
-          <button class="nota-btn" onclick="setNota(6)">6,0</button>
-          <button class="nota-btn" onclick="setNota(7.5)">7,5</button>
-          <button class="nota-btn" onclick="setNota(9)">9,0</button>
-        </div>
-      </div>
-
-      <!-- OBSERVAÇÃO -->
-      <div class="field-group">
-        <label class="field-label">💬 Observação (opcional)</label>
-        <div class="tags-wrap" id="tagsObs">
-          <span class="tag danger" onclick="toggleTag(this)">Fora da tolerância</span>
-          <span class="tag danger" onclick="toggleTag(this)">Sem EPI</span>
-          <span class="tag danger" onclick="toggleTag(this)">Bancada desorganizada</span>
-          <span class="tag danger" onclick="toggleTag(this)">Erro procedimental</span>
-          <span class="tag" onclick="toggleTag(this)">Boa evolução</span>
-          <span class="tag" onclick="toggleTag(this)">Esforço notável</span>
-          <span class="tag" onclick="toggleTag(this)">Liderança</span>
-        </div>
-        <textarea id="obsTexto" rows="2" placeholder="Detalhe adicional (opcional)..."></textarea>
-      </div>
-
-      <button class="btn-salvar" onclick="salvarAvaliacao()" id="btnSalvar">
-        <span>💾</span> Registrar Avaliação
-      </button>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════ -->
-  <!-- TELA 3: SUCESSO               -->
-  <!-- ══════════════════════════════ -->
-  <div class="success-screen" id="screenSuccess">
-    <div class="success-icon">✓</div>
-    <div class="success-title">Avaliação registrada!</div>
-    <div class="success-info" id="successInfo"></div>
-
-    <div class="success-card" id="successCard"></div>
-
-    <button class="btn-mesmo" onclick="avaliarMesmoAluno()">
-      ➕ Avaliar mesmo aluno novamente
-    </button>
-    <div style="height:10px;"></div>
-    <button class="btn-nova" onclick="novaAvaliacao()">
-      👤 Escolher outro aluno
-    </button>
-  </div>
-
 </div>
+""", unsafe_allow_html=True)
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
 
-<script>
-// ══════════════════════════════════════════
-// ESTADO GLOBAL
-// ══════════════════════════════════════════
-let config = {};
-let alunoAtual = null;
-let pendingQueue = [];
+# ==========================================
+# CONTEÚDO
+# ==========================================
+if df_aluno.empty:
+    st.warning("⚠️ Sem dados para este aluno com os filtros atuais.")
+    st.stop()
 
-// ══════════════════════════════════════════
-// INICIALIZAÇÃO
-// ══════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  // Data no header
-  const now = new Date();
-  document.getElementById('headerDate').innerHTML =
-    now.toLocaleDateString('pt-BR', {weekday:'short', day:'numeric', month:'short'}).replace('.','') +
-    '<br>' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+# ── Observação geral do aluno ──────────────────────────────────────────────
+if obs_geral:
+    st.markdown(f"""
+    <div class="obs-card">
+        <span>📌 Observação geral do aluno (aba Alunos)</span>
+        <p>{obs_geral}</p>
+    </div>""", unsafe_allow_html=True)
 
-  // Carrega config salva
-  const saved = localStorage.getItem('senai_config');
-  if (saved) {
-    config = JSON.parse(saved);
-    pendingQueue = JSON.parse(localStorage.getItem('senai_pending') || '[]');
-    mostrarTela1();
-  }
-  // else: mostra tela de setup (já ativa)
+# ── KPIs ──────────────────────────────────────────────────────────────────
+media_aluno  = df_aluno["Nota"].mean()
+media_turma  = df_turma["Nota"].mean()
+total_avals  = len(df_aluno)
+notas_baixas = (df_aluno["Nota"] < 6.0).sum()
+delta_turma  = media_aluno - media_turma
+total_recs   = len(df_rec_aluno)
 
-  atualizarNota();
-  atualizarPendentes();
+col1, col2, col3, col4, col5 = st.columns(5)
 
-  // Online/offline
-  window.addEventListener('online', sincronizarPendentes);
-  window.addEventListener('offline', () => showToast('📴 Offline — salvando localmente', 'offline'));
-});
+with col1:
+    st.markdown(f"""
+    <div class="kpi-card {'danger' if media_aluno < 6 else ''}">
+        <div class="kpi-label">📈 Média do Aluno</div>
+        <div class="kpi-value">{media_aluno:.1f}<span style='font-size:1rem;
+            font-weight:400;color:#9CA3AF'>/10</span></div>
+        <div class="kpi-desc">No filtro selecionado</div>
+    </div>""", unsafe_allow_html=True)
 
-// ══════════════════════════════════════════
-// SETUP
-// ══════════════════════════════════════════
-function salvarConfig() {
-  const url   = document.getElementById('scriptUrl').value.trim();
-  const turma = document.getElementById('nomeTurma').value.trim();
-  const raw   = document.getElementById('listaAlunos').value.trim();
+with col2:
+    delta_cor   = COR_VERDE if delta_turma >= 0 else COR_VERMELHO
+    delta_sinal = "▲" if delta_turma >= 0 else "▼"
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-label">👥 Média da Turma</div>
+        <div class="kpi-value">{media_turma:.1f}<span style='font-size:1rem;
+            font-weight:400;color:#9CA3AF'>/10</span></div>
+        <div class="kpi-desc" style='color:{delta_cor}'>{delta_sinal} {abs(delta_turma):.1f} vs turma</div>
+    </div>""", unsafe_allow_html=True)
 
-  if (!url || !turma || !raw) {
-    showToast('⚠️ Preencha todos os campos', 'error');
-    return;
-  }
+with col3:
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-label">📋 Avaliações</div>
+        <div class="kpi-value">{total_avals}</div>
+        <div class="kpi-desc">Registros no filtro ativo</div>
+    </div>""", unsafe_allow_html=True)
 
-  const alunos = raw.split('\n').map(a => a.trim()).filter(Boolean);
-  if (alunos.length < 1) {
-    showToast('⚠️ Adicione pelo menos 1 aluno', 'error');
-    return;
-  }
+with col4:
+    st.markdown(f"""
+    <div class="kpi-card {'danger' if notas_baixas > 0 else 'success'}">
+        <div class="kpi-label">⚠️ Notas Críticas</div>
+        <div class="kpi-value">{notas_baixas}</div>
+        <div class="kpi-desc">{'Requer atenção' if notas_baixas > 0 else 'Nenhuma abaixo de 6'}</div>
+    </div>""", unsafe_allow_html=True)
 
-  // UCs padrão (editável)
-  const ucs = [
-    'Fundamentos da Tecnologia Mecânica',
-    'Manutenção Mecânica Aplicada',
-    'Produção Mecânica',
-    'Projetos de Máquinas',
-    'Projeto de Inovação: Prototipação',
-    'Saúde, Segurança e Meio Ambiente'
-  ];
+with col5:
+    st.markdown(f"""
+    <div class="kpi-card {'warning' if total_recs > 0 else ''}">
+        <div class="kpi-label">🔁 Recuperações</div>
+        <div class="kpi-value">{total_recs}</div>
+        <div class="kpi-desc">{'Realizadas' if total_recs > 0 else 'Nenhuma registrada'}</div>
+    </div>""", unsafe_allow_html=True)
 
-  config = { url, turma, alunos, ucs };
-  localStorage.setItem('senai_config', JSON.stringify(config));
-  mostrarTela1();
-}
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-function irParaSetup() {
-  document.getElementById('screen1').classList.remove('active');
-  document.getElementById('screenSetup').classList.add('active');
-  if (config.url) document.getElementById('scriptUrl').value = config.url;
-  if (config.turma) document.getElementById('nomeTurma').value = config.turma;
-  if (config.alunos) document.getElementById('listaAlunos').value = config.alunos.join('\n');
-}
+# ── GRÁFICOS PRINCIPAIS ────────────────────────────────────────────────────
+graf_col1, graf_col2 = st.columns([1, 1.3])
 
-// ══════════════════════════════════════════
-// TELA 1 — LISTA DE ALUNOS
-// ══════════════════════════════════════════
-function mostrarTela1() {
-  ['screenSetup','screen2','screenSuccess'].forEach(id => {
-    document.getElementById(id).classList.remove('active');
-  });
-  document.getElementById('screen1').classList.add('active');
-  atualizarDots(1);
-  renderAlunos(config.alunos || []);
-  preencherUCs();
-}
+with graf_col1:
+    st.markdown('<div class="section-title">🕸️ Perfil de Habilidades</div>', unsafe_allow_html=True)
 
-function renderAlunos(lista) {
-  const cont = document.getElementById('alunoList');
-  cont.innerHTML = '';
-  lista.forEach(nome => {
-    const iniciais = nome.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
-    const div = document.createElement('div');
-    div.className = 'aluno-item';
-    div.innerHTML = `
-      <div class="aluno-avatar">${iniciais}</div>
-      <div>
-        <div class="aluno-nome">${nome}</div>
-        <div class="aluno-turma">${config.turma || ''}</div>
-      </div>
-      <span class="aluno-arrow">›</span>
-    `;
-    div.onclick = () => selecionarAluno(nome);
-    cont.appendChild(div);
-  });
-}
+    criterios = [
+        "Exatidão Dimensional","Segurança e EPI","Retenção Teórica",
+        "Resolução de Problemas","Organização / 5S","Planejamento / Lógica",
+        "Trabalho em Equipe","Aplicação de Normas",
+    ]
+    col_crit = "Critério Avaliado" if "Critério Avaliado" in df_aluno.columns else df_aluno.columns[-2]
 
-function filtrarAlunos(q) {
-  const filtrado = (config.alunos || []).filter(a =>
-    a.toLowerCase().includes(q.toLowerCase())
-  );
-  renderAlunos(filtrado);
-}
+    vals_aluno = []
+    vals_turma = []
+    for c in criterios:
+        m = df_aluno[df_aluno[col_crit] == c]["Nota"].mean()
+        vals_aluno.append(m if pd.notna(m) else 0)
+        mt = df_turma[df_turma[col_crit] == c]["Nota"].mean()
+        vals_turma.append(mt if pd.notna(mt) else 0)
 
-function preencherUCs() {
-  const sel = document.getElementById('ucSelect');
-  sel.innerHTML = '<option value="">Selecione a UC...</option>';
-  (config.ucs || []).forEach(uc => {
-    const opt = document.createElement('option');
-    opt.value = uc; opt.textContent = uc;
-    sel.appendChild(opt);
-  });
-}
+    c_fechado = criterios + [criterios[0]]
+    va = vals_aluno + [vals_aluno[0]]
+    vt = vals_turma + [vals_turma[0]]
 
-// ══════════════════════════════════════════
-// TELA 2 — FORMULÁRIO
-// ══════════════════════════════════════════
-function selecionarAluno(nome) {
-  alunoAtual = nome;
-  const iniciais = nome.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
-  document.getElementById('selAvatar').textContent = iniciais;
-  document.getElementById('selNome').textContent = nome;
-  document.getElementById('selTurma').textContent = config.turma || '';
-  document.getElementById('screen1').classList.remove('active');
-  document.getElementById('screen2').classList.add('active');
-  atualizarDots(2);
+    fig_radar = go.Figure()
+    if comparar_turma:
+        fig_radar.add_trace(go.Scatterpolar(
+            r=vt, theta=c_fechado, fill="toself", name="Média Turma",
+            line=dict(color="#9CA3AF", width=2), fillcolor="rgba(156,163,175,0.15)"
+        ))
+    fig_radar.add_trace(go.Scatterpolar(
+        r=va, theta=c_fechado, fill="toself", name=aluno_sel,
+        line=dict(color=COR_AZUL, width=2.5), fillcolor="rgba(0,83,159,0.2)"
+    ))
+    fig_radar.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0,10], tickfont=dict(size=9), gridcolor="#E5E7EB"),
+            angularaxis=dict(tickfont=dict(size=9.5)),
+            bgcolor="white"
+        ),
+        showlegend=comparar_turma,
+        legend=dict(orientation="h", y=-0.15, font=dict(size=10)),
+        margin=dict(t=20,b=20,l=20,r=20),
+        paper_bgcolor="white", height=360
+    )
+    st.plotly_chart(fig_radar, use_container_width=True)
 
-  // Reset form
-  document.getElementById('obsTexto').value = '';
-  document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
-  setNota(7, false);
-}
+with graf_col2:
+    st.markdown('<div class="section-title">📅 Evolução ao Longo do Tempo</div>', unsafe_allow_html=True)
 
-function voltarTela1() {
-  document.getElementById('screen2').classList.remove('active');
-  document.getElementById('screen1').classList.add('active');
-  atualizarDots(1);
-  document.getElementById('searchAluno').value = '';
-  renderAlunos(config.alunos || []);
-}
+    df_tempo = df_aluno.sort_values("Data").copy()
+    df_tempo["Tendência Aluno"] = df_tempo["Nota"].expanding().mean()
+    cores_vetores = {"Fazer (40%)": COR_AZUL, "Saber (30%)": COR_VERMELHO, "Comport. (30%)": "#6B7280"}
 
-function atualizarNota() {
-  const val = parseFloat(document.getElementById('notaSlider').value);
-  const display = document.getElementById('notaDisplay');
-  display.textContent = val.toFixed(1).replace('.',',');
+    fig_linha = px.scatter(
+        df_tempo, x="Data", y="Nota", color="Vetor (Peso)",
+        color_discrete_map=cores_vetores,
+        hover_data={col_crit: True, "Nota": ":.1f"}
+    )
+    fig_linha.update_traces(marker=dict(size=9, line=dict(width=1.5, color="white")))
+    fig_linha.add_trace(go.Scatter(
+        x=df_tempo["Data"], y=df_tempo["Tendência Aluno"],
+        mode="lines", name="Tendência Aluno",
+        line=dict(color=COR_AMARELO, width=3, dash="dot")
+    ))
+    fig_linha.add_hline(y=6.0, line_dash="dash", line_color=COR_VERMELHO,
+        line_width=1.5, annotation_text="Mínimo (6,0)",
+        annotation_position="bottom right", annotation_font_size=10)
 
-  // Cor dinâmica
-  if (val < 5)      display.style.color = '#E30613';
-  else if (val < 7) display.style.color = '#F59E0B';
-  else              display.style.color = '#059669';
+    if comparar_turma:
+        dtt = df_turma.sort_values("Data").copy()
+        dtt["Tendência Turma"] = dtt["Nota"].expanding().mean()
+        fig_linha.add_trace(go.Scatter(
+            x=dtt["Data"], y=dtt["Tendência Turma"], mode="lines",
+            name="Tendência Turma", line=dict(color="#9CA3AF", width=2.5, dash="dash")
+        ))
 
-  // Atualiza botões rápidos
-  document.querySelectorAll('.nota-btn').forEach(btn => {
-    btn.classList.toggle('selected', parseFloat(btn.textContent.replace(',','.')) === val);
-  });
-}
+    fig_linha.update_layout(
+        xaxis=dict(tickformat="%b/%Y", gridcolor="#F3F4F6"),
+        yaxis=dict(range=[0,10.5], gridcolor="#F3F4F6"),
+        legend=dict(orientation="h", y=-0.2, font=dict(size=10)),
+        plot_bgcolor="white", paper_bgcolor="white",
+        margin=dict(t=10,b=10,l=10,r=10), height=360, hovermode="x unified"
+    )
+    st.plotly_chart(fig_linha, use_container_width=True)
 
-function setNota(val, updateBtn=true) {
-  document.getElementById('notaSlider').value = val;
-  atualizarNota();
-}
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-function toggleTag(el) {
-  el.classList.toggle('selected');
-}
+# ── BOXPLOT + HISTOGRAMA ───────────────────────────────────────────────────
+col_box, col_hist = st.columns(2)
 
-// ══════════════════════════════════════════
-// SALVAR AVALIAÇÃO
-// ══════════════════════════════════════════
-async function salvarAvaliacao() {
-  const uc = document.getElementById('ucSelect').value;
-  if (!uc) { showToast('⚠️ Selecione a Unidade Curricular', 'error'); return; }
+with col_box:
+    st.markdown('<div class="section-title">📦 Distribuição por Vetor</div>', unsafe_allow_html=True)
+    fig_box = px.box(
+        df_aluno, x="Vetor (Peso)", y="Nota", color="Vetor (Peso)",
+        color_discrete_map={"Fazer (40%)": COR_AZUL,"Saber (30%)": COR_VERMELHO,"Comport. (30%)": "#6B7280"},
+        points="all"
+    )
+    fig_box.update_layout(showlegend=False, plot_bgcolor="white", paper_bgcolor="white",
+        yaxis=dict(range=[0,10.5], gridcolor="#F3F4F6"),
+        xaxis_title="", margin=dict(t=10,b=10,l=10,r=10), height=280)
+    fig_box.add_hline(y=6.0, line_dash="dash", line_color=COR_VERMELHO, line_width=1.5)
+    st.plotly_chart(fig_box, use_container_width=True)
 
-  const now = new Date();
-  const data = now.toLocaleDateString('pt-BR'); // dd/mm/yyyy
+with col_hist:
+    st.markdown('<div class="section-title">📊 Distribuição de Notas</div>', unsafe_allow_html=True)
+    fig_hist = px.histogram(df_aluno, x="Nota", nbins=10, color_discrete_sequence=[COR_AZUL])
+    fig_hist.update_layout(
+        plot_bgcolor="white", paper_bgcolor="white",
+        xaxis=dict(range=[0,10.5], gridcolor="#F3F4F6"),
+        yaxis=dict(gridcolor="#F3F4F6"),
+        margin=dict(t=10,b=10,l=10,r=10), height=280, bargap=0.08
+    )
+    fig_hist.add_vline(x=media_aluno, line_dash="dash", line_color=COR_AMARELO, line_width=2,
+        annotation_text=f"Média: {media_aluno:.1f}", annotation_position="top right",
+        annotation_font_size=11)
+    st.plotly_chart(fig_hist, use_container_width=True)
 
-  // Tags selecionadas
-  const tagsSel = [...document.querySelectorAll('.tag.selected')].map(t=>t.textContent.trim());
-  const obsTexto = document.getElementById('obsTexto').value.trim();
-  const obs = [...tagsSel, obsTexto].filter(Boolean).join(' · ') || '';
+# ── RANKING ────────────────────────────────────────────────────────────────
+if mostrar_ranking:
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">🏆 Ranking da Turma</div>', unsafe_allow_html=True)
 
-  const registro = {
-    data,
-    aluno:       alunoAtual,
-    uc:          uc,
-    vetor:       document.getElementById('vetorSelect').value,
-    instrumento: document.getElementById('instrumentoSelect').value,
-    criterio:    document.getElementById('criterioSelect').value,
-    nota:        parseFloat(document.getElementById('notaSlider').value),
-    observacao:  obs
-  };
+    ranking = calcular_ranking(df_turma)
+    pos     = ranking[ranking["Aluno"] == aluno_sel].index
+    posicao = pos[0] + 1 if len(pos) > 0 else None
 
-  const btn = document.getElementById('btnSalvar');
-  btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> Enviando...';
+    if posicao:
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg,{COR_AZUL}15,{COR_AZUL}05);
+                    border:1px solid {COR_AZUL}30;border-radius:12px;padding:14px 20px;
+                    margin-bottom:16px;display:inline-block;">
+            <span style="font-family:Montserrat;font-weight:700;font-size:0.9rem;color:{COR_AZUL};">
+                {aluno_sel} está em <b>{posicao}º lugar</b> de {len(ranking)} alunos
+            </span>
+        </div>""", unsafe_allow_html=True)
 
-  const ok = await enviarRegistro(registro);
+    fig_rank = px.bar(
+        ranking.head(20), x="Aluno", y="Média", color="Média", text="Média",
+        color_continuous_scale=[[0,COR_VERMELHO],[0.6,COR_AMARELO],[1,COR_VERDE]]
+    )
+    fig_rank.update_traces(texttemplate="%{text:.1f}", textposition="outside")
+    fig_rank.update_layout(
+        plot_bgcolor="white", paper_bgcolor="white",
+        yaxis=dict(range=[0,11], gridcolor="#F3F4F6"),
+        xaxis_title="", coloraxis_showscale=False,
+        margin=dict(t=20,b=10,l=10,r=10), height=320
+    )
+    fig_rank.add_hline(y=6.0, line_dash="dash", line_color="#9CA3AF", line_width=1.5)
+    st.plotly_chart(fig_rank, use_container_width=True)
 
-  btn.disabled = false;
-  btn.innerHTML = '<span>💾</span> Registrar Avaliação';
+# ── RECUPERAÇÕES ───────────────────────────────────────────────────────────
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">🔁 Histórico de Recuperações</div>', unsafe_allow_html=True)
 
-  // Tela de sucesso
-  mostrarSucesso(registro, ok);
-}
+if not df_rec_aluno.empty:
+    for _, row in df_rec_aluno.iterrows():
+        nota_orig = row.get("Nota_Orig", "—")
+        nota_rec  = row.get("Nota_Rec",  "—")
+        delta_rec = (nota_rec - nota_orig) if isinstance(nota_rec, float) and isinstance(nota_orig, float) else 0
+        data_r    = row.get("Data_Rec","")
+        data_fmt  = data_r.strftime("%d/%m/%Y") if pd.notna(data_r) and hasattr(data_r,"strftime") else str(data_r)
+        aprovado  = "✅ Aprovado" if isinstance(nota_rec, float) and nota_rec >= 6 else "❌ Não aprovado"
+        obs_r     = row.get("Observação", "") or ""
 
-async function enviarRegistro(registro) {
-  if (!navigator.onLine) {
-    enfileirar(registro);
-    return 'offline';
-  }
-  try {
-    await fetch(config.url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(registro)
-    });
-    return 'ok';
-  } catch(e) {
-    enfileirar(registro);
-    return 'offline';
-  }
-}
+        st.markdown(f"""
+        <div class="rec-item">
+            <div style="text-align:center;min-width:64px">
+                <div style="font-size:0.7rem;color:#92400E">ANTES</div>
+                <div style="font-family:Montserrat;font-size:1.3rem;font-weight:800;color:#B45309">{nota_orig if isinstance(nota_orig,float) else '—':.1f if isinstance(nota_orig,float) else ''}</div>
+            </div>
+            <div style="font-size:1.4rem;color:#D97706">→</div>
+            <div style="text-align:center;min-width:64px">
+                <div style="font-size:0.7rem;color:#065F46">DEPOIS</div>
+                <div style="font-family:Montserrat;font-size:1.3rem;font-weight:800;
+                    color:{'#059669' if isinstance(nota_rec,float) and nota_rec>=6 else '#E30613'}">
+                    {nota_rec if isinstance(nota_rec,float) else '—':.1f if isinstance(nota_rec,float) else ''}
+                </div>
+            </div>
+            <div style="flex:1">
+                <strong style="font-size:0.88rem">{row.get('Critério','—')} · {aprovado}</strong>
+                <span style="display:block;font-size:0.78rem;color:#6B7280">{data_fmt} · {row.get('UC','—')}</span>
+                {f'<span style="font-size:0.78rem;color:#92400E;font-style:italic">{obs_r}</span>' if obs_r else ''}
+            </div>
+            <div style="font-family:Montserrat;font-weight:800;font-size:1rem;
+                color:{'#059669' if delta_rec>=0 else '#E30613'}">
+                {'▲' if delta_rec>=0 else '▼'}{abs(delta_rec):.1f if isinstance(delta_rec,float) else ''}
+            </div>
+        </div>""", unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;
+                padding:14px 18px;font-size:0.88rem;color:#64748B;">
+        Nenhuma recuperação registrada para este aluno.
+    </div>""", unsafe_allow_html=True)
 
-function enfileirar(registro) {
-  pendingQueue.push(registro);
-  localStorage.setItem('senai_pending', JSON.stringify(pendingQueue));
-  atualizarPendentes();
-}
+# ── ALERTAS ────────────────────────────────────────────────────────────────
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">⚠️ Alertas e Intervenção Pedagógica</div>', unsafe_allow_html=True)
 
-async function sincronizarPendentes() {
-  if (!pendingQueue.length) return;
-  showToast(`📡 Sincronizando ${pendingQueue.length} registro(s)...`);
-  const successList = [];
-  for (const r of pendingQueue) {
-    try {
-      await fetch(config.url, {
-        method:'POST', mode:'no-cors',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(r)
-      });
-      successList.push(r);
-    } catch(e) {}
-  }
-  pendingQueue = pendingQueue.filter(r => !successList.includes(r));
-  localStorage.setItem('senai_pending', JSON.stringify(pendingQueue));
-  atualizarPendentes();
-  if (successList.length) showToast(`✅ ${successList.length} registro(s) sincronizados!`, 'success');
-}
+df_alertas = df_aluno[df_aluno["Nota"] < 6.0].sort_values("Data", ascending=False)
+col_obs = "Observação" if "Observação" in df_aluno.columns else "Observação Técnica (Log)"
 
-function atualizarPendentes() {
-  const badge = document.getElementById('pendingBadge');
-  const count = document.getElementById('pendingCount');
-  if (pendingQueue.length > 0) {
-    badge.style.display = 'block';
-    count.textContent = pendingQueue.length;
-  } else {
-    badge.style.display = 'none';
-  }
-}
+if not df_alertas.empty:
+    st.markdown(f"""
+    <div style="background:#FFF5F5;border:1px solid #FECACA;border-radius:10px;
+                padding:12px 18px;margin-bottom:16px;font-size:0.88rem;color:#991B1B;">
+        🚨 <b>{len(df_alertas)} ocorrência(s)</b> com nota abaixo de 6,0. Considere ações de reforço.
+    </div>""", unsafe_allow_html=True)
 
-// ══════════════════════════════════════════
-// TELA SUCESSO
-// ══════════════════════════════════════════
-function mostrarSucesso(r, status) {
-  document.getElementById('screen2').classList.remove('active');
-  document.getElementById('screenSuccess').classList.add('active');
-  atualizarDots(3);
+    for _, row in df_alertas.iterrows():
+        data_fmt = row["Data"].strftime("%d/%m/%Y") if pd.notna(row["Data"]) else "—"
+        obs_val  = row.get(col_obs, "—") or "—"
+        uc_val   = row.get("UC", row.get("Unidade Curricular (UC)", "—"))
+        st.markdown(f"""
+        <div class="alert-item">
+            <div class="alert-nota">{row['Nota']:.1f}</div>
+            <div class="alert-info">
+                <strong>{row.get(col_crit,'—')} · {row.get('Vetor (Peso)','—')}</strong>
+                <span>{data_fmt} · {uc_val}</span>
+                <span style="margin-top:4px;display:block;color:#374151;font-style:italic">"{obs_val}"</span>
+            </div>
+        </div>""", unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;
+                padding:14px 18px;font-size:0.88rem;color:#166534;">
+        ✅ <b>Ótimo!</b> Nenhuma nota crítica nos filtros selecionados.
+    </div>""", unsafe_allow_html=True)
 
-  const statusTxt = status === 'offline'
-    ? '⏳ Salvo localmente — será enviado quando houver conexão.'
-    : '✅ Enviado para o Google Sheets com sucesso.';
-  document.getElementById('successInfo').textContent = statusTxt;
-
-  document.getElementById('successCard').innerHTML = `
-    <div class="success-row">
-      <span class="success-row-label">Aluno</span>
-      <span class="success-row-value">${r.aluno}</span>
-    </div>
-    <div class="success-row">
-      <span class="success-row-label">UC</span>
-      <span class="success-row-value">${r.uc.split(':')[0].trim()}</span>
-    </div>
-    <div class="success-row">
-      <span class="success-row-label">Critério</span>
-      <span class="success-row-value">${r.criterio}</span>
-    </div>
-    <div class="success-row">
-      <span class="success-row-label">Nota</span>
-      <span class="success-row-value" style="font-size:1.1rem;color:${r.nota>=6?'#10B981':'#E30613'}">${r.nota.toFixed(1).replace('.',',')}</span>
-    </div>
-    <div class="success-row">
-      <span class="success-row-label">Vetor</span>
-      <span class="success-row-value">${r.vetor}</span>
-    </div>
-    ${r.observacao ? `<div class="success-row">
-      <span class="success-row-label">Obs.</span>
-      <span class="success-row-value" style="font-size:0.78rem;text-align:right;max-width:65%">${r.observacao}</span>
-    </div>` : ''}
-  `;
-}
-
-function avaliarMesmoAluno() {
-  selecionarAluno(alunoAtual);
-}
-
-function novaAvaliacao() {
-  document.getElementById('screenSuccess').classList.remove('active');
-  mostrarTela1();
-}
-
-// ══════════════════════════════════════════
-// UI HELPERS
-// ══════════════════════════════════════════
-function atualizarDots(step) {
-  for (let i = 1; i <= 3; i++) {
-    const dot = document.getElementById('dot'+i);
-    dot.className = 'step-dot';
-    if (i < step) dot.classList.add('done');
-    else if (i === step) dot.classList.add('active');
-  }
-}
-
-let toastTimer;
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast ' + type + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
-}
-</script>
-</body>
-</html>
+# ── TABELA COMPLETA ────────────────────────────────────────────────────────
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+with st.expander("🗂️ Ver todos os registros do aluno"):
+    df_disp = df_aluno.copy()
+    df_disp["Data"] = df_disp["Data"].dt.strftime("%d/%m/%Y")
+    st.dataframe(df_disp.sort_values("Data", ascending=False),
+                 use_container_width=True, hide_index=True)
