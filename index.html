@@ -17,11 +17,12 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{height:100%}
-body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);height:100%;position:fixed;width:100%;overflow:hidden;}
+/* ✅ MELHORIA #12: Removido position:fixed do body para melhorar scroll em mobile */
+body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);min-height:100vh;}
 .bg{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0a1628 0%,#00274d 50%,#0a1628 100%);}
 .bg::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,83,159,0.3) 0%,transparent 70%);top:-150px;right:-150px;animation:pulse 6s ease-in-out infinite;}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-.app{position:fixed;inset:0;z-index:1;max-width:480px;margin:0 auto;display:flex;flex-direction:column;}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh;}
 .header{flex-shrink:0;padding:52px 24px 14px;display:flex;align-items:center;justify-content:space-between;}
 .logo-badge{background:var(--vermelho);color:white;font-weight:800;font-size:0.75rem;letter-spacing:0.12em;padding:5px 10px;border-radius:8px;}
 .logo-txt{color:rgba(255,255,255,0.55);font-size:0.8rem;margin-left:10px;}
@@ -144,6 +145,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .clink{text-align:center;margin-top:18px;}
 .clink a{color:rgba(255,255,255,0.28);font-size:0.74rem;text-decoration:none;cursor:pointer;}
 ::-webkit-scrollbar{width:0;background:transparent;}
+/* ✅ MELHORIA #11: Feedback visual de erro */
+.error-banner{background:rgba(227,6,19,0.15);border:1px solid rgba(227,6,19,0.4);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:rgba(255,255,255,0.85);line-height:1.6;display:none;}
+.error-banner.on{display:block;}
 </style>
 </head>
 <body>
@@ -189,7 +193,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="hint">Encontre na URL da planilha: docs.google.com/spreadsheets/d/<strong style="color:rgba(255,255,255,0.6)">ID_AQUI</strong>/edit</div>
     </div>
     <button class="btn btn-primary" id="btnSetup">✅ Salvar e Carregar Dados</button>
-    <div class="clink"><a>v1.5 · SENAI Avaliador</a></div>
+    <div class="error-banner" id="errorBanner"></div>
+    <div class="clink"><a>v2.0 · SENAI Avaliador Refatorado</a></div>
   </div>
 
   <!-- TELA 1: LOADING -->
@@ -198,6 +203,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="spinner"></div>
       <div class="loading-txt" id="loadingTxt">Carregando dados da planilha...</div>
     </div>
+    <div class="error-banner" id="loadErrorBanner"></div>
   </div>
 
   <!-- TELA 2: ESCOLHER TURMA -->
@@ -253,10 +259,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="swrap"><label>📚 Unidade Curricular</label>
         <select id="swUcSel"><option value="">Selecione a UC...</option></select></div>
       <div class="two">
-        <div class="swrap"><label>🎯 Vetor</label><select id="swVetSel"></select></div>
-        <div class="swrap"><label>📝 Instrumento</label><select id="swInstSel"></select></div>
+        <div class="swrap"><label>🎯 Vetor</label><select id="swVetSel"><option value="">Vetor...</option></select></div>
+        <div class="swrap"><label>📝 Instrumento</label><select id="swInstSel"><option value="">Instrumento...</option></select></div>
       </div>
-      <div class="swrap"><label>🔬 Critério</label><select id="swCritSel"></select></div>
+      <div class="swrap"><label>🔬 Critério</label><select id="swCritSel"><option value="">Critério...</option></select></div>
       <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;color:#166534;">
         💡 Esses valores valem para <strong>todos os alunos</strong>. Você só define a nota de cada um.
       </div>
@@ -276,10 +282,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="swrap"><label>📚 Unidade Curricular</label>
         <select id="ucSel"><option value="">Selecione a UC...</option></select></div>
       <div class="two">
-        <div class="swrap"><label>🎯 Vetor</label><select id="vetSel"></select></div>
-        <div class="swrap"><label>📝 Instrumento</label><select id="instSel"></select></div>
+        <div class="swrap"><label>🎯 Vetor</label><select id="vetSel"><option value="">Vetor...</option></select></div>
+        <div class="swrap"><label>📝 Instrumento</label><select id="instSel"><option value="">Instrumento...</option></select></div>
       </div>
-      <div class="swrap"><label>🔬 Critério</label><select id="critSel"></select></div>
+      <div class="swrap"><label>🔬 Critério</label><select id="critSel"><option value="">Critério...</option></select></div>
       <div style="margin-bottom:14px">
         <label class="nota-lbl">⭐ Nota</label>
         <div class="nota-num" id="notaNum">7,0<span>/10</span></div>
@@ -346,573 +352,1391 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 </div>
 
 <script>
-var cfg = {}, dados = {}, turmaAtual = null, alunoAtual = null, queue = [], swNotas = {}, swCfg = {};
+// ════════════════════════════════════════════════════════════════════════════
+// ✅ MELHORIA #3: IIFE para encapsular e evitar poluição do escopo global
+// ════════════════════════════════════════════════════════════════════════════
+(function() {
+  'use strict';
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-window.addEventListener('load', function(){
-  var n = new Date();
-  document.getElementById('hdate').innerHTML =
-    n.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}) +
-    '<br>' + n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✅ MELHORIA #10: Constantes nomeadas para chaves localStorage
+  // ══════════════════════════════════════════════════════════════════════════
+  const LS_KEYS = {
+    CONFIG: 'senai_config_v2',
+    QUEUE: 'senai_queue_v2',
+    DATA: 'senai_data_v2'
+  };
 
-  // Registra TODOS os botões UMA VEZ
-  on('btnSetup',           'click', setup);
-  on('btnTrocarTurma',     'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
-  on('btnRecarregar',      'click', function(){
-    dados = {};
-    try{ localStorage.removeItem('snd4'); }catch(e){}
-    show('s1'); setLoadingTxt('Recarregando...');
-    carregarPlanilha(function(){ irTelas2(); });
-  });
-  on('lkCfg',              'click', function(e){ e.preventDefault(); irSetup(); });
-  on('modoIndividual',     'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('modoVarredura',      'click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnBack4b',          'click', function(){ show('s3'); dots(2); });
-  on('lkVoltar4a',         'click', function(){ show('s3'); dots(2); });
-  on('btnBack5a',          'click', function(){ show('s4a'); dots(3); });
-  on('btnChg',             'click', function(){ show('s4a'); dots(3); });
-  on('btnBack5b',          'click', function(){ show('s4b'); dots(3); });
-  on('btnSalvar',          'click', salvar);
-  on('btnMesmo',           'click', function(){ irFormulario(alunoAtual); });
-  on('btnNova',            'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('btnIniciarVarredura','click', iniciarVarredura);
-  on('btnEnviarTudo',      'click', enviarVarredura);
-  on('btnCancelarSw',      'click', function(){ show('s3'); dots(2); });
-  on('btnNovaVarredura',   'click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnVoltarModo',      'click', function(){ show('s3'); dots(2); });
-  on('slider', 'input', function(){ notaUI(+this.value); });
-  on('srch',   'input', function(){ listaAlunos(this.value); });
-  document.querySelectorAll('.nb').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.getElementById('slider').value = this.dataset.v;
-      notaUI(+this.dataset.v);
-    });
-  });
-  notaUI(7);
-  pendUI();
-  window.addEventListener('online',  sync);
-  window.addEventListener('offline', function(){ toast('📴 Offline','wrn'); });
+  // ══════════════════════════════════════════════════════════════════════════
+  // ⚠️ CONFIGURE AQUI A URL DO SEU GOOGLE APPS SCRIPT
+  // ══════════════════════════════════════════════════════════════════════════
+  // Esta URL será preenchida após a configuração inicial.
+  // Você pode pré-preencher aqui se quiser hardcode a URL
+  // ══════════════════════════════════════════════════════════════════════════
 
-  // Carrega config salva
-  try {
-    var s = localStorage.getItem('snc4');
-    if(s){
-      cfg   = JSON.parse(s);
-      queue = JSON.parse(localStorage.getItem('snq4')||'[]');
-      var d = localStorage.getItem('snd4');
-      if(d) dados = JSON.parse(d);
-      pendUI();
-      if(dados.turmas && dados.turmas.length > 0){
-        // Mostra imediatamente com cache, re-busca em background
-        irTelas2();
-        carregarPlanilha(function(ok){ if(ok){ renderTurmas(); fillForms(); } });
+  // Estado da aplicação
+  const state = {
+    config: {},
+    dados: {},
+    turmaAtual: null,
+    alunoAtual: null,
+    queue: [],
+    swNotas: {},
+    swCfg: {},
+    isSyncing: false
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✅ MELHORIA #14: Comentários explicativos organizados
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // INICIALIZAÇÃO
+  // ══════════════════════════════════════════════════════════════════════════
+  window.addEventListener('load', init);
+
+  function init() {
+    // Atualiza data/hora no header
+    updateHeaderDate();
+
+    // Registra todos os event listeners
+    registerEventListeners();
+
+    // Inicializa UI
+    updateNotaUI(7);
+    updatePendingUI();
+
+    // Listeners de conectividade
+    window.addEventListener('online', syncOfflineQueue);
+    window.addEventListener('offline', () => showToast('📴 Offline', 'wrn'));
+
+    // Carrega configuração salva
+    loadSavedConfig();
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // UTILITIES
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Helper para adicionar event listener
+   */
+  function on(id, event, handler) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, handler);
+  }
+
+  /**
+   * ✅ MELHORIA #5: Sanitização de texto para prevenir XSS
+   */
+  function sanitizeText(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  /**
+   * ✅ MELHORIA #5: Criação segura de elementos DOM
+   */
+  function createSafeElement(tag, attrs, textContent) {
+    const el = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(key => {
+        if (key === 'className') {
+          el.className = attrs[key];
+        } else if (key.startsWith('data-')) {
+          el.setAttribute(key, attrs[key]);
+        } else {
+          el[key] = attrs[key];
+        }
+      });
+    }
+    if (textContent) {
+      el.textContent = textContent;
+    }
+    return el;
+  }
+
+  /**
+   * ✅ MELHORIA #8: Salvar no localStorage com tratamento de quota
+   */
+  function safeLocalStorageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        showToast('⚠️ Memória local cheia. Limpando cache...', 'wrn');
+        // Limpa dados antigos mas mantém config
+        try {
+          localStorage.removeItem(LS_KEYS.DATA);
+          localStorage.setItem(key, value);
+          return true;
+        } catch (e2) {
+          showToast('❌ Erro ao salvar dados localmente', 'err');
+          return false;
+        }
       } else {
-        show('s1');
-        carregarPlanilha(function(){ irTelas2(); });
+        console.error('localStorage error:', e);
+        return false;
       }
+    }
+  }
+
+  /**
+   * ✅ MELHORIA #6: Debounce para busca de alunos
+   */
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // EVENT LISTENERS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function registerEventListeners() {
+    // Setup
+    on('btnSetup', 'click', setupConfig);
+    
+    // Turma
+    on('btnTrocarTurma', 'click', () => {
+      state.turmaAtual = null;
+      updateTurmaBar();
+      goToTurmaSelect();
+    });
+    
+    on('btnRecarregar', 'click', () => {
+      state.dados = {};
+      try { localStorage.removeItem(LS_KEYS.DATA); } catch(e) {}
+      showScreen('s1');
+      setLoadingText('Recarregando...');
+      loadPlanilha(() => goToTurmaSelect());
+    });
+
+    on('lkCfg', 'click', (e) => {
+      e.preventDefault();
+      goToSetup();
+    });
+
+    // Modo
+    on('modoIndividual', 'click', () => {
+      showScreen('s4a');
+      updateDots(3);
+      renderAlunosList('');
+    });
+
+    on('modoVarredura', 'click', () => {
+      showScreen('s4b');
+      updateDots(3);
+      fillAllForms();
+    });
+
+    // Navegação
+    on('btnBack4b', 'click', () => { showScreen('s3'); updateDots(2); });
+    on('lkVoltar4a', 'click', () => { showScreen('s3'); updateDots(2); });
+    on('btnBack5a', 'click', () => { showScreen('s4a'); updateDots(3); });
+    on('btnChg', 'click', () => { showScreen('s4a'); updateDots(3); });
+    on('btnBack5b', 'click', () => { showScreen('s4b'); updateDots(3); });
+
+    // Ações
+    on('btnSalvar', 'click', saveIndividualAvaliacao);
+    on('btnMesmo', 'click', () => goToFormulario(state.alunoAtual));
+    on('btnNova', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunosList(''); });
+    
+    on('btnIniciarVarredura', 'click', iniciarVarredura);
+    on('btnEnviarTudo', 'click', enviarVarredura);
+    on('btnCancelarSw', 'click', () => { showScreen('s3'); updateDots(2); });
+    on('btnNovaVarredura', 'click', () => { showScreen('s4b'); updateDots(3); fillAllForms(); });
+    on('btnVoltarModo', 'click', () => { showScreen('s3'); updateDots(2); });
+
+    // Range slider
+    on('slider', 'input', (e) => updateNotaUI(parseFloat(e.target.value)));
+
+    // ✅ MELHORIA #6: Search com debounce
+    const searchInput = document.getElementById('srch');
+    if (searchInput) {
+      const debouncedSearch = debounce((value) => renderAlunosList(value), 300);
+      searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
+    }
+
+    // Botões de nota rápida
+    document.querySelectorAll('.nb').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const value = parseFloat(this.dataset.v);
+        document.getElementById('slider').value = value;
+        updateNotaUI(value);
+      });
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // SETUP & CONFIGURAÇÃO
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function setupConfig() {
+    const url = (document.getElementById('fUrl').value || '').trim();
+    const sheetId = (document.getElementById('fSheetId').value || '').trim();
+
+    // ✅ MELHORIA #4: Validação completa
+    if (!url) {
+      showToast('⚠️ Cole a URL do Apps Script', 'err');
       return;
     }
-  } catch(e){}
+    if (!sheetId) {
+      showToast('⚠️ Cole o ID da planilha', 'err');
+      return;
+    }
+    if (!url.includes('script.google.com')) {
+      showToast('⚠️ URL inválida. Use a URL do Google Apps Script', 'err');
+      return;
+    }
 
-  show('s0'); dots(0);
-});
-
-// ══════════════════════════════════════════
-// SETUP
-// ══════════════════════════════════════════
-function setup(){
-  var url     = (document.getElementById('fUrl').value||'').trim();
-  var sheetId = (document.getElementById('fSheetId').value||'').trim();
-  if(!url)     { toast('⚠️ Cole a URL do Apps Script','err'); return; }
-  if(!sheetId) { toast('⚠️ Cole o ID da planilha','err'); return; }
-  cfg = { url:url, sheetId:sheetId };
-  try{ localStorage.setItem('snc4', JSON.stringify(cfg)); }catch(e){}
-  show('s1'); setLoadingTxt('Carregando turmas e alunos...');
-  carregarPlanilha(function(ok){
-    if(ok) irTelas2();
-    else { toast('⚠️ Erro ao carregar — verifique o ID','err'); irSetup(); }
-  });
-}
-
-function irSetup(){
-  show('s0'); dots(0);
-  if(cfg.url)     document.getElementById('fUrl').value     = cfg.url;
-  if(cfg.sheetId) document.getElementById('fSheetId').value = cfg.sheetId;
-}
-
-// ══════════════════════════════════════════
-// PLANILHA — igual ao código que funcionava,
-// só corrigido o bug de promessas=2 com 2 fetches
-// ══════════════════════════════════════════
-function csvUrl(aba){
-  return 'https://docs.google.com/spreadsheets/d/'+cfg.sheetId+
-         '/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(aba);
-}
-
-function parseCSV(csv){
-  csv = csv.replace(/^\uFEFF/,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  var linhas = csv.split('\n'), resultado = [];
-  for(var li=0; li<linhas.length; li++){
-    var l=linhas[li]; if(!l.trim()) continue;
-    var cols=[], cur='', inQ=false, i=0;
-    while(i<l.length){
-      var ch=l[i];
-      if(inQ){
-        if(ch==='"'&&l[i+1]==='"'){cur+='"';i+=2;}
-        else if(ch==='"'){inQ=false;i++;}
-        else{cur+=ch;i++;}
+    state.config = { url, sheetId };
+    safeLocalStorageSet(LS_KEYS.CONFIG, JSON.stringify(state.config));
+    
+    showScreen('s1');
+    setLoadingText('Carregando turmas e alunos...');
+    
+    loadPlanilha((ok) => {
+      if (ok) {
+        goToTurmaSelect();
       } else {
-        if(ch==='"'){inQ=true;i++;}
-        else if(ch===','){cols.push(cur.trim());cur='';i++;}
-        else{cur+=ch;i++;}
+        showToast('⚠️ Erro ao carregar — verifique o ID', 'err');
+        showErrorBanner('errorBanner', 'Não foi possível carregar os dados. Verifique se o ID da planilha está correto e se ela está compartilhada publicamente.');
+        goToSetup();
       }
-    }
-    cols.push(cur.trim());
-    resultado.push(cols);
-  }
-  return resultado;
-}
-
-function carregarPlanilha(cb){
-  var total=2, feitos=0, erros=0;
-  var nd = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[], tags:[] };
-
-  function feito(ok){
-    feitos++; if(!ok) erros++;
-    if(feitos < total) return;
-    if(erros===total){ cb(false); return; }
-    dados = nd;
-    try{ localStorage.setItem('snd4', JSON.stringify(dados)); }catch(e){}
-    cb(true);
+    });
   }
 
-  // ── Aba Alunos ─────────────────────────────────────────────────────────
-  fetch(csvUrl('Alunos'))
-    .then(function(r){ return r.text(); })
-    .then(function(csv){
-      var rows = parseCSV(csv);
-      if(rows.length < 2){ feito(false); return; }
+  function goToSetup() {
+    showScreen('s0');
+    updateDots(0);
+    if (state.config.url) document.getElementById('fUrl').value = state.config.url;
+    if (state.config.sheetId) document.getElementById('fSheetId').value = state.config.sheetId;
+  }
 
-      // Linha 1 (idx 0) = título decorativo, Linha 2 (idx 1) = cabeçalhos reais
-      var hdrIdx = 1;
-      // Segurança: se a linha 1 já parecer cabeçalho (sem título), usa idx 0
-      if(rows[0].some(function(c){ return c.toLowerCase().indexOf('nome')>=0||c.toLowerCase().indexOf('turma')>=0; })){
-        hdrIdx = 0;
-      }
-
-      var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase().trim(); });
-      var iNome  = idxCol(hdr, ['nome completo','nome','aluno']);
-      var iTurma = idxCol(hdr, ['turma / curso','turma/curso','turma','curso']);
-
-      if(iNome < 0){ feito(false); return; }
-
-      rows.slice(hdrIdx+1).forEach(function(r){
-        var nome  = (r[iNome]||'').trim();
-        var turma = iTurma>=0 ? (r[iTurma]||'').trim() : 'Geral';
-        if(!nome) return;
-        if(!turma) turma = 'Geral';
-        if(!nd.alunos[turma]) nd.alunos[turma] = [];
-        if(nd.turmas.indexOf(turma) < 0) nd.turmas.push(turma);
-        nd.alunos[turma].push(nome);
-      });
-      nd.turmas.sort();
-      feito(true);
-    })
-    .catch(function(){ feito(false); });
-
-  // ── Aba Configurações ──────────────────────────────────────────────────
-  // Tenta '⚙ Configurações' e 'Configurações' em sequência
-  function fetchCfg(nomes, idx){
-    if(idx >= nomes.length){
-      // Nenhum funcionou — usa defaults
-      aplicarDefaults(nd); feito(true); return;
-    }
-    fetch(csvUrl(nomes[idx]))
-      .then(function(r){ return r.text(); })
-      .then(function(csv){
-        // Google retorna HTML quando a aba não existe
-        if(!csv || csv.trim().charAt(0)==='<'){
-          fetchCfg(nomes, idx+1); return;
+  function loadSavedConfig() {
+    try {
+      const savedConfig = localStorage.getItem(LS_KEYS.CONFIG);
+      if (savedConfig) {
+        state.config = JSON.parse(savedConfig);
+        state.queue = JSON.parse(localStorage.getItem(LS_KEYS.QUEUE) || '[]');
+        const savedData = localStorage.getItem(LS_KEYS.DATA);
+        
+        if (savedData) {
+          state.dados = JSON.parse(savedData);
         }
-        var rows = parseCSV(csv);
-        if(rows.length < 2){ fetchCfg(nomes, idx+1); return; }
+        
+        updatePendingUI();
 
-        // Linha 1 (idx 0) = título, Linha 2 (idx 1) = cabeçalhos
-        var hdrIdx = 1;
-        if(rows[0].some(function(c){ return c.toLowerCase().indexOf('uc')>=0||c.toLowerCase().indexOf('crit')>=0||c.toLowerCase().indexOf('vetor')>=0; })){
+        if (state.dados.turmas && state.dados.turmas.length > 0) {
+          // Mostra dados do cache e recarrega em background
+          goToTurmaSelect();
+          loadPlanilha((ok) => {
+            if (ok) {
+              renderTurmas();
+              fillAllForms();
+            }
+          });
+          return;
+        } else {
+          showScreen('s1');
+          loadPlanilha(() => goToTurmaSelect());
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao carregar config:', e);
+    }
+
+    showScreen('s0');
+    updateDots(0);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✅ MELHORIA #9: parseCSV melhorado para tratar quebras de linha
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function parseCSV(csv) {
+    csv = csv.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = csv.split('\n');
+    const result = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      if (!lines[i].trim()) {
+        i++;
+        continue;
+      }
+
+      const cols = [];
+      let current = '';
+      let inQuotes = false;
+      let j = 0;
+      let fullLine = lines[i];
+
+      // Se a linha começa com aspas mas não fecha, continua nas próximas linhas
+      while (i < lines.length) {
+        const line = i === lines.indexOf(fullLine) ? fullLine : '\n' + lines[i];
+        
+        for (let k = (i === lines.indexOf(fullLine) ? 0 : 1); k < line.length; k++) {
+          const ch = line[k];
+          
+          if (inQuotes) {
+            if (ch === '"' && line[k + 1] === '"') {
+              current += '"';
+              k++;
+            } else if (ch === '"') {
+              inQuotes = false;
+            } else {
+              current += ch;
+            }
+          } else {
+            if (ch === '"') {
+              inQuotes = true;
+            } else if (ch === ',') {
+              cols.push(current.trim());
+              current = '';
+            } else {
+              current += ch;
+            }
+          }
+        }
+
+        // Se ainda está em quotes, continua na próxima linha
+        if (inQuotes && i + 1 < lines.length) {
+          i++;
+        } else {
+          break;
+        }
+      }
+
+      cols.push(current.trim());
+      result.push(cols);
+      i++;
+    }
+
+    return result;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CARREGAR PLANILHA
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function csvUrl(aba) {
+    return 'https://docs.google.com/spreadsheets/d/' + state.config.sheetId +
+           '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(aba);
+  }
+
+  function loadPlanilha(callback) {
+    let total = 2;
+    let done = 0;
+    let errors = 0;
+    const newData = {
+      turmas: [],
+      alunos: {},
+      ucs: [],
+      vetores: [],
+      instrumentos: [],
+      criterios: [],
+      tags: []
+    };
+
+    function taskDone(ok) {
+      done++;
+      if (!ok) errors++;
+      
+      if (done < total) return;
+      
+      if (errors === total) {
+        // ✅ MELHORIA #11: Feedback de erro
+        showErrorBanner('loadErrorBanner', 'Falha ao carregar dados. Verifique sua conexão e o ID da planilha.');
+        callback(false);
+        return;
+      }
+
+      // ✅ MELHORIA #11: Feedback parcial
+      if (errors > 0) {
+        showToast('⚠️ Alguns dados não foram carregados completamente', 'wrn');
+      }
+
+      state.dados = newData;
+      safeLocalStorageSet(LS_KEYS.DATA, JSON.stringify(state.dados));
+      callback(true);
+    }
+
+    // ── Carregar Alunos ──
+    fetch(csvUrl('Alunos'))
+      .then(r => r.text())
+      .then(csv => {
+        const rows = parseCSV(csv);
+        if (rows.length < 2) {
+          taskDone(false);
+          return;
+        }
+
+        // Detecta cabeçalho
+        let hdrIdx = 1;
+        if (rows[0].some(c => c.toLowerCase().includes('nome') || c.toLowerCase().includes('turma'))) {
           hdrIdx = 0;
         }
 
-        var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase().trim(); });
+        const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
+        const iNome = findColIndex(hdr, ['nome completo', 'nome', 'aluno']);
+        const iTurma = findColIndex(hdr, ['turma / curso', 'turma/curso', 'turma', 'curso']);
 
-        function colVals(keywords){
-          var idx2 = -1;
-          for(var i=0; i<hdr.length; i++){
-            for(var k=0; k<keywords.length; k++){
-              if(hdr[i].indexOf(keywords[k]) >= 0){ idx2=i; break; }
-            }
-            if(idx2 >= 0) break;
-          }
-          if(idx2 < 0) return [];
-          var seen = {};
-          return rows.slice(hdrIdx+1).map(function(r){ return (r[idx2]||'').trim(); }).filter(function(v){
-            if(!v||seen[v]) return false; seen[v]=true; return true;
-          });
+        if (iNome < 0) {
+          taskDone(false);
+          return;
         }
 
-        var ucs   = colVals(['uc','unidade']);
-        var crits = colVals(['crit']);
-        var vets  = colVals(['vetor']);
-        var insts = colVals(['instru']);
-        var tags  = colVals(['tag','observa']);
+        rows.slice(hdrIdx + 1).forEach(r => {
+          const nome = (r[iNome] || '').trim();
+          const turma = iTurma >= 0 ? (r[iTurma] || '').trim() : 'Geral';
+          
+          if (!nome) return;
+          const turmaFinal = turma || 'Geral';
+          
+          if (!newData.alunos[turmaFinal]) {
+            newData.alunos[turmaFinal] = [];
+          }
+          if (!newData.turmas.includes(turmaFinal)) {
+            newData.turmas.push(turmaFinal);
+          }
+          newData.alunos[turmaFinal].push(nome);
+        });
 
-        if(ucs.length)   nd.ucs          = ucs;
-        if(crits.length) nd.criterios    = crits;
-        if(vets.length)  nd.vetores      = vets;
-        if(insts.length) nd.instrumentos = insts;
-        if(tags.length)  nd.tags         = tags;
-
-        aplicarDefaults(nd);
-        feito(true);
+        newData.turmas.sort();
+        taskDone(true);
       })
-      .catch(function(){ fetchCfg(nomes, idx+1); });
-  }
-
-  fetchCfg(['⚙ Configurações','Configurações','Configuracoes'], 0);
-}
-
-function aplicarDefaults(nd){
-  if(!nd.vetores.length)      nd.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
-  if(!nd.instrumentos.length) nd.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
-  if(!nd.criterios.length)    nd.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
-  if(!nd.tags.length)         nd.tags         = ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
-}
-
-// Busca índice da coluna pelo nome (comparação simples, igual ao código que funcionava)
-function idxCol(hdr, keywords){
-  // 1) match exato
-  for(var k=0;k<keywords.length;k++)
-    for(var i=0;i<hdr.length;i++)
-      if(hdr[i]===keywords[k]) return i;
-  // 2) match parcial
-  for(var k=0;k<keywords.length;k++)
-    for(var i=0;i<hdr.length;i++)
-      if(hdr[i].indexOf(keywords[k])>=0) return i;
-  return -1;
-}
-
-function setLoadingTxt(t){ document.getElementById('loadingTxt').textContent=t; }
-
-// ══════════════════════════════════════════
-// NAVEGAÇÃO
-// ══════════════════════════════════════════
-var ALL_SCR = ['s0','s1','s2','s3','s4a','s4b','s5a','s5b','s6a','s6b'];
-function show(id){
-  ALL_SCR.forEach(function(x){ document.getElementById(x).classList.remove('on'); });
-  var el=document.getElementById(id); el.classList.add('on'); el.scrollTop=0;
-}
-function irTelas2(){ atualizarTurmaBar(); renderTurmas(); show('s2'); dots(1); }
-function irModo(){ show('s3'); dots(2); }
-
-function irFormulario(nome){
-  alunoAtual = nome;
-  var ini = nome.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
-  document.getElementById('selAv').textContent = ini;
-  document.getElementById('selNm').textContent = nome;
-  document.getElementById('selTr').textContent = turmaAtual||'';
-  document.getElementById('obsTA').value = '';
-  document.getElementById('slider').value = 7;
-  notaUI(7);
-  fillForms();
-  renderTags();
-  show('s5a'); dots(3);
-}
-
-function dots(s){
-  for(var i=1;i<=3;i++){
-    var d=document.getElementById('d'+i); d.className='dot';
-    if(i<s) d.classList.add('d'); else if(i===s) d.classList.add('a');
-  }
-}
-
-// ══════════════════════════════════════════
-// TURMA BAR
-// ══════════════════════════════════════════
-function atualizarTurmaBar(){
-  var bar=document.getElementById('turmaBar');
-  if(turmaAtual){ bar.classList.add('on'); document.getElementById('turmaNomeBar').textContent=turmaAtual; }
-  else bar.classList.remove('on');
-}
-
-// ══════════════════════════════════════════
-// RENDER TURMAS
-// ══════════════════════════════════════════
-function renderTurmas(){
-  var grid=document.getElementById('turmaGrid');
-  var turmas=dados.turmas||[];
-  grid.innerHTML='';
-  if(!turmas.length){
-    grid.innerHTML='<div style="color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7">Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.</div>';
-    document.getElementById('s2sub').textContent='Nenhuma turma encontrada'; return;
-  }
-  var n=turmas.reduce(function(acc,t){ return acc+(dados.alunos[t]||[]).length; },0);
-  document.getElementById('s2sub').textContent=turmas.length+' turma(s) · '+n+' aluno(s)';
-  var icons=['🏭','⚙️','🔧','📐','🛠️','💡','🔩','📊'];
-  turmas.forEach(function(turma,idx){
-    var alunos=dados.alunos[turma]||[];
-    var card=document.createElement('div');
-    card.className='turma-card'+(turmaAtual===turma?' sel':'');
-    card.innerHTML=
-      '<div class="tc-icon">'+icons[idx%icons.length]+'</div>'+
-      '<div style="flex:1"><div class="tc-nome">'+turma+'</div>'+
-      '<div class="tc-info">'+alunos.length+' aluno'+(alunos.length!==1?'s':'')+'</div></div>'+
-      '<span class="tc-arrow">›</span>';
-    card.addEventListener('click',(function(t){ return function(){ turmaAtual=t; atualizarTurmaBar(); irModo(); }; })(turma));
-    grid.appendChild(card);
-  });
-}
-
-// ══════════════════════════════════════════
-// LISTA ALUNOS
-// ══════════════════════════════════════════
-function listaAlunos(q){
-  var alunos=turmaAtual?(dados.alunos[turmaAtual]||[]):[];
-  var lista=alunos.filter(function(a){ return a.toLowerCase().indexOf(q.toLowerCase())>=0; });
-  var cont=document.getElementById('aList'); cont.innerHTML='';
-  if(!lista.length){ cont.innerHTML='<div style="color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem">Nenhum aluno encontrado</div>'; return; }
-  lista.forEach(function(nm){
-    var ini=nm.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
-    var d=document.createElement('div'); d.className='ai';
-    d.innerHTML='<div class="av">'+ini+'</div><div><div class="an">'+nm+'</div><div class="as">'+(turmaAtual||'')+'</div></div><span style="margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem">›</span>';
-    d.addEventListener('click',(function(n){ return function(){ irFormulario(n); }; })(nm));
-    cont.appendChild(d);
-  });
-}
-
-// ══════════════════════════════════════════
-// FILL SELECTS
-// ══════════════════════════════════════════
-function fillSelect(id,vals,placeholder){
-  var s=document.getElementById(id); if(!s) return;
-  var prev=s.value;
-  s.innerHTML='<option value="">'+(placeholder||'Selecione...')+'</option>';
-  (vals||[]).forEach(function(v){ var o=document.createElement('option'); o.value=v; o.textContent=v; s.appendChild(o); });
-  if(prev) s.value=prev;
-}
-
-function fillForms(){
-  fillSelect('ucSel',    dados.ucs||[],          'Selecione a UC...');
-  fillSelect('vetSel',   dados.vetores||[],       'Vetor...');
-  fillSelect('instSel',  dados.instrumentos||[],  'Instrumento...');
-  fillSelect('critSel',  dados.criterios||[],     'Critério...');
-  fillSelect('swUcSel',  dados.ucs||[],           'Selecione a UC...');
-  fillSelect('swVetSel', dados.vetores||[],        'Vetor...');
-  fillSelect('swInstSel',dados.instrumentos||[],  'Instrumento...');
-  fillSelect('swCritSel',dados.criterios||[],     'Critério...');
-}
-
-// Tags dinâmicas da planilha (coluna Tags Observação)
-function renderTags(){
-  var tagsList = dados.tags && dados.tags.length ? dados.tags :
-    ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
-  var cont = document.getElementById('tagsCont'); cont.innerHTML='';
-  var negKw = ['fora','sem epi','desorganiz','erro','atraso','falta','ausente'];
-  tagsList.forEach(function(t){
-    var isNeg = negKw.some(function(k){ return t.toLowerCase().indexOf(k)>=0; });
-    var sp = document.createElement('span');
-    sp.className='tag'+(isNeg?' d':'');
-    sp.setAttribute('data-t',t); sp.textContent=t;
-    sp.addEventListener('click',function(){ this.classList.toggle('on'); });
-    cont.appendChild(sp);
-  });
-}
-
-// ══════════════════════════════════════════
-// NOTA
-// ══════════════════════════════════════════
-function notaUI(v){
-  var el=document.getElementById('notaNum');
-  el.innerHTML=v.toFixed(1).replace('.',',')+'<span>/10</span>';
-  el.style.color=v<5?'#E30613':v<7?'#F59E0B':'#059669';
-  document.querySelectorAll('.nb').forEach(function(b){ b.classList.toggle('on',parseFloat(b.dataset.v)===v); });
-}
-
-// ══════════════════════════════════════════
-// SALVAR INDIVIDUAL
-// ══════════════════════════════════════════
-function salvar(){
-  var uc=document.getElementById('ucSel').value;
-  if(!uc){ toast('⚠️ Selecione a Unidade Curricular','err'); return; }
-  var tags=[];
-  document.querySelectorAll('#tagsCont .tag.on').forEach(function(t){ tags.push(t.dataset.t); });
-  var obs=tags.join(' · ');
-  var extra=(document.getElementById('obsTA').value||'').trim();
-  if(extra) obs+=(obs?' · ':'')+extra;
-  var now=new Date();
-  var reg={
-    data:now.toLocaleDateString('pt-BR'), turma:turmaAtual||'', aluno:alunoAtual,
-    uc:uc, vetor:document.getElementById('vetSel').value,
-    instrumento:document.getElementById('instSel').value,
-    criterio:document.getElementById('critSel').value,
-    nota:parseFloat(document.getElementById('slider').value), observacao:obs
-  };
-  var btn=document.getElementById('btnSalvar');
-  btn.disabled=true; btn.textContent='⏳ Enviando...';
-  enviar(reg,function(st){
-    btn.disabled=false; btn.innerHTML='💾 Registrar Avaliação';
-    show('s6a'); dots(3);
-    document.getElementById('sucInfo').textContent =
-      st==='offline'?'⏳ Salvo localmente — enviará ao reconectar.':'✅ Enviado ao Google Sheets.';
-    document.getElementById('sucCard').innerHTML =
-      rw('Aluno',reg.aluno)+rw('UC',reg.uc)+
-      rw('Critério',reg.criterio)+
-      rw('Nota',reg.nota.toFixed(1).replace('.',','),reg.nota>=6?'#059669':'#E30613')+
-      rw('Vetor',reg.vetor)+(reg.observacao?rw('Obs.',reg.observacao):'');
-  });
-}
-
-// ══════════════════════════════════════════
-// VARREDURA
-// ══════════════════════════════════════════
-function iniciarVarredura(){
-  var uc=document.getElementById('swUcSel').value;
-  if(!uc){ toast('⚠️ Selecione a UC','err'); return; }
-  swCfg={uc:uc,vetor:document.getElementById('swVetSel').value,instrumento:document.getElementById('swInstSel').value,criterio:document.getElementById('swCritSel').value};
-  swNotas={};
-  renderVarredura();
-  show('s5b'); dots(3);
-}
-
-function renderVarredura(){
-  var alunos=turmaAtual?(dados.alunos[turmaAtual]||[]):[];
-  var feitos=Object.keys(swNotas).length, total=alunos.length;
-  var pct=total>0?Math.round(feitos/total*100):0;
-  document.getElementById('swTitle').textContent='⚡ '+swCfg.criterio;
-  document.getElementById('swSub').textContent=swCfg.uc+' · '+swCfg.vetor;
-  document.getElementById('swBar').style.width=pct+'%';
-  document.getElementById('swCt').textContent=feitos+'/'+total;
-  document.getElementById('swActions').style.display=feitos>0?'block':'none';
-  var list=document.getElementById('swList'); list.innerHTML='';
-  alunos.forEach(function(nm){
-    var nota=swNotas[nm], done=nota!==undefined;
-    var cor=nota>=6?'#059669':nota>=5?'#F59E0B':'#E30613';
-    var nmk=nm.replace(/\s/g,'_');
-    var item=document.createElement('div');
-    item.className='sw-item'+(done?' done':'');
-    item.innerHTML=
-      '<div class="sw-top">'+
-        '<div class="sw-status">'+(done?'✓':'')+'</div>'+
-        '<div class="sw-nome">'+nm+'</div>'+
-        '<div class="sw-nota-atual">'+(done?'<span style="color:'+cor+'">'+nota.toFixed(1).replace('.',',')+'</span>':'<span style="color:rgba(255,255,255,0.2)">—</span>')+'</div>'+
-        '<span style="color:rgba(255,255,255,0.2);font-size:0.85rem;margin-left:6px">'+(done?'':'▾')+'</span>'+
-      '</div>'+
-      '<div class="sw-nota-ctrl">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
-          '<span style="font-size:0.72rem;color:var(--texto2)">Nota</span>'+
-          '<span id="swN-'+nmk+'" style="font-size:1.5rem;font-weight:800;color:#00539F">'+(done?nota.toFixed(1).replace('.',','):'7,0')+'</span>'+
-        '</div>'+
-        '<input type="range" id="swS-'+nmk+'" min="0" max="10" step="0.5" value="'+(done?nota:7)+'">'+
-        '<div class="sw-quick">'+[0,4,5,6,7.5,9].map(function(v){
-          return '<button class="sw-btn'+(done&&nota===v?' on':'')+'" data-v="'+v+'">'+(v===0?'0,0':v.toFixed(1).replace('.',','))+'</button>';
-        }).join('')+'</div>'+
-        '<button class="sw-confirm">✓ Confirmar</button>'+
-      '</div>';
-    item.querySelector('.sw-top').addEventListener('click',(function(it){
-      return function(){ document.querySelectorAll('.sw-item.open').forEach(function(x){if(x!==it)x.classList.remove('open');}); it.classList.toggle('open'); };
-    })(item));
-    var sl=item.querySelector('input[type=range]');
-    var numEl=item.querySelector('#swN-'+nmk);
-    sl.addEventListener('input',function(){
-      numEl.textContent=parseFloat(this.value).toFixed(1).replace('.',',');
-      item.querySelectorAll('.sw-btn').forEach(function(b){b.classList.toggle('on',parseFloat(b.dataset.v)===parseFloat(sl.value));});
-    });
-    item.querySelectorAll('.sw-btn').forEach(function(b){
-      b.addEventListener('click',function(){
-        var v=parseFloat(this.dataset.v); sl.value=v;
-        numEl.textContent=v.toFixed(1).replace('.',',');
-        item.querySelectorAll('.sw-btn').forEach(function(x){x.classList.toggle('on',parseFloat(x.dataset.v)===v);});
+      .catch(err => {
+        console.error('Erro ao carregar alunos:', err);
+        taskDone(false);
       });
-    });
-    item.querySelector('.sw-confirm').addEventListener('click',(function(n,it){
-      return function(){ swNotas[n]=parseFloat(it.querySelector('input[type=range]').value); it.classList.remove('open'); renderVarredura(); };
-    })(nm,item));
-    list.appendChild(item);
-  });
-}
 
-function enviarVarredura(){
-  var nomes=Object.keys(swNotas);
-  if(!nomes.length){ toast('Nenhuma nota confirmada','wrn'); return; }
-  var btn=document.getElementById('btnEnviarTudo');
-  btn.disabled=true; btn.textContent='⏳ Enviando '+nomes.length+' registros...';
-  var now=new Date(), pend=nomes.length, erros=0;
-  nomes.forEach(function(nm){
-    var reg={data:now.toLocaleDateString('pt-BR'),turma:turmaAtual||'',aluno:nm,
-      uc:swCfg.uc,vetor:swCfg.vetor,instrumento:swCfg.instrumento,
-      criterio:swCfg.criterio,nota:swNotas[nm],observacao:'Varredura de turma'};
-    enviar(reg,function(st){
-      pend--; if(st==='offline') erros++;
-      if(pend===0){
-        btn.disabled=false; btn.textContent='📤 Enviar tudo para o Sheets';
-        var notas=Object.values(swNotas);
-        var media=notas.reduce(function(a,b){return a+b;},0)/notas.length;
-        var aprov=notas.filter(function(n){return n>=6;}).length;
-        show('s6b'); dots(3);
-        document.getElementById('sucSwInfo').textContent=erros>0?erros+' offline, '+(nomes.length-erros)+' enviados.':'✅ '+nomes.length+' registros enviados.';
-        document.getElementById('sucSwCard').innerHTML=
-          rw('Turma',turmaAtual)+rw('Critério',swCfg.criterio)+
-          rw('UC',swCfg.uc)+rw('Avaliados',nomes.length+' alunos')+
-          rw('Média',media.toFixed(1).replace('.',','),media>=6?'#059669':'#E30613')+
-          rw('Aprovados',aprov+'/'+nomes.length,aprov===nomes.length?'#059669':'#F59E0B');
+    // ── Carregar Configurações ──
+    function fetchConfig(names, idx) {
+      if (idx >= names.length) {
+        applyDefaults(newData);
+        taskDone(true);
+        return;
+      }
+
+      fetch(csvUrl(names[idx]))
+        .then(r => r.text())
+        .then(csv => {
+          if (!csv || csv.trim().charAt(0) === '<') {
+            fetchConfig(names, idx + 1);
+            return;
+          }
+
+          const rows = parseCSV(csv);
+          if (rows.length < 2) {
+            fetchConfig(names, idx + 1);
+            return;
+          }
+
+          let hdrIdx = 1;
+          if (rows[0].some(c => {
+            const lc = c.toLowerCase();
+            return lc.includes('uc') || lc.includes('crit') || lc.includes('vetor');
+          })) {
+            hdrIdx = 0;
+          }
+
+          const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
+
+          function getColumnValues(keywords) {
+            let colIdx = -1;
+            for (let i = 0; i < hdr.length; i++) {
+              for (let k of keywords) {
+                if (hdr[i].includes(k)) {
+                  colIdx = i;
+                  break;
+                }
+              }
+              if (colIdx >= 0) break;
+            }
+            
+            if (colIdx < 0) return [];
+            
+            const seen = {};
+            return rows.slice(hdrIdx + 1)
+              .map(r => (r[colIdx] || '').trim())
+              .filter(v => {
+                if (!v || seen[v]) return false;
+                seen[v] = true;
+                return true;
+              });
+          }
+
+          const ucs = getColumnValues(['uc', 'unidade']);
+          const crits = getColumnValues(['crit']);
+          const vets = getColumnValues(['vetor']);
+          const insts = getColumnValues(['instru']);
+          const tags = getColumnValues(['tag', 'observa']);
+
+          if (ucs.length) newData.ucs = ucs;
+          if (crits.length) newData.criterios = crits;
+          if (vets.length) newData.vetores = vets;
+          if (insts.length) newData.instrumentos = insts;
+          if (tags.length) newData.tags = tags;
+
+          applyDefaults(newData);
+          taskDone(true);
+        })
+        .catch(err => {
+          console.error('Erro ao carregar config:', err);
+          fetchConfig(names, idx + 1);
+        });
+    }
+
+    fetchConfig(['⚙ Configurações', 'Configurações', 'Configuracoes'], 0);
+  }
+
+  function findColIndex(hdr, keywords) {
+    // Exact match
+    for (let k of keywords) {
+      for (let i = 0; i < hdr.length; i++) {
+        if (hdr[i] === k) return i;
+      }
+    }
+    // Partial match
+    for (let k of keywords) {
+      for (let i = 0; i < hdr.length; i++) {
+        if (hdr[i].includes(k)) return i;
+      }
+    }
+    return -1;
+  }
+
+  function applyDefaults(data) {
+    if (!data.vetores.length) {
+      data.vetores = ['Fazer (40%)', 'Saber (30%)', 'Comport. (30%)'];
+    }
+    if (!data.instrumentos.length) {
+      data.instrumentos = ['Observação Oficina', 'Micro-Quiz', 'Projeto Prático', 'Apresentação Pitch', 'Prova de Consulta'];
+    }
+    if (!data.criterios.length) {
+      data.criterios = ['Exatidão Dimensional', 'Segurança e EPI', 'Retenção Teórica', 'Resolução de Problemas', 'Organização / 5S', 'Planejamento / Lógica', 'Trabalho em Equipe', 'Aplicação de Normas'];
+    }
+    if (!data.tags.length) {
+      data.tags = ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NAVEGAÇÃO & UI
+  // ══════════════════════════════════════════════════════════════════════════
+
+  const ALL_SCREENS = ['s0', 's1', 's2', 's3', 's4a', 's4b', 's5a', 's5b', 's6a', 's6b'];
+
+  function showScreen(id) {
+    ALL_SCREENS.forEach(s => {
+      const el = document.getElementById(s);
+      if (el) el.classList.remove('on');
+    });
+    
+    const target = document.getElementById(id);
+    if (target) {
+      target.classList.add('on');
+      target.scrollTop = 0;
+    }
+
+    // Limpa error banners ao mudar de tela
+    hideErrorBanner('errorBanner');
+    hideErrorBanner('loadErrorBanner');
+  }
+
+  function updateDots(step) {
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById('d' + i);
+      if (!dot) continue;
+      
+      dot.className = 'dot';
+      if (i < step) {
+        dot.classList.add('d');
+      } else if (i === step) {
+        dot.classList.add('a');
+      }
+    }
+  }
+
+  function goToTurmaSelect() {
+    updateTurmaBar();
+    renderTurmas();
+    showScreen('s2');
+    updateDots(1);
+  }
+
+  function updateTurmaBar() {
+    const bar = document.getElementById('turmaBar');
+    if (state.turmaAtual) {
+      bar.classList.add('on');
+      const nome = document.getElementById('turmaNomeBar');
+      if (nome) nome.textContent = state.turmaAtual;
+    } else {
+      bar.classList.remove('on');
+    }
+  }
+
+  function updateHeaderDate() {
+    const now = new Date();
+    const dateEl = document.getElementById('hdate');
+    if (dateEl) {
+      dateEl.innerHTML =
+        now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) +
+        '<br>' +
+        now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+  }
+
+  function setLoadingText(text) {
+    const el = document.getElementById('loadingTxt');
+    if (el) el.textContent = text;
+  }
+
+  // ✅ MELHORIA #11: Mostrar/ocultar banners de erro
+  function showErrorBanner(id, message) {
+    const banner = document.getElementById(id);
+    if (banner) {
+      banner.textContent = '⚠️ ' + message;
+      banner.classList.add('on');
+    }
+  }
+
+  function hideErrorBanner(id) {
+    const banner = document.getElementById(id);
+    if (banner) {
+      banner.classList.remove('on');
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TURMAS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function renderTurmas() {
+    const grid = document.getElementById('turmaGrid');
+    if (!grid) return;
+    
+    const turmas = state.dados.turmas || [];
+    grid.innerHTML = '';
+
+    if (!turmas.length) {
+      const msg = createSafeElement('div', {
+        style: 'color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7'
+      });
+      msg.innerHTML = 'Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.';
+      grid.appendChild(msg);
+      
+      const sub = document.getElementById('s2sub');
+      if (sub) sub.textContent = 'Nenhuma turma encontrada';
+      return;
+    }
+
+    const totalAlunos = turmas.reduce((acc, t) => acc + (state.dados.alunos[t] || []).length, 0);
+    const sub = document.getElementById('s2sub');
+    if (sub) {
+      sub.textContent = `${turmas.length} turma(s) · ${totalAlunos} aluno(s)`;
+    }
+
+    const icons = ['🏭', '⚙️', '🔧', '📐', '🛠️', '💡', '🔩', '📊'];
+
+    turmas.forEach((turma, idx) => {
+      const alunos = state.dados.alunos[turma] || [];
+      const card = createSafeElement('div', {
+        className: 'turma-card' + (state.turmaAtual === turma ? ' sel' : '')
+      });
+
+      const icon = createSafeElement('div', { className: 'tc-icon' }, icons[idx % icons.length]);
+      const info = createSafeElement('div', { style: 'flex:1' });
+      const nome = createSafeElement('div', { className: 'tc-nome' }, turma);
+      const count = createSafeElement('div', { className: 'tc-info' }, `${alunos.length} aluno${alunos.length !== 1 ? 's' : ''}`);
+      const arrow = createSafeElement('span', { className: 'tc-arrow' }, '›');
+
+      info.appendChild(nome);
+      info.appendChild(count);
+      card.appendChild(icon);
+      card.appendChild(info);
+      card.appendChild(arrow);
+
+      card.addEventListener('click', () => {
+        state.turmaAtual = turma;
+        updateTurmaBar();
+        showScreen('s3');
+        updateDots(2);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // LISTA DE ALUNOS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function renderAlunosList(query) {
+    const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
+    const filtered = alunos.filter(a => a.toLowerCase().includes(query.toLowerCase()));
+    const container = document.getElementById('aList');
+    
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!filtered.length) {
+      const msg = createSafeElement('div', {
+        style: 'color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem'
+      }, 'Nenhum aluno encontrado');
+      container.appendChild(msg);
+      return;
+    }
+
+    filtered.forEach(nome => {
+      const initials = nome.split(' ')
+        .map(p => p[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+
+      const item = createSafeElement('div', { className: 'ai' });
+      const avatar = createSafeElement('div', { className: 'av' }, initials);
+      const infoDiv = createSafeElement('div');
+      const nomeEl = createSafeElement('div', { className: 'an' }, nome);
+      const turmaEl = createSafeElement('div', { className: 'as' }, state.turmaAtual || '');
+      const arrow = createSafeElement('span', {
+        style: 'margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem'
+      }, '›');
+
+      infoDiv.appendChild(nomeEl);
+      infoDiv.appendChild(turmaEl);
+      item.appendChild(avatar);
+      item.appendChild(infoDiv);
+      item.appendChild(arrow);
+
+      item.addEventListener('click', () => goToFormulario(nome));
+      container.appendChild(item);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // FORMULÁRIO INDIVIDUAL
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function goToFormulario(nome) {
+    state.alunoAtual = nome;
+    
+    const initials = nome.split(' ')
+      .map(p => p[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+
+    const avEl = document.getElementById('selAv');
+    const nmEl = document.getElementById('selNm');
+    const trEl = document.getElementById('selTr');
+    const obsEl = document.getElementById('obsTA');
+    const sliderEl = document.getElementById('slider');
+
+    if (avEl) avEl.textContent = initials;
+    if (nmEl) nmEl.textContent = nome;
+    if (trEl) trEl.textContent = state.turmaAtual || '';
+    if (obsEl) obsEl.value = '';
+    if (sliderEl) sliderEl.value = 7;
+
+    updateNotaUI(7);
+    fillAllForms();
+    renderTags();
+    showScreen('s5a');
+    updateDots(3);
+  }
+
+  function fillAllForms() {
+    fillSelect('ucSel', state.dados.ucs || [], 'Selecione a UC...');
+    fillSelect('vetSel', state.dados.vetores || [], 'Vetor...');
+    fillSelect('instSel', state.dados.instrumentos || [], 'Instrumento...');
+    fillSelect('critSel', state.dados.criterios || [], 'Critério...');
+    
+    fillSelect('swUcSel', state.dados.ucs || [], 'Selecione a UC...');
+    fillSelect('swVetSel', state.dados.vetores || [], 'Vetor...');
+    fillSelect('swInstSel', state.dados.instrumentos || [], 'Instrumento...');
+    fillSelect('swCritSel', state.dados.criterios || [], 'Critério...');
+  }
+
+  function fillSelect(id, values, placeholder) {
+    const select = document.getElementById(id);
+    if (!select) return;
+
+    const prevValue = select.value;
+    select.innerHTML = '';
+
+    const defaultOpt = createSafeElement('option', { value: '' }, placeholder || 'Selecione...');
+    select.appendChild(defaultOpt);
+
+    values.forEach(v => {
+      const opt = createSafeElement('option', { value: v }, v);
+      select.appendChild(opt);
+    });
+
+    if (prevValue && values.includes(prevValue)) {
+      select.value = prevValue;
+    }
+  }
+
+  function renderTags() {
+    const tagsList = state.dados.tags && state.dados.tags.length
+      ? state.dados.tags
+      : ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
+    
+    const container = document.getElementById('tagsCont');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const negativeKeywords = ['fora', 'sem epi', 'desorganiz', 'erro', 'atraso', 'falta', 'ausente'];
+
+    tagsList.forEach(tag => {
+      const isNegative = negativeKeywords.some(k => tag.toLowerCase().includes(k));
+      const tagEl = createSafeElement('span', {
+        className: 'tag' + (isNegative ? ' d' : ''),
+        'data-t': tag
+      }, tag);
+
+      tagEl.addEventListener('click', function() {
+        this.classList.toggle('on');
+      });
+
+      container.appendChild(tagEl);
+    });
+  }
+
+  function updateNotaUI(value) {
+    const notaEl = document.getElementById('notaNum');
+    if (notaEl) {
+      const formatted = value.toFixed(1).replace('.', ',');
+      notaEl.innerHTML = formatted + '<span>/10</span>';
+      
+      if (value < 5) {
+        notaEl.style.color = '#E30613';
+      } else if (value < 7) {
+        notaEl.style.color = '#F59E0B';
+      } else {
+        notaEl.style.color = '#059669';
+      }
+    }
+
+    document.querySelectorAll('.nb').forEach(btn => {
+      const btnValue = parseFloat(btn.dataset.v);
+      btn.classList.toggle('on', btnValue === value);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✅ MELHORIA #4: Validação completa antes de salvar
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function validateFormulario() {
+    const uc = document.getElementById('ucSel').value;
+    const vetor = document.getElementById('vetSel').value;
+    const instrumento = document.getElementById('instSel').value;
+    const criterio = document.getElementById('critSel').value;
+
+    if (!uc) {
+      showToast('⚠️ Selecione a Unidade Curricular', 'err');
+      return false;
+    }
+    if (!vetor) {
+      showToast('⚠️ Selecione o Vetor', 'err');
+      return false;
+    }
+    if (!instrumento) {
+      showToast('⚠️ Selecione o Instrumento', 'err');
+      return false;
+    }
+    if (!criterio) {
+      showToast('⚠️ Selecione o Critério', 'err');
+      return false;
+    }
+
+    return true;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // SALVAR INDIVIDUAL
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function saveIndividualAvaliacao() {
+    if (!validateFormulario()) return;
+
+    const selectedTags = [];
+    document.querySelectorAll('#tagsCont .tag.on').forEach(t => {
+      selectedTags.push(t.getAttribute('data-t'));
+    });
+
+    let observacao = selectedTags.join(' · ');
+    const extraObs = (document.getElementById('obsTA').value || '').trim();
+    if (extraObs) {
+      observacao += (observacao ? ' · ' : '') + extraObs;
+    }
+
+    const now = new Date();
+    const registro = {
+      data: now.toLocaleDateString('pt-BR'),
+      turma: state.turmaAtual || '',
+      aluno: state.alunoAtual,
+      uc: document.getElementById('ucSel').value,
+      vetor: document.getElementById('vetSel').value,
+      instrumento: document.getElementById('instSel').value,
+      criterio: document.getElementById('critSel').value,
+      nota: parseFloat(document.getElementById('slider').value),
+      observacao: observacao
+    };
+
+    const btn = document.getElementById('btnSalvar');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳ Enviando...';
+    }
+
+    sendToSheet(registro, (status) => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '💾 Registrar Avaliação';
+      }
+
+      showScreen('s6a');
+      updateDots(3);
+
+      const infoEl = document.getElementById('sucInfo');
+      if (infoEl) {
+        infoEl.textContent = status === 'offline'
+          ? '⏳ Salvo localmente — enviará ao reconectar.'
+          : '✅ Enviado ao Google Sheets.';
+      }
+
+      const cardEl = document.getElementById('sucCard');
+      if (cardEl) {
+        cardEl.innerHTML =
+          makeRow('Aluno', registro.aluno) +
+          makeRow('UC', registro.uc) +
+          makeRow('Critério', registro.criterio) +
+          makeRow('Nota', registro.nota.toFixed(1).replace('.', ','), registro.nota >= 6 ? '#059669' : '#E30613');
       }
     });
-  });
-}
+  }
 
-// ══════════════════════════════════════════
-// ENVIO / OFFLINE
-// ══════════════════════════════════════════
-function enviar(reg,cb){
-  if(!navigator.onLine){ enqueue(reg); cb('offline'); return; }
-  fetch(cfg.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg)})
-    .then(function(){cb('ok');}).catch(function(){enqueue(reg);cb('offline');});
-}
-function enqueue(r){
-  queue.push(r);
-  try{localStorage.setItem('snq4',JSON.stringify(queue));}catch(e){}
-  pendUI();
-}
-function sync(){
-  if(!queue.length) return;
-  toast('📡 Sincronizando '+queue.length+'...');
-  var list=queue.slice(),ok=0;
-  list.forEach(function(r){
-    fetch(cfg.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(r)})
-      .then(function(){
-        ok++; var i=queue.indexOf(r); if(i>-1)queue.splice(i,1);
-        try{localStorage.setItem('snq4',JSON.stringify(queue));}catch(e){}
-        pendUI(); if(ok===list.length) toast('✅ '+ok+' sincronizado(s)','ok');
-      }).catch(function(){});
-  });
-}
-function pendUI(){
-  var p=document.getElementById('pend'),c=document.getElementById('pendCt');
-  p.style.display=queue.length?'block':'none'; c.textContent=queue.length;
-}
+  function makeRow(label, value, color) {
+    const colorStyle = color ? ` style="color:${color}"` : '';
+    return `<div class="sr"><span class="sl">${sanitizeText(label)}</span><span class="sv"${colorStyle}>${sanitizeText(String(value))}</span></div>`;
+  }
 
-// ══════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════
-function rw(l,v,c){ return '<div class="sr"><span class="sl">'+l+'</span><span class="sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</span></div>'; }
-function on(id,ev,fn){ var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
-var _tt;
-function toast(m,t){
-  var el=document.getElementById('toast');
-  el.textContent=m; el.className='toast'+(t?' '+t:'')+' on';
-  clearTimeout(_tt); _tt=setTimeout(function(){el.classList.remove('on');},3500);
-}
+  // ══════════════════════════════════════════════════════════════════════════
+  // VARREDURA
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function iniciarVarredura() {
+    const uc = document.getElementById('swUcSel').value;
+    const vetor = document.getElementById('swVetSel').value;
+    const instrumento = document.getElementById('swInstSel').value;
+    const criterio = document.getElementById('swCritSel').value;
+
+    // ✅ MELHORIA #4: Validação completa
+    if (!uc) {
+      showToast('⚠️ Selecione a Unidade Curricular', 'err');
+      return;
+    }
+    if (!vetor) {
+      showToast('⚠️ Selecione o Vetor', 'err');
+      return;
+    }
+    if (!instrumento) {
+      showToast('⚠️ Selecione o Instrumento', 'err');
+      return;
+    }
+    if (!criterio) {
+      showToast('⚠️ Selecione o Critério', 'err');
+      return;
+    }
+
+    state.swCfg = { uc, vetor, instrumento, criterio };
+    state.swNotas = {};
+
+    showScreen('s5b');
+    updateDots(3);
+
+    const titleEl = document.getElementById('swTitle');
+    const subEl = document.getElementById('swSub');
+    
+    if (titleEl) titleEl.textContent = `⚡ ${criterio}`;
+    if (subEl) subEl.textContent = `${uc} · ${vetor} · ${instrumento}`;
+
+    renderVarredura();
+  }
+
+  // ✅ MELHORIA #7: Renderização otimizada - não recria todo DOM
+  function renderVarredura() {
+    const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
+    const container = document.getElementById('swList');
+    if (!container) return;
+
+    // Se já existe, só atualiza, não recria
+    if (container.children.length === 0) {
+      container.innerHTML = '';
+      
+      alunos.forEach(nome => {
+        const item = createSafeElement('div', {
+          className: 'sw-item',
+          'data-aluno': nome
+        });
+
+        const top = createSafeElement('div', { className: 'sw-top' });
+        const status = createSafeElement('div', { className: 'sw-status' });
+        const nomeEl = createSafeElement('div', { className: 'sw-nome' }, nome);
+        const notaAtual = createSafeElement('div', { className: 'sw-nota-atual' }, '—');
+
+        top.appendChild(status);
+        top.appendChild(nomeEl);
+        top.appendChild(notaAtual);
+
+        const controls = createSafeElement('div', { className: 'sw-nota-ctrl' });
+        const quickBtns = createSafeElement('div', { className: 'sw-quick' });
+
+        [0, 2, 4, 5, 6, 7, 8, 9, 10].forEach(v => {
+          const btn = createSafeElement('button', {
+            className: 'sw-btn',
+            'data-v': String(v)
+          }, v.toFixed(1));
+          
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateVarreduraNota(nome, v);
+          });
+          
+          quickBtns.appendChild(btn);
+        });
+
+        const confirmBtn = createSafeElement('button', { className: 'sw-confirm' }, '✓ Confirmar');
+        confirmBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (state.swNotas[nome] !== undefined) {
+            item.classList.remove('open');
+            item.classList.add('done');
+            status.textContent = '✓';
+            updateVarreduraProgress();
+          }
+        });
+
+        controls.appendChild(quickBtns);
+        controls.appendChild(confirmBtn);
+        item.appendChild(top);
+        item.appendChild(controls);
+
+        top.addEventListener('click', () => {
+          if (!item.classList.contains('done')) {
+            item.classList.toggle('open');
+          }
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    updateVarreduraProgress();
+  }
+
+  function updateVarreduraNota(nome, nota) {
+    state.swNotas[nome] = nota;
+    
+    const item = document.querySelector(`.sw-item[data-aluno="${nome}"]`);
+    if (!item) return;
+
+    const notaEl = item.querySelector('.sw-nota-atual');
+    if (notaEl) {
+      notaEl.textContent = nota.toFixed(1).replace('.', ',');
+      notaEl.style.color = nota >= 6 ? '#059669' : '#E30613';
+    }
+
+    const buttons = item.querySelectorAll('.sw-btn');
+    buttons.forEach(btn => {
+      btn.classList.toggle('on', parseFloat(btn.getAttribute('data-v')) === nota);
+    });
+  }
+
+  function updateVarreduraProgress() {
+    const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
+    const done = document.querySelectorAll('.sw-item.done').length;
+    const total = alunos.length;
+    const percent = total > 0 ? (done / total * 100) : 0;
+
+    const barEl = document.getElementById('swBar');
+    const ctEl = document.getElementById('swCt');
+    const actionsEl = document.getElementById('swActions');
+
+    if (barEl) barEl.style.width = percent + '%';
+    if (ctEl) ctEl.textContent = `${done}/${total}`;
+
+    if (actionsEl) {
+      if (done === total && total > 0) {
+        actionsEl.style.display = 'block';
+      } else {
+        actionsEl.style.display = 'none';
+      }
+    }
+  }
+
+  function enviarVarredura() {
+    const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
+    const registros = [];
+    const now = new Date();
+
+    alunos.forEach(nome => {
+      if (state.swNotas[nome] !== undefined) {
+        registros.push({
+          data: now.toLocaleDateString('pt-BR'),
+          turma: state.turmaAtual || '',
+          aluno: nome,
+          uc: state.swCfg.uc,
+          vetor: state.swCfg.vetor,
+          instrumento: state.swCfg.instrumento,
+          criterio: state.swCfg.criterio,
+          nota: state.swNotas[nome],
+          observacao: ''
+        });
+      }
+    });
+
+    if (registros.length === 0) {
+      showToast('⚠️ Nenhuma nota foi definida', 'err');
+      return;
+    }
+
+    const btn = document.getElementById('btnEnviarTudo');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳ Enviando...';
+    }
+
+    sendBatch(registros, (status) => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '📤 Enviar tudo para o Sheets';
+      }
+
+      showScreen('s6b');
+      updateDots(3);
+
+      const infoEl = document.getElementById('sucSwInfo');
+      if (infoEl) {
+        infoEl.textContent = status === 'offline'
+          ? `⏳ ${registros.length} avaliações salvas localmente — enviarão ao reconectar.`
+          : `✅ ${registros.length} avaliações enviadas ao Google Sheets.`;
+      }
+
+      const cardEl = document.getElementById('sucSwCard');
+      if (cardEl) {
+        cardEl.innerHTML =
+          makeRow('Turma', state.turmaAtual || '') +
+          makeRow('UC', state.swCfg.uc) +
+          makeRow('Critério', state.swCfg.criterio) +
+          makeRow('Registros', registros.length);
+      }
+
+      state.swNotas = {};
+      state.swCfg = {};
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✅ MELHORIA #1: Remover mode:no-cors e tratar resposta real
+  // ✅ MELHORIA #13: Tratamento robusto de erros
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function sendToSheet(registro, callback) {
+    if (!navigator.onLine) {
+      queueRegistro(registro);
+      callback('offline');
+      return;
+    }
+
+    fetch(state.config.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(registro)
+      // ✅ REMOVIDO mode: 'no-cors' para poder ler a resposta
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.status === 'success') {
+          showToast('✅ Enviado com sucesso', 'ok');
+          callback('online');
+        } else {
+          throw new Error(data && data.message ? data.message : 'Resposta inválida do servidor');
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao enviar:', err);
+        showToast('⚠️ Erro no envio. Salvo localmente.', 'wrn');
+        queueRegistro(registro);
+        callback('offline');
+      });
+  }
+
+  function sendBatch(registros, callback) {
+    if (!navigator.onLine) {
+      registros.forEach(r => queueRegistro(r));
+      callback('offline');
+      return;
+    }
+
+    // Envia batch como array
+    fetch(state.config.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ batch: registros })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.status === 'success') {
+          showToast('✅ Batch enviado com sucesso', 'ok');
+          callback('online');
+        } else {
+          throw new Error(data && data.message ? data.message : 'Resposta inválida do servidor');
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao enviar batch:', err);
+        showToast('⚠️ Erro no envio. Salvo localmente.', 'wrn');
+        registros.forEach(r => queueRegistro(r));
+        callback('offline');
+      });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // OFFLINE QUEUE
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function queueRegistro(registro) {
+    state.queue.push(registro);
+    safeLocalStorageSet(LS_KEYS.QUEUE, JSON.stringify(state.queue));
+    updatePendingUI();
+  }
+
+  function updatePendingUI() {
+    const pendEl = document.getElementById('pend');
+    const ctEl = document.getElementById('pendCt');
+    
+    if (state.queue.length > 0) {
+      if (pendEl) pendEl.style.display = 'block';
+      if (ctEl) ctEl.textContent = state.queue.length;
+    } else {
+      if (pendEl) pendEl.style.display = 'none';
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✅ MELHORIA #2: Fix race condition - processar fila sequencialmente
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function syncOfflineQueue() {
+    if (!navigator.onLine || state.isSyncing || state.queue.length === 0) {
+      return;
+    }
+
+    state.isSyncing = true;
+    showToast('🔄 Sincronizando...', 'wrn');
+
+    // Processa um por vez, sequencialmente
+    function processNext() {
+      if (state.queue.length === 0) {
+        state.isSyncing = false;
+        safeLocalStorageSet(LS_KEYS.QUEUE, JSON.stringify(state.queue));
+        updatePendingUI();
+        showToast('✅ Sincronização concluída', 'ok');
+        return;
+      }
+
+      const registro = state.queue[0];
+
+      fetch(state.config.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(registro)
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data && data.status === 'success') {
+            // Remove da fila
+            state.queue.shift();
+            updatePendingUI();
+            // Processa próximo
+            setTimeout(processNext, 500); // Pequeno delay para não sobrecarregar
+          } else {
+            throw new Error('Resposta inválida');
+          }
+        })
+        .catch(err => {
+          console.error('Erro na sync:', err);
+          state.isSyncing = false;
+          showToast('⚠️ Erro na sincronização. Tentará novamente.', 'err');
+        });
+    }
+
+    processNext();
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TOAST
+  // ══════════════════════════════════════════════════════════════════════════
+
+  let toastTimer = null;
+
+  function showToast(message, type = '') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+
+    if (toastTimer) clearTimeout(toastTimer);
+
+    toast.textContent = message;
+    toast.className = 'toast ' + type;
+    
+    setTimeout(() => toast.classList.add('on'), 10);
+
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('on');
+    }, 3000);
+  }
+
+})();
 </script>
+
 </body>
 </html>
