@@ -554,47 +554,16 @@ function carregarPlanilha(cb){
       var rows = parseCSV(csv);
       if(rows.length < 2){ feito(false); return; }
 
-      // Encontra a linha real de cabeçalho:
-      // Estratégia: a linha de cabeçalho real tem MÚLTIPLAS colunas não-vazias (>=2)
-      // E pelo menos uma delas é uma palavra-chave EXATA ou CURTA de cabeçalho (não uma frase longa de título)
-      // Isso evita que "SENAI · Cadastro de Alunos" (célula mesclada) seja confundida com cabeçalho
-      var hdrIdx = -1;
-      // Keywords que devem aparecer como células INDIVIDUAIS no cabeçalho (não como parte de frase longa)
-      var hdrExact = ['id aluno','idaluno','nome completo','nomecompleto','nome','turma','turma / curso','turmacurso','curso','turno','cpf','matricula','contato','observa'];
-      for(var ri=0; ri<Math.min(rows.length,6); ri++){
-        var row = rows[ri];
-        // Conta colunas não-vazias
-        var nonEmpty = row.filter(function(c){ return c.trim().length>0; }).length;
-        if(nonEmpty < 2) continue; // linha de título mesclada tem só 1 coluna não-vazia
-        // Verifica se alguma célula individual bate com keyword de cabeçalho
-        var rowLow = row.map(function(c){ return c.toLowerCase().trim(); });
-        var hasHdrKw = hdrExact.some(function(kw){
-          return rowLow.some(function(c){ return c === kw || c.replace(/[^a-z ]/g,'').trim() === kw; });
-        });
-        if(hasHdrKw){ hdrIdx = ri; break; }
-      }
-      // Fallback: primeira linha com 3+ colunas não-vazias
-      if(hdrIdx < 0){
-        for(var ri=0; ri<Math.min(rows.length,6); ri++){
-          var nonEmpty = rows[ri].filter(function(c){ return c.trim().length>0; }).length;
-          if(nonEmpty >= 3){ hdrIdx = ri; break; }
-        }
-      }
-      // Último fallback
-      if(hdrIdx < 0) hdrIdx = 1;
+      // Linha 1 (índice 0) = título mesclado "SENAI · Cadastro de Alunos"
+      // Linha 2 (índice 1) = cabeçalho real: ID Aluno | Nome Completo | Turma / Curso | ...
+      var hdrIdx = 1;
 
       var hdrRaw = rows[hdrIdx];
       var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
 
-      // Debug: mostra cabeçalhos encontrados no toast
-      toast('Colunas (linha '+(hdrIdx+1)+'): ' + hdrRaw.join(' | '), 'wrn');
-      console.log('HDR linha:', hdrIdx, 'raw:', hdrRaw, 'limpo:', hdr);
-
       var iId    = idxHdr(hdr, ['idaluno','matricula']);
-      var iNome  = idxHdr(hdr, ['nomecompleto','nome completo','nome']);
-      var iTurma = idxHdr(hdr, ['turmacurso','turma / curso','turma','curso']);
-
-      console.log('iId='+iId, 'iNome='+iNome, 'iTurma='+iTurma);
+      var iNome  = idxHdr(hdr, ['nomecompleto','nomecompleto','nome']);
+      var iTurma = idxHdr(hdr, ['turmacurso','turmacurso','turma','curso']);
 
       if(iNome < 0){ toast('❌ Coluna Nome não encontrada! HDR: '+hdr.join(','),'err'); feito(false); return; }
 
