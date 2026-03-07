@@ -506,19 +506,30 @@ function csvUrl(aba){
 }
 
 function parseCSV(csv){
-  // Parser simples que respeita campos entre aspas
-  var linhas = csv.split('\n').filter(function(l){ return l.trim(); });
-  return linhas.map(function(l){
-    var cols=[], cur='', inQ=false;
-    for(var i=0;i<l.length;i++){
+  // Parser robusto: lida com aspas duplas escapadas ("") e \r\n
+  csv = csv.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var linhas = csv.split('\n');
+  var resultado = [];
+  for(var li=0; li<linhas.length; li++){
+    var l = linhas[li];
+    if(!l.trim()) continue;
+    var cols=[], cur='', inQ=false, i=0;
+    while(i<l.length){
       var ch=l[i];
-      if(ch==='"'){ inQ=!inQ; }
-      else if(ch===',' && !inQ){ cols.push(cur.trim()); cur=''; }
-      else cur+=ch;
+      if(inQ){
+        if(ch==='"' && l[i+1]==='"'){ cur+='"'; i+=2; } // aspas escapadas ""
+        else if(ch==='"'){ inQ=false; i++; }
+        else { cur+=ch; i++; }
+      } else {
+        if(ch==='"'){ inQ=true; i++; }
+        else if(ch===','){ cols.push(cur.trim()); cur=''; i++; }
+        else { cur+=ch; i++; }
+      }
     }
     cols.push(cur.trim());
-    return cols;
-  });
+    resultado.push(cols);
+  }
+  return resultado;
 }
 
 function carregarPlanilha(cb){
@@ -544,12 +555,21 @@ function carregarPlanilha(cb){
       if(rows.length < 2){ feito(false); return; }
 
       // Descobre índices pelo cabeçalho
-      var hdr = rows[0].map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
-      var iId    = idxHdr(hdr, ['idaluno','id']);
-      var iNome  = idxHdr(hdr, ['nomecompleto','nome']);
-      var iTurma = idxHdr(hdr, ['turmacurso','turma']);
+      var hdrRaw = rows[0];
+      var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
 
-      if(iNome < 0){ feito(false); return; }
+      // Debug: mostra cabeçalhos encontrados no toast
+      toast('Colunas: ' + hdrRaw.join(' | '), 'wrn');
+      console.log('HDR raw:', hdrRaw);
+      console.log('HDR limpo:', hdr);
+
+      var iId    = idxHdr(hdr, ['idaluno','id']);
+      var iNome  = idxHdr(hdr, ['nomecompleto','nome','aluno']);
+      var iTurma = idxHdr(hdr, ['turmacurso','turma','curso','class','turno']);
+
+      console.log('iId='+iId, 'iNome='+iNome, 'iTurma='+iTurma);
+
+      if(iNome < 0){ toast('❌ Coluna Nome não encontrada!','err'); feito(false); return; }
 
       rows.slice(1).forEach(function(r){
         var nome  = (r[iNome]||'').trim();
