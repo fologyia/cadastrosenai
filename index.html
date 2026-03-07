@@ -554,25 +554,34 @@ function carregarPlanilha(cb){
       var rows = parseCSV(csv);
       if(rows.length < 2){ feito(false); return; }
 
-      // Encontra a linha real de cabeçalho (pula linhas de título decorativo como células mescladas)
-      // Procura a primeira linha que contenha palavras-chave típicas de cabeçalho
+      // Encontra a linha real de cabeçalho:
+      // Estratégia: a linha de cabeçalho real tem MÚLTIPLAS colunas não-vazias (>=2)
+      // E pelo menos uma delas é uma palavra-chave EXATA ou CURTA de cabeçalho (não uma frase longa de título)
+      // Isso evita que "SENAI · Cadastro de Alunos" (célula mesclada) seja confundida com cabeçalho
       var hdrIdx = -1;
-      var hdrKeywords = ['nome','aluno','turma','curso','id','matricula','cpf','completo'];
+      // Keywords que devem aparecer como células INDIVIDUAIS no cabeçalho (não como parte de frase longa)
+      var hdrExact = ['id aluno','idaluno','nome completo','nomecompleto','nome','turma','turma / curso','turmacurso','curso','turno','cpf','matricula','contato','observa'];
       for(var ri=0; ri<Math.min(rows.length,6); ri++){
-        var rowClean = rows[ri].map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
-        var hasKw = hdrKeywords.some(function(kw){
-          return rowClean.some(function(c){ return c.length>0 && c.indexOf(kw)>=0; });
+        var row = rows[ri];
+        // Conta colunas não-vazias
+        var nonEmpty = row.filter(function(c){ return c.trim().length>0; }).length;
+        if(nonEmpty < 2) continue; // linha de título mesclada tem só 1 coluna não-vazia
+        // Verifica se alguma célula individual bate com keyword de cabeçalho
+        var rowLow = row.map(function(c){ return c.toLowerCase().trim(); });
+        var hasHdrKw = hdrExact.some(function(kw){
+          return rowLow.some(function(c){ return c === kw || c.replace(/[^a-z ]/g,'').trim() === kw; });
         });
-        if(hasKw){ hdrIdx = ri; break; }
+        if(hasHdrKw){ hdrIdx = ri; break; }
       }
-      // Se não encontrou por keyword, usa a primeira linha com mais de 2 colunas não-vazias
+      // Fallback: primeira linha com 3+ colunas não-vazias
       if(hdrIdx < 0){
         for(var ri=0; ri<Math.min(rows.length,6); ri++){
           var nonEmpty = rows[ri].filter(function(c){ return c.trim().length>0; }).length;
-          if(nonEmpty >= 2){ hdrIdx = ri; break; }
+          if(nonEmpty >= 3){ hdrIdx = ri; break; }
         }
       }
-      if(hdrIdx < 0) hdrIdx = 0;
+      // Último fallback
+      if(hdrIdx < 0) hdrIdx = 1;
 
       var hdrRaw = rows[hdrIdx];
       var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
@@ -581,9 +590,9 @@ function carregarPlanilha(cb){
       toast('Colunas (linha '+(hdrIdx+1)+'): ' + hdrRaw.join(' | '), 'wrn');
       console.log('HDR linha:', hdrIdx, 'raw:', hdrRaw, 'limpo:', hdr);
 
-      var iId    = idxHdr(hdr, ['idaluno','id','matricula']);
-      var iNome  = idxHdr(hdr, ['nomecompleto','nome','aluno']);
-      var iTurma = idxHdr(hdr, ['turmacurso','turma','curso','class']);
+      var iId    = idxHdr(hdr, ['idaluno','matricula']);
+      var iNome  = idxHdr(hdr, ['nomecompleto','nome completo','nome']);
+      var iTurma = idxHdr(hdr, ['turmacurso','turma / curso','turma','curso']);
 
       console.log('iId='+iId, 'iNome='+iNome, 'iTurma='+iTurma);
 
@@ -650,14 +659,22 @@ function carregarPlanilha(cb){
 }
 
 function idxHdr(hdr, keywords){
-  // 1) Match exato primeiro (prioridade máxima)
+  // hdr já vem limpo (lowercase, sem acento, sem caracteres especiais)
+  // mas também testamos versão com espaços preservados para "nome completo", "turma / curso" etc.
+  // 1) Match exato (prioridade máxima)
   for(var k=0;k<keywords.length;k++)
     for(var i=0;i<hdr.length;i++)
       if(hdr[i]===keywords[k]) return i;
-  // 2) Match parcial (contém) — percorre keywords em ordem de prioridade
-  for(var k=0;k<keywords.length;k++)
-    for(var i=0;i<hdr.length;i++)
-      if(hdr[i].indexOf(keywords[k])>=0) return i;
+  // 2) Match exato sem espaços e sem caracteres especiais
+  var kwClean = keywords.map(function(k){ return k.replace(/[^a-z]/g,''); });
+  var hdrClean = hdr.map(function(h){ return h.replace(/[^a-z]/g,''); });
+  for(var k=0;k<kwClean.length;k++)
+    for(var i=0;i<hdrClean.length;i++)
+      if(hdrClean[i]===kwClean[k] && hdrClean[i].length>0) return i;
+  // 3) Match parcial — keyword contida na célula (mas não o contrário para evitar falsos positivos)
+  for(var k=0;k<kwClean.length;k++)
+    for(var i=0;i<hdrClean.length;i++)
+      if(hdrClean[i].length>0 && hdrClean[i].indexOf(kwClean[k])>=0) return i;
   return -1;
 }
 
