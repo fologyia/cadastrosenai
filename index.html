@@ -574,55 +574,45 @@ function carregarPlanilha(cb){
     })
     .catch(function(){ feito(false); });
 
-  // ── Aba Configurações (Usa Linha 1 como cabeçalho) ────────────────────────
-  fetch(csvUrl('⚙ Configurações'))
-    .then(function(r){ return r.text(); })
-    .then(function(csv){
-      var rows = parseCSV(csv);
-      if(rows.length < 1){ feito(false); return; }
-      
-      // Na aba de config, o cabeçalho costuma ser a primeira linha (índice 0)
-      var hdr = rows[0].map(function(h){ return h.toLowerCase().trim(); });
+// ── Aba Configurações (Linha 2 = cabeçalho, igual à aba Alunos) ──────────────
+fetch(csvUrl('Configurações'))
+  .then(function(r){ return r.text(); })
+  .then(function(csv){
+    var rows = parseCSV(csv);
+    if(rows.length < 2){ feito(false); return; }
 
-      function colVals(keywords){
-        var idx = -1;
-        for(var i=0; i<hdr.length; i++){
-          for(var k=0; k<keywords.length; k++){
-            // Busca por termo contido (ex: "unidade" dentro de "unidade curricular")
-            if(hdr[i].indexOf(keywords[k]) >= 0){ idx = i; break; }
-          }
-          if(idx >= 0) break;
+    var hdrIdx = 1; // Linha 2 da planilha
+    var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase().trim(); });
+
+    function colVals(keywords){
+      var idx = -1;
+      for(var i = 0; i < hdr.length; i++){
+        for(var k = 0; k < keywords.length; k++){
+          if(hdr[i].indexOf(keywords[k]) >= 0){ idx = i; break; }
         }
-        if(idx < 0) return [];
-        // Pega os valores da coluna, ignorando a primeira linha (cabeçalho)
-        return rows.slice(1).map(function(r){ return (r[idx]||'').trim(); }).filter(Boolean);
+        if(idx >= 0) break;
       }
+      if(idx < 0) return [];
+      return rows.slice(hdrIdx + 1).map(function(r){ return (r[idx]||'').trim(); }).filter(Boolean);
+    }
 
-      // Busca as colunas com termos mais abrangentes
-      var ucs   = colVals(['uc', 'unidade', 'curricular', 'materia']);
-      var crits = colVals(['crit', 'competencia', 'indicador']);
-      var vets  = colVals(['vetor', 'eixo', 'tipo']);
-      var insts = colVals(['instru', 'ferramenta', 'metodo']);
+    var turmas = colVals(['turma','curso']);
+    var ucs    = colVals(['uc','unidade']);
+    var crits  = colVals(['crit']);
+    var vets   = colVals(['vetor']);
+    var insts  = colVals(['instru']);
+    var tags   = colVals(['tag','observa']);
 
-      if(ucs.length)   novosDados.ucs           = ucs;
-      if(crits.length) novosDados.criterios      = crits;
-      if(vets.length)  novosDados.vetores        = vets;
-      if(insts.length) novosDados.instrumentos   = insts;
+    if(turmas.length) novosDados.turmas      = turmas;
+    if(ucs.length)    novosDados.ucs         = ucs;
+    if(crits.length)  novosDados.criterios   = crits;
+    if(vets.length)   novosDados.vetores     = vets;
+    if(insts.length)  novosDados.instrumentos = insts;
+    if(tags.length)   novosDados.tags        = tags;
 
-      // Fallbacks caso a planilha esteja vazia
-      if(!novosDados.ucs.length)          novosDados.ucs          = ['UC Padrão'];
-      if(!novosDados.vetores.length)      novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
-      if(!novosDados.instrumentos.length) novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático'];
-      if(!novosDados.criterios.length)    novosDados.criterios    = ['Critério Geral'];
-
-      feito(true);
-    })
-    .catch(function(){
-      // Se der erro no fetch, carrega defaults
-      novosDados.ucs = ['UC Padrão'];
-      feito(true);
-    });
-}
+    feito(true);
+  })
+  .catch(function(){ feito(false); });
 
   // ── Aba Configurações ─────────────────────────────────────────────────────
   fetch(csvUrl('⚙ Configurações'))
