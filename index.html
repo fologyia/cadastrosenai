@@ -410,13 +410,43 @@ window.addEventListener('load', function(){
     n.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}) +
     '<br>' + n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  // Registra TODOS os botões sempre (independente do fluxo)
+  // ── Registra TODOS os botões UMA VEZ (sempre, independente do fluxo) ──
   on('btnSetup', 'click', setup);
-  registrarBotoes();
+  on('btnTrocarTurma',   'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
+  on('btnRecarregar',    'click', function(){ show('s1'); setLoadingTxt('Recarregando...'); carregarPlanilha(function(){ irTelas2(); }); });
+  on('lkCfg',           'click', function(e){ e.preventDefault(); irSetup(); });
+  on('modoIndividual',  'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
+  on('modoVarredura',   'click', function(){ show('s4b'); dots(3); fillForms(); });
+  on('btnBack4b',       'click', function(){ show('s3'); dots(2); });
+  on('lkVoltar4a',      'click', function(){ show('s3'); dots(2); });
+  on('btnBack5a',       'click', function(){ show('s4a'); dots(3); });
+  on('btnChg',          'click', function(){ show('s4a'); dots(3); });
+  on('btnBack5b',       'click', function(){ show('s4b'); dots(3); });
+  on('btnSalvar',       'click', salvar);
+  on('btnMesmo',        'click', function(){ irFormulario(alunoAtual); });
+  on('btnNova',         'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
+  on('btnIniciarVarredura','click', iniciarVarredura);
+  on('btnEnviarTudo',   'click', enviarVarredura);
+  on('btnCancelarSw',   'click', function(){ show('s3'); dots(2); });
+  on('btnNovaVarredura','click', function(){ show('s4b'); dots(3); fillForms(); });
+  on('btnVoltarModo',   'click', function(){ show('s3'); dots(2); });
+  on('slider', 'input', function(){ notaUI(+this.value); });
+  on('srch',   'input', function(){ listaAlunos(this.value); });
+  document.querySelectorAll('.nb').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.getElementById('slider').value = this.dataset.v;
+      notaUI(+this.dataset.v);
+    });
+  });
+  document.querySelectorAll('.tag').forEach(function(t){
+    t.addEventListener('click', function(){ this.classList.toggle('on'); });
+  });
+  notaUI(7);
+  pendUI();
   window.addEventListener('online',  sync);
   window.addEventListener('offline', function(){ toast('📴 Offline','wrn'); });
 
-  // Carrega config salva
+  // ── Carrega config salva ──
   try {
     var s = localStorage.getItem('snc4');
     if(s){
@@ -425,15 +455,12 @@ window.addEventListener('load', function(){
       var d = localStorage.getItem('snd4');
       if(d) dados = JSON.parse(d);
       pendUI();
-      // Se já tem dados carregados vai para seleção de turma
       if(dados.turmas && dados.turmas.length > 0){
         irTelas2();
       } else {
-        // Tenta carregar em background
         show('s1');
         carregarPlanilha(function(ok){
-          if(ok) irTelas2();
-          else   irTelas2(); // vai mesmo assim, com dados vazios
+          irTelas2();
         });
       }
       return;
@@ -442,7 +469,6 @@ window.addEventListener('load', function(){
 
   // Sem config: vai para setup
   show('s0'); dots(0);
-  pendUI();
 });
 
 // ══════════════════════════════════════════
@@ -460,7 +486,6 @@ function setup(){
   show('s1');
   setLoadingTxt('Carregando turmas e alunos...');
   carregarPlanilha(function(ok){
-    registrarBotoes(); // registra botões que dependem de dados carregados
     if(ok) irTelas2();
     else { toast('⚠️ Erro ao carregar — verifique o ID','err'); irSetup(); }
   });
@@ -522,7 +547,7 @@ function carregarPlanilha(cb){
       var hdr = rows[0].map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
       var iId    = idxHdr(hdr, ['idaluno','id']);
       var iNome  = idxHdr(hdr, ['nomecompleto','nome']);
-      var iTurma = idxHdr(hdr, ['turmacurso','turma','curso']);
+      var iTurma = idxHdr(hdr, ['turmacurso','turma']);
 
       if(iNome < 0){ feito(false); return; }
 
@@ -587,53 +612,20 @@ function carregarPlanilha(cb){
 }
 
 function idxHdr(hdr, keywords){
-  // Primeiro tenta match exato
-  for(var i=0;i<hdr.length;i++)
-    for(var k=0;k<keywords.length;k++)
+  // 1) Match exato primeiro (prioridade máxima)
+  for(var k=0;k<keywords.length;k++)
+    for(var i=0;i<hdr.length;i++)
       if(hdr[i]===keywords[k]) return i;
-  // Depois tenta match parcial (contém)
-  for(var i=0;i<hdr.length;i++)
-    for(var k=0;k<keywords.length;k++)
+  // 2) Match parcial (contém) — percorre keywords em ordem de prioridade
+  for(var k=0;k<keywords.length;k++)
+    for(var i=0;i<hdr.length;i++)
       if(hdr[i].indexOf(keywords[k])>=0) return i;
   return -1;
 }
 
 function setLoadingTxt(t){ document.getElementById('loadingTxt').textContent=t; }
 
-// ══════════════════════════════════════════
-// REGISTRA BOTÕES (após dados carregados)
-// ══════════════════════════════════════════
-function registrarBotoes(){
-  on('btnTrocarTurma',   'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
-  on('btnRecarregar',    'click', function(){ show('s1'); setLoadingTxt('Recarregando...'); carregarPlanilha(function(){ irTelas2(); }); });
-  on('lkCfg',           'click', function(e){ e.preventDefault(); irSetup(); });
-  on('modoIndividual',  'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('modoVarredura',   'click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnBack4b',       'click', function(){ show('s3'); dots(2); });
-  on('lkVoltar4a',      'click', function(){ show('s3'); dots(2); });
-  on('btnBack5a',       'click', function(){ show('s4a'); dots(3); });
-  on('btnChg',          'click', function(){ show('s4a'); dots(3); });
-  on('btnBack5b',       'click', function(){ show('s4b'); dots(3); });
-  on('btnSalvar',       'click', salvar);
-  on('btnMesmo',        'click', function(){ irFormulario(alunoAtual); });
-  on('btnNova',         'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('btnIniciarVarredura','click', iniciarVarredura);
-  on('btnEnviarTudo',   'click', enviarVarredura);
-  on('btnCancelarSw',   'click', function(){ show('s3'); dots(2); });
-  on('btnNovaVarredura','click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnVoltarModo',   'click', function(){ show('s3'); dots(2); });
-  on('slider', 'input', function(){ notaUI(+this.value); });
-  on('srch',   'input', function(){ listaAlunos(this.value); });
-  document.querySelectorAll('.nb').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.getElementById('slider').value=this.dataset.v; notaUI(+this.dataset.v);
-    });
-  });
-  document.querySelectorAll('.tag').forEach(function(t){
-    t.addEventListener('click', function(){ this.classList.toggle('on'); });
-  });
-  notaUI(7);
-}
+// registrarBotoes removida — botões são registrados uma única vez no load
 
 // ══════════════════════════════════════════
 // NAVEGAÇÃO
