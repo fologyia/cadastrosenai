@@ -188,6 +188,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <input class="inp" id="fTurma" type="text" placeholder="Ex: Técnico Mecânica – Turma A" autocorrect="off">
     </div>
     <div class="fwrap">
+      <label class="flbl">ID da Planilha Google Sheets (opcional)</label>
+      <input class="inp" id="fSheetId" type="text" placeholder="10XkC99eFabu..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div style="color:rgba(255,255,255,0.3);font-size:0.72rem;margin-top:6px;line-height:1.5;">Encontre na URL da planilha entre /d/ e /edit. Com isso os critérios, UCs e vetores são lidos automaticamente da aba ⚙ Configurações.</div>
+    </div>
+    <div class="fwrap">
       <label class="flbl">Lista de Alunos (um por linha)</label>
       <textarea class="txta" id="fAlunos" placeholder="Ana Costa&#10;Bruno Souza&#10;Carlos Ribeiro&#10;..."></textarea>
     </div>
@@ -414,7 +419,15 @@ window.addEventListener('load', function(){
 
   try{
     var s=localStorage.getItem('snc');
-    if(s){cfg=JSON.parse(s);queue=JSON.parse(localStorage.getItem('snq')||'[]');t1();}
+    if(s){
+      cfg=JSON.parse(s);
+      queue=JSON.parse(localStorage.getItem('snq')||'[]');
+      // Sincroniza configurações em background ao abrir
+      if(cfg.sheetId){
+        carregarConfiguracoes(function(){ /* silent update */ });
+      }
+      t1();
+    }
   }catch(e){}
 
   // Botões
@@ -426,8 +439,8 @@ window.addEventListener('load', function(){
   on('btnNova','click',t2a);
   on('lkCfg','click',function(e){e.preventDefault();t0();});
   on('lkCfg2','click',function(e){e.preventDefault();t1();});
-  on('modoIndividual','click',function(){show('s2a');dots(2);listaAlunos('');fillUC();});
-  on('modoVarredura','click',function(){show('s2b');dots(2);fillSwUC();});
+  on('modoIndividual','click',function(){show('s2a');dots(2);listaAlunos('');fillForms();});
+  on('modoVarredura','click',function(){show('s2b');dots(2);fillForms();});
   on('btnBackSweepCfg','click',t1);
   on('btnIniciarVarredura','click',iniciarVarredura);
   on('btnBackSweep','click',function(){show('s2b');dots(2);});
@@ -465,12 +478,13 @@ function show(id){
 }
 function t0(){
   show('s0');dots(0);
-  if(cfg.url)    document.getElementById('fUrl').value=cfg.url;
-  if(cfg.turma)  document.getElementById('fTurma').value=cfg.turma;
-  if(cfg.alunos) document.getElementById('fAlunos').value=cfg.alunos.join('\n');
+  if(cfg.url)     document.getElementById('fUrl').value=cfg.url;
+  if(cfg.turma)   document.getElementById('fTurma').value=cfg.turma;
+  if(cfg.sheetId) document.getElementById('fSheetId').value=cfg.sheetId;
+  if(cfg.alunos)  document.getElementById('fAlunos').value=cfg.alunos.join('\n');
 }
 function t1(){show('s1');dots(1);}
-function t2a(){show('s2a');dots(2);document.getElementById('srch').value='';listaAlunos('');fillUC();}
+function t2a(){show('s2a');dots(2);document.getElementById('srch').value='';listaAlunos('');fillForms();}
 function t3a(nome){
   aluno=nome;
   var ini=nome.split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();
@@ -501,14 +515,113 @@ function setup(){
   if(!turma){toast('⚠️ Informe o nome da turma','err');return;}
   if(!raw){toast('⚠️ Adicione ao menos 1 aluno','err');return;}
   var al=raw.split('\n').map(function(a){return a.trim();}).filter(Boolean);
-  cfg={url:url,turma:turma,alunos:al,ucs:[
+  var sheetId=(document.getElementById('fSheetId').value||'').trim();
+  cfg={url:url,turma:turma,alunos:al,sheetId:sheetId,ucs:[
     'Fundamentos da Tecnologia Mecânica','Manutenção Mecânica Aplicada',
     'Produção Mecânica','Projetos de Máquinas',
     'Projeto de Inovação: Prototipação','Saúde, Segurança e Meio Ambiente'
-  ]};
+  ],vetores:['Fazer (40%)','Saber (30%)','Comport. (30%)'],
+  instrumentos:['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'],
+  criterios:['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas']
+  };
   try{localStorage.setItem('snc',JSON.stringify(cfg));}catch(e){}
-  toast('✅ Configuração salva!','ok');
-  setTimeout(t1,600);
+  toast('✅ Salvando...','ok');
+  if(sheetId){
+    carregarConfiguracoes(function(){ toast('✅ Configuração salva!','ok'); setTimeout(t1,600); });
+  } else {
+    setTimeout(t1,600);
+  }
+}
+
+// ── CONFIGURAÇÕES DA PLANILHA ──
+function csvUrl(sheetId, aba){
+  return 'https://docs.google.com/spreadsheets/d/'+sheetId+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(aba);
+}
+
+function parseCSVColuna(csv, colIndex){
+  // Parseia CSV simples e retorna valores únicos de uma coluna (pula header)
+  var linhas = csv.split('\n').slice(1);
+  var vals = [];
+  linhas.forEach(function(l){
+    l = l.trim();
+    if(!l) return;
+    var cols = l.split(',');
+    var val = (cols[colIndex]||'').replace(/^"|"$/g,'').trim();
+    if(val && vals.indexOf(val)<0) vals.push(val);
+  });
+  return vals;
+}
+
+function carregarConfiguracoes(cb){
+  if(!cfg.sheetId){ if(cb)cb(); return; }
+  toast('🔄 Sincronizando configurações...');
+  fetch(csvUrl(cfg.sheetId, '⚙ Configurações'))
+    .then(function(r){ return r.text(); })
+    .then(function(csv){
+      // Estrutura da aba Configurações: cada coluna é uma categoria
+      // Col 0: Turmas, Col 1: UCs, Col 2: Critérios, Col 3: Vetores, Col 4: Instrumentos
+      var linhas = csv.split('\n');
+      // Descobre índice de cada coluna pelo header
+      if(linhas.length < 2){ if(cb)cb(); return; }
+      var headers = linhas[0].split(',').map(function(h){ return h.replace(/^"|"$/g,'').trim().toLowerCase(); });
+
+      function colIdx(keywords){
+        for(var i=0;i<headers.length;i++){
+          for(var k=0;k<keywords.length;k++){
+            if(headers[i].indexOf(keywords[k])>=0) return i;
+          }
+        }
+        return -1;
+      }
+
+      var iUC   = colIdx(['uc','unidade']);
+      var iCrit = colIdx(['crit','critério','criterio']);
+      var iVet  = colIdx(['vetor','vet']);
+      var iInst = colIdx(['instrumento','inst']);
+      var iTurm = colIdx(['turma']);
+
+      if(iUC>=0){
+        var ucs=parseCSVColuna(csv,iUC);
+        if(ucs.length>0) cfg.ucs=ucs;
+      }
+      if(iCrit>=0){
+        var crits=parseCSVColuna(csv,iCrit);
+        if(crits.length>0) cfg.criterios=crits;
+      }
+      if(iVet>=0){
+        var vets=parseCSVColuna(csv,iVet);
+        if(vets.length>0) cfg.vetores=vets;
+      }
+      if(iInst>=0){
+        var insts=parseCSVColuna(csv,iInst);
+        if(insts.length>0) cfg.instrumentos=insts;
+      }
+      if(iTurm>=0){
+        var turms=parseCSVColuna(csv,iTurm);
+        if(turms.length>0 && !cfg.turma) cfg.turma=turms[0];
+      }
+
+      try{localStorage.setItem('snc',JSON.stringify(cfg));}catch(e){}
+      toast('✅ Critérios atualizados!','ok');
+      if(cb)cb();
+    })
+    .catch(function(e){
+      console.warn('Erro ao carregar Configurações:', e);
+      toast('⚠️ Offline — usando dados salvos','wrn');
+      if(cb)cb();
+    });
+}
+
+function fillSelect(selId, vals, placeholder){
+  var s=document.getElementById(selId);
+  if(!s) return;
+  var prev=s.value;
+  s.innerHTML='<option value="">'+(placeholder||'Selecione...')+'</option>';
+  (vals||[]).forEach(function(v){
+    var o=document.createElement('option');
+    o.value=v; o.textContent=v; s.appendChild(o);
+  });
+  if(prev) s.value=prev;
 }
 
 // ── LISTA ALUNOS ──
@@ -524,15 +637,15 @@ function listaAlunos(q){
     c.appendChild(d);
   });
 }
-function fillUC(){
-  var s=document.getElementById('ucSel');
-  s.innerHTML='<option value="">Selecione a UC...</option>';
-  (cfg.ucs||[]).forEach(function(u){var o=document.createElement('option');o.value=u;o.textContent=u;s.appendChild(o);});
-}
-function fillSwUC(){
-  var s=document.getElementById('swUcSel');
-  s.innerHTML='<option value="">Selecione a UC...</option>';
-  (cfg.ucs||[]).forEach(function(u){var o=document.createElement('option');o.value=u;o.textContent=u;s.appendChild(o);});
+function fillForms(){
+  fillSelect('ucSel',   cfg.ucs||[],         'Selecione a UC...');
+  fillSelect('vetSel',  cfg.vetores||[],      'Vetor...');
+  fillSelect('instSel', cfg.instrumentos||[], 'Instrumento...');
+  fillSelect('critSel', cfg.criterios||[],    'Critério...');
+  fillSelect('swUcSel', cfg.ucs||[],          'Selecione a UC...');
+  fillSelect('swVetSel',cfg.vetores||[],      'Vetor...');
+  fillSelect('swInstSel',cfg.instrumentos||[],'Instrumento...');
+  fillSelect('swCritSel',cfg.criterios||[],   'Critério...');
 }
 
 // ── NOTA ──
