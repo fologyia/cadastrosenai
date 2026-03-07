@@ -413,7 +413,12 @@ window.addEventListener('load', function(){
   // ── Registra TODOS os botões SEMPRE — independente do fluxo ──────────────
   on('btnSetup',           'click', setup);
   on('btnTrocarTurma',     'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
-  on('btnRecarregar',      'click', function(){ show('s1'); setLoadingTxt('Recarregando...'); carregarPlanilha(function(){ irTelas2(); }); });
+  on('btnRecarregar',      'click', function(){
+    dados = {};
+    try{ localStorage.removeItem('snd4'); }catch(e){}
+    show('s1'); setLoadingTxt('Recarregando...');
+    carregarPlanilha(function(){ irTelas2(); });
+  });
   on('lkCfg',              'click', function(e){ e.preventDefault(); irSetup(); });
   on('modoIndividual',     'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
   on('modoVarredura',      'click', function(){ show('s4b'); dots(3); fillForms(); });
@@ -616,9 +621,13 @@ function carregarPlanilha(cb){
       novosDados.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
     }
 
-    if(!csv){ usarDefaults(); novosDados.colunas={}; feito(true); return; }
+    if(!csv){
+      console.warn('[SENAI] Aba Configuracoes nao encontrada — usando defaults');
+      usarDefaults(); novosDados.colunas={}; feito(true); return;
+    }
 
     var rows = parseCSV(csv);
+    console.log('[SENAI] CSV Configuracoes — primeiras linhas:', rows.slice(0,4));
     if(rows.length < 1){ usarDefaults(); feito(true); return; }
 
     // ── Detecta linha de cabeçalho da aba Configurações ──────────────────────
@@ -644,6 +653,7 @@ function carregarPlanilha(cb){
       }
     }
     if(hdrIdx < 0) hdrIdx = 0;
+    console.log('[SENAI] hdrIdx:', hdrIdx, 'cabecalho:', rows[hdrIdx]);
 
     var hdrRaw = rows[hdrIdx];
     // Filtra linhas de dados removendo linhas completamente vazias
@@ -665,6 +675,7 @@ function carregarPlanilha(cb){
       });
       if(vals.length>0) novosDados.colunas[nome] = vals;
     });
+    console.log('[SENAI] Colunas:', JSON.stringify(novosDados.colunas).substring(0,400));
 
     // ── Mapeia para campos fixos usando normStr ──
     // Funciona mesmo com acentos: "Critérios" bate com keyword "criterios"
@@ -703,6 +714,7 @@ function carregarPlanilha(cb){
     if(!novosDados.instrumentos.length) novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
     if(!novosDados.criterios.length)    novosDados.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
 
+    console.log('[SENAI] Configuracoes OK:', {ucs:novosDados.ucs.length, criterios:novosDados.criterios.length, vetores:novosDados.vetores.length, colunas:Object.keys(novosDados.colunas)});
     feito(true);
   });
 }
