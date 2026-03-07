@@ -555,7 +555,8 @@ function carregarPlanilha(cb){
 
       // Descobre índices pelo cabeçalho
       var hdr = rows[0].map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
-      var iNome  = idxHdr(hdr, ['nomecompleto','nome','aluno']);
+      var iId    = idxHdr(hdr, ['idaluno','id']);
+      var iNome  = idxHdr(hdr, ['nomecompleto','nome']);
       var iTurma = idxHdr(hdr, ['turmacurso','turma','curso']);
 
       if(iNome < 0){ feito(false); return; }
@@ -621,6 +622,11 @@ function carregarPlanilha(cb){
 }
 
 function idxHdr(hdr, keywords){
+  // Primeiro tenta match exato
+  for(var i=0;i<hdr.length;i++)
+    for(var k=0;k<keywords.length;k++)
+      if(hdr[i]===keywords[k]) return i;
+  // Depois tenta match parcial (contém)
   for(var i=0;i<hdr.length;i++)
     for(var k=0;k<keywords.length;k++)
       if(hdr[i].indexOf(keywords[k])>=0) return i;
