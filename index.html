@@ -580,26 +580,20 @@ function carregarPlanilha(cb){
     .then(function(csv){
       var rows = parseCSV(csv);
 
-      // Encontra a linha de cabeçalho: primeira linha que tenha pelo menos 2 células não-vazias
-      // e que contenha alguma keyword típica de cabeçalho de configuração
+      // A aba Configurações tem:
+      //   Linha 1 (idx 0): título decorativo (célula mesclada)
+      //   Linha 2 (idx 1): cabeçalho real (Turmas/Cursos | UCs | Critérios | Vetores | Instrumentos | Tags)
+      //   Linha 3+ (idx 2+): dados
+      // Procura a linha de cabeçalho: primeira linha com >= 3 células não-vazias
+      // E que NÃO seja apenas uma célula mesclada (título)
       var hdrIdx = -1;
-      var cfgKeywords = ['uc','unidade','crit','vetor','instrumento','turma','curso'];
       for(var ri = 0; ri < Math.min(rows.length, 6); ri++){
-        var rowClean = rows[ri].map(function(c){ return c.toLowerCase().replace(/[^a-z]/g,''); });
-        var nonEmpty = rowClean.filter(function(c){ return c.length > 0; }).length;
-        if(nonEmpty < 2) continue;
-        var hasKw = cfgKeywords.some(function(kw){
-          return rowClean.some(function(c){ return c.length > 0 && c.indexOf(kw) >= 0; });
-        });
-        if(hasKw){ hdrIdx = ri; break; }
+        var nonEmpty = rows[ri].filter(function(c){ return c.trim().length > 0; }).length;
+        if(nonEmpty >= 3){ hdrIdx = ri; break; }
       }
-      // Fallback: primeira linha com >= 2 células não-vazias
-      if(hdrIdx < 0){
-        for(var ri = 0; ri < Math.min(rows.length, 6); ri++){
-          if(rows[ri].filter(function(c){ return c.trim().length > 0; }).length >= 2){ hdrIdx = ri; break; }
-        }
-      }
-      if(hdrIdx < 0 || hdrIdx >= rows.length - 1){ 
+      // Fallback: linha 1 (índice 1)
+      if(hdrIdx < 0) hdrIdx = 1;
+      if(hdrIdx >= rows.length - 1){ 
         // Sem dados úteis — usa defaults
         novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
         novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
@@ -611,8 +605,6 @@ function carregarPlanilha(cb){
       var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z0-9 \/]/g,'').trim(); });
       var hdrClean = hdr.map(function(h){ return h.replace(/[^a-z]/g,''); });
 
-      // DEBUG: mostra cabeçalhos encontrados
-      toast('Config hdr['+hdrIdx+']: '+hdrRaw.filter(function(h){return h.trim();}).join(' | '));
 
       function colIdx(keywords){
         // 1) match exato limpo
