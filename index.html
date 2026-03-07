@@ -545,28 +545,21 @@ function carregarPlanilha(cb){
     cb(true);
   }
 
-  promessas = 2; // Alunos + Configurações
+  promessas = 2; 
 
-  // ── Aba Alunos ────────────────────────────────────────────────────────────
+  // ── Aba Alunos (Usa Linha 2 como cabeçalho) ──────────────────────────────
   fetch(csvUrl('Alunos'))
     .then(function(r){ return r.text(); })
     .then(function(csv){
       var rows = parseCSV(csv);
       if(rows.length < 2){ feito(false); return; }
-
-      // Linha 1 (índice 0) = título mesclado "SENAI · Cadastro de Alunos"
-      // Linha 2 (índice 1) = cabeçalho real: ID Aluno | Nome Completo | Turma / Curso | ...
-      var hdrIdx = 1;
-
+      var hdrIdx = 1; // Linha 2 da planilha
       var hdrRaw = rows[hdrIdx];
       var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z]/g,''); });
-
       var iId    = idxHdr(hdr, ['idaluno','matricula']);
-      var iNome  = idxHdr(hdr, ['nomecompleto','nomecompleto','nome']);
-      var iTurma = idxHdr(hdr, ['turmacurso','turmacurso','turma','curso']);
-
-      if(iNome < 0){ toast('❌ Coluna Nome não encontrada! HDR: '+hdr.join(','),'err'); feito(false); return; }
-
+      var iNome  = idxHdr(hdr, ['nomecompleto','nome','aluno']);
+      var iTurma = idxHdr(hdr, ['turmacurso','turma','curso']);
+      if(iNome < 0){ feito(false); return; }
       rows.slice(hdrIdx+1).forEach(function(r){
         var nome  = (r[iNome]||'').trim();
         var turma = iTurma>=0 ? (r[iTurma]||'').trim() : 'Geral';
@@ -580,6 +573,56 @@ function carregarPlanilha(cb){
       feito(true);
     })
     .catch(function(){ feito(false); });
+
+  // ── Aba Configurações (Usa Linha 1 como cabeçalho) ────────────────────────
+  fetch(csvUrl('⚙ Configurações'))
+    .then(function(r){ return r.text(); })
+    .then(function(csv){
+      var rows = parseCSV(csv);
+      if(rows.length < 1){ feito(false); return; }
+      
+      // Na aba de config, o cabeçalho costuma ser a primeira linha (índice 0)
+      var hdr = rows[0].map(function(h){ return h.toLowerCase().trim(); });
+
+      function colVals(keywords){
+        var idx = -1;
+        for(var i=0; i<hdr.length; i++){
+          for(var k=0; k<keywords.length; k++){
+            // Busca por termo contido (ex: "unidade" dentro de "unidade curricular")
+            if(hdr[i].indexOf(keywords[k]) >= 0){ idx = i; break; }
+          }
+          if(idx >= 0) break;
+        }
+        if(idx < 0) return [];
+        // Pega os valores da coluna, ignorando a primeira linha (cabeçalho)
+        return rows.slice(1).map(function(r){ return (r[idx]||'').trim(); }).filter(Boolean);
+      }
+
+      // Busca as colunas com termos mais abrangentes
+      var ucs   = colVals(['uc', 'unidade', 'curricular', 'materia']);
+      var crits = colVals(['crit', 'competencia', 'indicador']);
+      var vets  = colVals(['vetor', 'eixo', 'tipo']);
+      var insts = colVals(['instru', 'ferramenta', 'metodo']);
+
+      if(ucs.length)   novosDados.ucs           = ucs;
+      if(crits.length) novosDados.criterios      = crits;
+      if(vets.length)  novosDados.vetores        = vets;
+      if(insts.length) novosDados.instrumentos   = insts;
+
+      // Fallbacks caso a planilha esteja vazia
+      if(!novosDados.ucs.length)          novosDados.ucs          = ['UC Padrão'];
+      if(!novosDados.vetores.length)      novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
+      if(!novosDados.instrumentos.length) novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático'];
+      if(!novosDados.criterios.length)    novosDados.criterios    = ['Critério Geral'];
+
+      feito(true);
+    })
+    .catch(function(){
+      // Se der erro no fetch, carrega defaults
+      novosDados.ucs = ['UC Padrão'];
+      feito(true);
+    });
+}
 
   // ── Aba Configurações ─────────────────────────────────────────────────────
   fetch(csvUrl('⚙ Configurações'))
