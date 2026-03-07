@@ -410,60 +410,28 @@ window.addEventListener('load', function(){
     n.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}) +
     '<br>' + n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  // Carrega config salva
-  try {
-    var s = localStorage.getItem('snc4');
-    if(s){
-      cfg   = JSON.parse(s);
-      queue = JSON.parse(localStorage.getItem('snq4')||'[]');
-      var d = localStorage.getItem('snd4');
-      if(d) dados = JSON.parse(d);
-      pendUI();
-      // Se já tem dados carregados vai para seleção de turma
-      if(dados.turmas && dados.turmas.length > 0){
-        irTelas2();
-      } else {
-        // Tenta carregar em background
-        show('s1');
-        carregarPlanilha(function(ok){
-          if(ok) irTelas2();
-          else   irTelas2(); // vai mesmo assim, com dados vazios
-        });
-      }
-      return;
-    }
-  } catch(e){}
-
-  // Sem config: vai para setup
-  show('s0'); dots(0);
-
-  // Botões setup
-  on('btnSetup', 'click', setup);
-
-  // Botões navegação
-  on('btnTrocarTurma',   'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
-  on('btnRecarregar',    'click', function(){ show('s1'); setLoadingTxt('Recarregando...'); carregarPlanilha(function(){ irTelas2(); }); });
-  on('lkCfg',           'click', function(e){ e.preventDefault(); irSetup(); });
-  on('modoIndividual',  'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
-  on('modoVarredura',   'click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnBack4b',       'click', function(){ show('s3'); dots(2); });
-  on('lkVoltar4a',      'click', function(){ show('s3'); dots(2); });
-  on('btnBack5a',       'click', function(){ show('s4a'); dots(3); });
-  on('btnChg',          'click', function(){ show('s4a'); dots(3); });
-  on('btnBack5b',       'click', function(){ show('s4b'); dots(3); });
-  on('btnSalvar',       'click', salvar);
-  on('btnMesmo',        'click', function(){ irFormulario(alunoAtual); });
-  on('btnNova',         'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
+  // ── Registra TODOS os botões SEMPRE — independente do fluxo ──────────────
+  on('btnSetup',           'click', setup);
+  on('btnTrocarTurma',     'click', function(){ turmaAtual=null; atualizarTurmaBar(); irTelas2(); });
+  on('btnRecarregar',      'click', function(){ show('s1'); setLoadingTxt('Recarregando...'); carregarPlanilha(function(){ irTelas2(); }); });
+  on('lkCfg',              'click', function(e){ e.preventDefault(); irSetup(); });
+  on('modoIndividual',     'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
+  on('modoVarredura',      'click', function(){ show('s4b'); dots(3); fillForms(); });
+  on('btnBack4b',          'click', function(){ show('s3'); dots(2); });
+  on('lkVoltar4a',         'click', function(){ show('s3'); dots(2); });
+  on('btnBack5a',          'click', function(){ show('s4a'); dots(3); });
+  on('btnChg',             'click', function(){ show('s4a'); dots(3); });
+  on('btnBack5b',          'click', function(){ show('s4b'); dots(3); });
+  on('btnSalvar',          'click', salvar);
+  on('btnMesmo',           'click', function(){ irFormulario(alunoAtual); });
+  on('btnNova',            'click', function(){ show('s4a'); dots(3); listaAlunos(''); });
   on('btnIniciarVarredura','click', iniciarVarredura);
-  on('btnEnviarTudo',   'click', enviarVarredura);
-  on('btnCancelarSw',   'click', function(){ show('s3'); dots(2); });
-  on('btnNovaVarredura','click', function(){ show('s4b'); dots(3); fillForms(); });
-  on('btnVoltarModo',   'click', function(){ show('s3'); dots(2); });
-
-  // Slider e nota
+  on('btnEnviarTudo',      'click', enviarVarredura);
+  on('btnCancelarSw',      'click', function(){ show('s3'); dots(2); });
+  on('btnNovaVarredura',   'click', function(){ show('s4b'); dots(3); fillForms(); });
+  on('btnVoltarModo',      'click', function(){ show('s3'); dots(2); });
   on('slider', 'input', function(){ notaUI(+this.value); });
   on('srch',   'input', function(){ listaAlunos(this.value); });
-
   document.querySelectorAll('.nb').forEach(function(b){
     b.addEventListener('click', function(){
       document.getElementById('slider').value = this.dataset.v;
@@ -473,11 +441,32 @@ window.addEventListener('load', function(){
   document.querySelectorAll('.tag').forEach(function(t){
     t.addEventListener('click', function(){ this.classList.toggle('on'); });
   });
-
   notaUI(7);
   pendUI();
   window.addEventListener('online',  sync);
   window.addEventListener('offline', function(){ toast('📴 Offline','wrn'); });
+
+  // ── Decide qual tela mostrar ──────────────────────────────────────────────
+  try {
+    var s = localStorage.getItem('snc4');
+    if(s){
+      cfg   = JSON.parse(s);
+      queue = JSON.parse(localStorage.getItem('snq4')||'[]');
+      var d = localStorage.getItem('snd4');
+      if(d) dados = JSON.parse(d);
+      pendUI();
+      if(dados.turmas && dados.turmas.length > 0){
+        irTelas2();
+      } else {
+        show('s1');
+        carregarPlanilha(function(){ irTelas2(); });
+      }
+      return;
+    }
+  } catch(e){}
+
+  // Sem config: vai para setup
+  show('s0'); dots(0);
 });
 
 // ══════════════════════════════════════════
