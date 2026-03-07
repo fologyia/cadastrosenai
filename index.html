@@ -1,667 +1,380 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import os
-from datetime import datetime
-
-# ==========================================
-# CONFIGURAÇÃO DA PÁGINA
-# ==========================================
-st.set_page_config(
-    page_title="SENAI | Painel Docente",
-    page_icon="🎓",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# ==========================================
-# IDENTIDADE VISUAL
-# ==========================================
-COR_AZUL     = '#00539F'
-COR_VERMELHO = '#E30613'
-COR_CINZA    = '#F4F6F9'
-COR_TEXTO    = '#1A1A2E'
-COR_AMARELO  = '#F59E0B'
-COR_VERDE    = '#10B981'
-
-# ==========================================
-# CSS
-# ==========================================
-st.markdown(f"""
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENAI · Guia de Configuração</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
-    html, body, [class*="css"] {{ font-family: 'Inter', sans-serif; color: {COR_TEXTO}; }}
+  :root {
+    --azul: #00539F; --vermelho: #E30613; --verde: #059669;
+    --amarelo: #F59E0B; --cinza: #F1F5F9; --texto: #0F172A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sora', sans-serif; background: #F8FAFC; color: var(--texto); }
 
-    section[data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, {COR_AZUL} 0%, #003d7a 100%);
-    }}
-    section[data-testid="stSidebar"] * {{ color: white !important; }}
-    section[data-testid="stSidebar"] .stSelectbox > div > div {{
-        background: rgba(255,255,255,0.12);
-        border: 1px solid rgba(255,255,255,0.25);
-        border-radius: 8px;
-    }}
-    section[data-testid="stSidebar"] hr {{ border-color: rgba(255,255,255,0.2) !important; }}
+  .hero {
+    background: linear-gradient(135deg, #0a1628, #00274d 60%, #1a0a0a);
+    padding: 60px 40px 50px; text-align: center;
+  }
+  .hero-badge {
+    display: inline-block; background: var(--vermelho); color: white;
+    font-weight: 800; font-size: 0.75rem; letter-spacing: 0.12em;
+    padding: 5px 14px; border-radius: 8px; margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-size: 2.2rem; font-weight: 800; color: white; margin-bottom: 12px;
+    letter-spacing: -0.03em;
+  }
+  .hero p { color: rgba(255,255,255,0.55); font-size: 1rem; max-width: 520px; margin: 0 auto; }
 
-    .header-wrapper {{
-        background: linear-gradient(135deg, {COR_AZUL} 0%, #003d7a 60%, {COR_VERMELHO} 100%);
-        border-radius: 16px; padding: 28px 36px; margin-bottom: 28px;
-        display: flex; align-items: center; justify-content: space-between;
-        box-shadow: 0 8px 32px rgba(0,83,159,0.25);
-    }}
-    .header-title {{
-        font-family: 'Montserrat', sans-serif; font-size: 1.7rem;
-        font-weight: 800; color: white; margin: 0; letter-spacing: -0.02em;
-    }}
-    .header-sub {{ font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 4px; }}
-    .header-badge {{
-        background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 50px; padding: 6px 16px; font-size: 0.78rem; color: white; font-weight: 500;
-    }}
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
 
-    .kpi-card {{
-        background: white; border-radius: 14px; padding: 22px 24px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-top: 4px solid {COR_AZUL};
-        transition: transform 0.2s ease, box-shadow 0.2s ease; height: 100%;
-    }}
-    .kpi-card:hover {{ transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }}
-    .kpi-card.danger {{ border-top-color: {COR_VERMELHO}; }}
-    .kpi-card.success {{ border-top-color: {COR_VERDE}; }}
-    .kpi-card.warning {{ border-top-color: {COR_AMARELO}; }}
-    .kpi-label {{ font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
-        letter-spacing: 0.08em; color: #6B7280; margin-bottom: 8px; }}
-    .kpi-value {{ font-family: 'Montserrat', sans-serif; font-size: 2.1rem;
-        font-weight: 800; color: {COR_TEXTO}; line-height: 1; }}
-    .kpi-desc {{ font-size: 0.78rem; color: #9CA3AF; margin-top: 6px; }}
+  .step-card {
+    background: white; border-radius: 16px; padding: 28px 32px;
+    margin-bottom: 20px; box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    border-left: 5px solid var(--azul);
+    transition: box-shadow 0.2s;
+  }
+  .step-card:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.12); }
+  .step-card.verde { border-left-color: var(--verde); }
+  .step-card.amarelo { border-left-color: var(--amarelo); }
+  .step-card.vermelho { border-left-color: var(--vermelho); }
 
-    .section-title {{
-        font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 700;
-        color: {COR_TEXTO}; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
-    }}
-    .section-title::after {{
-        content: ''; flex: 1; height: 2px;
-        background: linear-gradient(90deg, {COR_AZUL}30, transparent); border-radius: 2px;
-    }}
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--azul); color: white; font-weight: 800; font-size: 0.85rem;
+    margin-right: 12px; flex-shrink: 0;
+  }
+  .step-title {
+    font-size: 1.05rem; font-weight: 700; display: flex;
+    align-items: center; margin-bottom: 12px;
+  }
+  .step-body { color: #475569; font-size: 0.9rem; line-height: 1.8; }
+  .step-body strong { color: var(--texto); }
 
-    .alert-item {{
-        background: #FFF5F5; border-left: 4px solid {COR_VERMELHO};
-        border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 10px;
-        display: flex; align-items: center; gap: 14px;
-    }}
-    .alert-nota {{ font-family: 'Montserrat'; font-size: 1.4rem; font-weight: 800;
-        color: {COR_VERMELHO}; min-width: 52px; text-align: center; }}
-    .alert-info span {{ font-size: 0.8rem; color: #6B7280; }}
-    .alert-info strong {{ display: block; font-size: 0.9rem; color: {COR_TEXTO}; }}
+  .code-block {
+    background: #0F172A; border-radius: 12px; padding: 20px 24px;
+    margin: 16px 0; position: relative; overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: 'Fira Code', monospace; font-size: 0.8rem;
+    color: #7DD3FC; line-height: 1.8; white-space: pre-wrap; word-break: break-all;
+  }
+  .code-block .comment { color: #64748B; }
+  .code-block .keyword { color: #F472B6; }
+  .code-block .string  { color: #86EFAC; }
+  .code-block .func    { color: #FDE68A; }
 
-    .rec-item {{
-        background: #FFFBEB; border-left: 4px solid {COR_AMARELO};
-        border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 10px;
-        display: flex; align-items: center; gap: 14px;
-    }}
-    .obs-card {{
-        background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px;
-        padding: 16px 20px; margin-bottom: 12px;
-    }}
-    .obs-card p {{ font-size: 0.88rem; color: #0369A1; margin: 0; font-style: italic; }}
-    .obs-card span {{ font-size: 0.75rem; color: #64748B; display: block; margin-bottom: 6px; }}
+  .copy-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7); font-family: 'Sora',sans-serif;
+    font-size: 0.72rem; padding: 5px 12px; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.18); color: white; }
 
-    .divider {{
-        height: 1px; background: linear-gradient(90deg, transparent, #E5E7EB, transparent);
-        margin: 28px 0;
-    }}
-    #MainMenu, footer, header {{ visibility: hidden; }}
-    .block-container {{ padding-top: 1.5rem; padding-bottom: 2rem; }}
+  .info-box {
+    background: #EFF6FF; border: 1px solid #BFDBFE;
+    border-radius: 10px; padding: 14px 18px; margin: 14px 0;
+    font-size: 0.85rem; color: #1E40AF; line-height: 1.7;
+  }
+  .warn-box {
+    background: #FFFBEB; border: 1px solid #FDE68A;
+    border-radius: 10px; padding: 14px 18px; margin: 14px 0;
+    font-size: 0.85rem; color: #92400E; line-height: 1.7;
+  }
+  .success-box {
+    background: #F0FDF4; border: 1px solid #BBF7D0;
+    border-radius: 10px; padding: 14px 18px; margin: 14px 0;
+    font-size: 0.85rem; color: #065F46; line-height: 1.7;
+  }
+
+  .tag {
+    display: inline-block; background: var(--cinza); border-radius: 6px;
+    padding: 2px 8px; font-size: 0.75rem; font-weight: 600;
+    color: var(--azul); margin: 2px;
+  }
+
+  .table-wrap { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th {
+    background: var(--azul); color: white; padding: 10px 14px;
+    text-align: left; font-weight: 600;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid #E2E8F0; color: #334155; }
+  tr:nth-child(even) td { background: #F8FAFC; }
+
+  .section-label {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--azul); margin-bottom: 16px;
+    margin-top: 40px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 2px;
+    background: linear-gradient(90deg, #BFDBFE, transparent);
+  }
+
+  footer {
+    text-align: center; padding: 32px; color: #94A3B8;
+    font-size: 0.8rem; border-top: 1px solid #E2E8F0; margin-top: 20px;
+  }
 </style>
-""", unsafe_allow_html=True)
+</head>
+<body>
 
-
-# ==========================================
-# CONFIGURAÇÃO DO GOOGLE SHEETS
-# ==========================================
-# Preencha com o ID da sua planilha Google Sheets
-# O ID está na URL: docs.google.com/spreadsheets/d/SEU_ID_AQUI/edit
-SHEET_ID = "SEU_ID_AQUI"
-
-# Monta a URL pública de exportação CSV por aba (a planilha precisa estar
-# compartilhada como "Visualizador" para leitura, OU use Service Account)
-def url_aba(sheet_id, nome_aba):
-    import urllib.parse
-    return (
-        f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq"
-        f"?tqx=out:csv&sheet={urllib.parse.quote(nome_aba)}"
-    )
-
-
-# ==========================================
-# CARREGAMENTO DE DADOS
-# ==========================================
-@st.cache_data(ttl=120)  # Atualiza a cada 2 minutos
-def carregar_dados():
-    """
-    Tenta ler do Google Sheets. Se não conseguir (sem internet ou SHEET_ID
-    não configurado), cai para o arquivo local planilha_notas.xlsx como fallback.
-    """
-    fonte = "google_sheets"
-
-    if SHEET_ID == "SEU_ID_AQUI":
-        fonte = "local"
-    else:
-        try:
-            df_aval  = pd.read_csv(url_aba(SHEET_ID, "Avaliações"))
-            df_aluno = pd.read_csv(url_aba(SHEET_ID, "Alunos"))
-            df_rec   = pd.read_csv(url_aba(SHEET_ID, "Recuperações"))
-            return df_aval, df_aluno, df_rec, fonte
-        except Exception:
-            fonte = "local_fallback"
-
-    # ── Fallback: lê do arquivo local ──────────────────────────────────────
-    try:
-        xls = pd.ExcelFile("planilha_notas.xlsx", engine="openpyxl")
-        abas = xls.sheet_names
-
-        if "Avaliações" in abas:
-            df_aval  = pd.read_excel(xls, sheet_name="Avaliações")
-            df_aluno = pd.read_excel(xls, sheet_name="Alunos") if "Alunos" in abas else pd.DataFrame()
-            df_rec   = pd.read_excel(xls, sheet_name="Recuperações") if "Recuperações" in abas else pd.DataFrame()
-        else:
-            # Compatibilidade com planilha antiga (aba única)
-            df_aval  = pd.read_excel(xls, sheet_name=0)
-            df_aluno = pd.DataFrame()
-            df_rec   = pd.DataFrame()
-
-        return df_aval, df_aluno, df_rec, fonte
-    except FileNotFoundError:
-        st.error("⚠️ Planilha não encontrada. Configure o SHEET_ID ou coloque 'planilha_notas.xlsx' na pasta.")
-        st.stop()
-
-
-def limpar_avaliacoes(df):
-    df = df.copy()
-    # Suporte a nomes de coluna antigos e novos
-    rename = {
-        "Unidade Curricular (UC)": "UC",
-        "Observação Técnica (Log)": "Observação",
-        "Observação Técnica": "Observação",
-        "Nome do Aluno": "Aluno",
-    }
-    df.rename(columns={k: v for k, v in rename.items() if k in df.columns}, inplace=True)
-    if "Aluno" not in df.columns and "Nome do Aluno" in df.columns:
-        df["Aluno"] = df["Nome do Aluno"]
-    df["Data"] = pd.to_datetime(df["Data"], dayfirst=True, errors="coerce")
-    df["Nota"] = pd.to_numeric(df["Nota"], errors="coerce")
-    df = df.dropna(subset=["Data", "Nota"])
-    return df
-
-
-def limpar_alunos(df):
-    if df.empty:
-        return df
-    df = df.copy()
-    rename = {"Nome Completo": "Aluno", "Turma / Curso": "Turma"}
-    df.rename(columns={k: v for k, v in rename.items() if k in df.columns}, inplace=True)
-    return df
-
-
-def limpar_recuperacoes(df):
-    if df.empty:
-        return df
-    df = df.copy()
-    rename = {"Nome do Aluno": "Aluno", "Data Original": "Data_Orig",
-              "Data Recuperação": "Data_Rec", "Nota Original": "Nota_Orig",
-              "Nota Recuperação": "Nota_Rec"}
-    df.rename(columns={k: v for k, v in rename.items() if k in df.columns}, inplace=True)
-    for col in ["Data_Orig", "Data_Rec"]:
-        if col in df.columns:
-            df[col] = pd.to_datetime(df[col], dayfirst=True, errors="coerce")
-    for col in ["Nota_Orig", "Nota_Rec"]:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-    return df
-
-
-# ── Carrega e limpa ────────────────────────────────────────────────────────
-raw_aval, raw_alunos, raw_rec, fonte_dados = carregar_dados()
-df        = limpar_avaliacoes(raw_aval)
-df_alunos = limpar_alunos(raw_alunos)
-df_rec    = limpar_recuperacoes(raw_rec)
-
-# Garante coluna Turma em df a partir de df_alunos
-if not df_alunos.empty and "Aluno" in df_alunos.columns and "Turma" in df_alunos.columns:
-    turma_map = df_alunos.set_index("Aluno")["Turma"].to_dict()
-    df["Turma"] = df["Aluno"].map(turma_map).fillna("Sem turma")
-elif "Turma" not in df.columns:
-    df["Turma"] = "Geral"
-
-
-def calcular_ranking(df_base):
-    return (
-        df_base.groupby("Aluno")["Nota"]
-        .mean().reset_index().rename(columns={"Nota": "Média"})
-        .sort_values("Média", ascending=False).reset_index(drop=True)
-    )
-
-
-# ==========================================
-# SIDEBAR
-# ==========================================
-with st.sidebar:
-    if os.path.exists("logo_senai.png"):
-        st.image("logo_senai.png", use_container_width=True)
-    else:
-        st.markdown("""
-        <div style='text-align:center;padding:16px 0 24px'>
-            <div style='font-family:Montserrat,sans-serif;font-size:1.8rem;
-                        font-weight:900;color:white;letter-spacing:-0.03em'>SENAI</div>
-            <div style='font-size:0.7rem;color:rgba(255,255,255,0.6);
-                        letter-spacing:0.15em;margin-top:2px'>PAINEL DOCENTE</div>
-        </div>""", unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    # Filtro de Turma (novo!)
-    lista_turmas = sorted(df["Turma"].dropna().unique().tolist())
-    lista_turmas.insert(0, "Todas as Turmas")
-    turma_sel = st.selectbox("🏫 Turma / Curso", lista_turmas)
-
-    # Filtra alunos pela turma
-    df_turma_filter = df if turma_sel == "Todas as Turmas" else df[df["Turma"] == turma_sel]
-    lista_alunos = sorted(df_turma_filter["Aluno"].dropna().unique().tolist())
-
-    aluno_sel = st.selectbox("👤 Aluno", lista_alunos) if lista_alunos else None
-
-    col_uc = "UC" if "UC" in df.columns else "Unidade Curricular (UC)"
-    lista_uc = sorted(df[col_uc].dropna().unique().tolist())
-    lista_uc.insert(0, "Todas as Unidades")
-    uc_sel = st.selectbox("📚 Unidade Curricular", lista_uc)
-
-    lista_vetores = sorted(df["Vetor (Peso)"].dropna().unique().tolist())
-    lista_vetores.insert(0, "Todos os Vetores")
-    vetor_sel = st.selectbox("🎯 Vetor", lista_vetores)
-
-    st.markdown("---")
-    comparar_turma  = st.checkbox("📊 Comparar com a Turma", value=False)
-    mostrar_ranking = st.checkbox("🏆 Ranking da Turma", value=False)
-
-    # Badge de fonte dos dados
-    st.markdown("---")
-    cor_fonte = "#10B981" if fonte_dados == "google_sheets" else "#F59E0B"
-    icone     = "🟢" if fonte_dados == "google_sheets" else "🟡"
-    label     = "Google Sheets" if fonte_dados == "google_sheets" else "Arquivo local"
-    st.markdown(f"""
-    <div style='font-size:0.72rem;color:rgba(255,255,255,0.5)'>
-        {icone} Fonte: <b style='color:rgba(255,255,255,0.8)'>{label}</b>
-    </div>""", unsafe_allow_html=True)
-
-    if fonte_dados == "google_sheets":
-        if st.button("🔄 Atualizar dados", use_container_width=True):
-            st.cache_data.clear()
-            st.rerun()
-
-
-# ==========================================
-# PROCESSAMENTO
-# ==========================================
-if not aluno_sel:
-    st.warning("Nenhum aluno encontrado para os filtros selecionados.")
-    st.stop()
-
-df_aluno = df[df["Aluno"] == aluno_sel].copy()
-df_turma = df_turma_filter.copy()
-
-if uc_sel != "Todas as Unidades":
-    df_aluno = df_aluno[df_aluno[col_uc] == uc_sel]
-    df_turma = df_turma[df_turma[col_uc] == uc_sel]
-
-if vetor_sel != "Todos os Vetores":
-    df_aluno = df_aluno[df_aluno["Vetor (Peso)"] == vetor_sel]
-    df_turma = df_turma[df_turma["Vetor (Peso)"] == vetor_sel]
-
-# Recuperações do aluno
-df_rec_aluno = pd.DataFrame()
-if not df_rec.empty and "Aluno" in df_rec.columns:
-    df_rec_aluno = df_rec[df_rec["Aluno"] == aluno_sel].copy()
-
-# Observações gerais (aba Alunos)
-obs_geral = ""
-if not df_alunos.empty and "Aluno" in df_alunos.columns:
-    row_aluno = df_alunos[df_alunos["Aluno"] == aluno_sel]
-    if not row_aluno.empty and "Observações Gerais" in row_aluno.columns:
-        obs_geral = str(row_aluno.iloc[0].get("Observações Gerais", "") or "").strip()
-
-
-# ==========================================
-# HEADER
-# ==========================================
-data_hoje   = datetime.now().strftime("%d de %B de %Y")
-total_alunos = df["Aluno"].nunique()
-
-turma_label = turma_sel if turma_sel != "Todas as Turmas" else "Todas as turmas"
-if not df_alunos.empty and "Aluno" in df_alunos.columns and "Turma" in df_alunos.columns:
-    row = df_alunos[df_alunos["Aluno"] == aluno_sel]
-    if not row.empty:
-        turma_label = row.iloc[0].get("Turma", turma_label)
-
-st.markdown(f"""
-<div class="header-wrapper">
-    <div>
-        <div class="header-title">📊 {aluno_sel}</div>
-        <div class="header-sub">Painel Individualizado · {turma_label}</div>
-    </div>
-    <div style="text-align:right">
-        <div class="header-badge">🏫 {total_alunos} alunos cadastrados</div>
-        <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:6px">{data_hoje}</div>
-    </div>
+<div class="hero">
+  <div class="hero-badge">SENAI</div>
+  <h1>Guia de Configuração Completo</h1>
+  <p>Conecte o App do celular → Google Sheets → Dashboard em 3 passos</p>
 </div>
-""", unsafe_allow_html=True)
 
+<div class="container">
 
-# ==========================================
-# CONTEÚDO
-# ==========================================
-if df_aluno.empty:
-    st.warning("⚠️ Sem dados para este aluno com os filtros atuais.")
-    st.stop()
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">Passo 1 — Preparar a Planilha</div>
 
-# ── Observação geral do aluno ──────────────────────────────────────────────
-if obs_geral:
-    st.markdown(f"""
-    <div class="obs-card">
-        <span>📌 Observação geral do aluno (aba Alunos)</span>
-        <p>{obs_geral}</p>
-    </div>""", unsafe_allow_html=True)
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> Importe o modelo para o Google Sheets</div>
+    <div class="step-body">
+      Abra o arquivo <strong>planilha_senai_modelo.xlsx</strong> que foi gerado e importe-o 
+      para o Google Sheets:<br><br>
+      <strong>drive.google.com</strong> → Arraste o arquivo → Clique com botão direito → 
+      <strong>"Abrir com Google Planilhas"</strong><br><br>
+      Assim o arquivo vira nativo do Google Sheets e as fórmulas funcionam perfeitamente.
+    </div>
+    <div class="warn-box">
+      ⚠️ <strong>Não compartilhe a planilha.</strong> Deixe-a como <em>Privado (só você)</em>. 
+      Apenas o Apps Script precisa de acesso — e ele já tem automaticamente por ser do mesmo Google.
+    </div>
+  </div>
 
-# ── KPIs ──────────────────────────────────────────────────────────────────
-media_aluno  = df_aluno["Nota"].mean()
-media_turma  = df_turma["Nota"].mean()
-total_avals  = len(df_aluno)
-notas_baixas = (df_aluno["Nota"] < 6.0).sum()
-delta_turma  = media_aluno - media_turma
-total_recs   = len(df_rec_aluno)
+  <div class="step-card verde">
+    <div class="step-title"><span class="step-num" style="background:var(--verde)">2</span> Copie o ID da planilha</div>
+    <div class="step-body">
+      Na URL da planilha, o ID fica entre <strong>/d/</strong> e <strong>/edit</strong>:<br><br>
+      <code style="background:#F1F5F9;padding:6px 12px;border-radius:6px;font-family:'Fira Code';font-size:0.82rem">
+        docs.google.com/spreadsheets/d/<strong style="color:var(--verde)">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</strong>/edit
+      </code><br><br>
+      Guarde esse ID — você vai usá-lo no Apps Script e no Dashboard.
+    </div>
+  </div>
 
-col1, col2, col3, col4, col5 = st.columns(5)
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">Passo 2 — Configurar o Apps Script</div>
 
-with col1:
-    st.markdown(f"""
-    <div class="kpi-card {'danger' if media_aluno < 6 else ''}">
-        <div class="kpi-label">📈 Média do Aluno</div>
-        <div class="kpi-value">{media_aluno:.1f}<span style='font-size:1rem;
-            font-weight:400;color:#9CA3AF'>/10</span></div>
-        <div class="kpi-desc">No filtro selecionado</div>
-    </div>""", unsafe_allow_html=True)
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> Crie o Apps Script</div>
+    <div class="step-body">
+      Dentro da planilha:<br>
+      <strong>Menu Extensões → Apps Script</strong><br><br>
+      Apague todo o código existente e cole o script abaixo:
+    </div>
 
-with col2:
-    delta_cor   = COR_VERDE if delta_turma >= 0 else COR_VERMELHO
-    delta_sinal = "▲" if delta_turma >= 0 else "▼"
-    st.markdown(f"""
-    <div class="kpi-card">
-        <div class="kpi-label">👥 Média da Turma</div>
-        <div class="kpi-value">{media_turma:.1f}<span style='font-size:1rem;
-            font-weight:400;color:#9CA3AF'>/10</span></div>
-        <div class="kpi-desc" style='color:{delta_cor}'>{delta_sinal} {abs(delta_turma):.1f} vs turma</div>
-    </div>""", unsafe_allow_html=True)
+    <div class="code-block">
+      <button class="copy-btn" onclick="copiarCodigo(this)">📋 Copiar</button>
+      <pre id="scriptCode"><span class="comment">// ══════════════════════════════════════════════════
+// SENAI · Apps Script — Receptor de Avaliações
+// Cole este código no Google Apps Script da planilha
+// ══════════════════════════════════════════════════</span>
 
-with col3:
-    st.markdown(f"""
-    <div class="kpi-card">
-        <div class="kpi-label">📋 Avaliações</div>
-        <div class="kpi-value">{total_avals}</div>
-        <div class="kpi-desc">Registros no filtro ativo</div>
-    </div>""", unsafe_allow_html=True)
+<span class="keyword">var</span> <span class="func">SHEET_ID</span> = <span class="string">"COLE_SEU_ID_AQUI"</span>; <span class="comment">// ← substitua pelo seu ID</span>
 
-with col4:
-    st.markdown(f"""
-    <div class="kpi-card {'danger' if notas_baixas > 0 else 'success'}">
-        <div class="kpi-label">⚠️ Notas Críticas</div>
-        <div class="kpi-value">{notas_baixas}</div>
-        <div class="kpi-desc">{'Requer atenção' if notas_baixas > 0 else 'Nenhuma abaixo de 6'}</div>
-    </div>""", unsafe_allow_html=True)
+<span class="keyword">function</span> <span class="func">doPost</span>(e) {
+  <span class="keyword">try</span> {
+    <span class="keyword">var</span> ss   = SpreadsheetApp.openById(SHEET_ID);
+    <span class="keyword">var</span> data = JSON.parse(e.postData.contents);
 
-with col5:
-    st.markdown(f"""
-    <div class="kpi-card {'warning' if total_recs > 0 else ''}">
-        <div class="kpi-label">🔁 Recuperações</div>
-        <div class="kpi-value">{total_recs}</div>
-        <div class="kpi-desc">{'Realizadas' if total_recs > 0 else 'Nenhuma registrada'}</div>
-    </div>""", unsafe_allow_html=True)
+    <span class="comment">// ── Grava em "Avaliações" ──────────────────────</span>
+    <span class="keyword">var</span> abaAval = ss.getSheetByName(<span class="string">"Avaliações"</span>);
+    <span class="keyword">if</span> (!abaAval) <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Aba Avaliações não encontrada"</span>);
 
-st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    <span class="keyword">var</span> vetor = data.vetor || <span class="string">""</span>;
+    <span class="keyword">var</span> pesoMap = {<span class="string">"Fazer (40%)"</span>: 0.4, <span class="string">"Saber (30%)"</span>: 0.3, <span class="string">"Comport. (30%)"</span>: 0.3};
+    <span class="keyword">var</span> peso = pesoMap[vetor] || 0.3;
+    <span class="keyword">var</span> notaPonderada = (parseFloat(data.nota) * peso).toFixed(2);
 
-# ── GRÁFICOS PRINCIPAIS ────────────────────────────────────────────────────
-graf_col1, graf_col2 = st.columns([1, 1.3])
+    abaAval.appendRow([
+      data.data,           <span class="comment">// A - Data (dd/mm/aaaa)</span>
+      data.turma || <span class="string">""</span>,    <span class="comment">// B - Turma</span>
+      data.aluno,          <span class="comment">// C - Nome do Aluno</span>
+      data.uc,             <span class="comment">// D - Unidade Curricular</span>
+      vetor,               <span class="comment">// E - Vetor (Peso)</span>
+      data.instrumento,    <span class="comment">// F - Instrumento / Atividade</span>
+      data.criterio,       <span class="comment">// G - Critério Avaliado</span>
+      parseFloat(data.nota),<span class="comment">// H - Nota</span>
+      parseFloat(notaPonderada), <span class="comment">// I - Nota Ponderada (calculada)</span>
+      data.observacao || <span class="string">""</span> <span class="comment">// J - Observação</span>
+    ]);
 
-with graf_col1:
-    st.markdown('<div class="section-title">🕸️ Perfil de Habilidades</div>', unsafe_allow_html=True)
+    <span class="comment">// ── Log de timestamp na última coluna ──────────</span>
+    <span class="keyword">var</span> ultimaLinha = abaAval.getLastRow();
+    abaAval.getRange(ultimaLinha, 11).setValue(<span class="keyword">new</span> Date());
 
-    criterios = [
-        "Exatidão Dimensional","Segurança e EPI","Retenção Teórica",
-        "Resolução de Problemas","Organização / 5S","Planejamento / Lógica",
-        "Trabalho em Equipe","Aplicação de Normas",
-    ]
-    col_crit = "Critério Avaliado" if "Critério Avaliado" in df_aluno.columns else df_aluno.columns[-2]
+    <span class="keyword">return</span> ContentService
+      .createTextOutput(JSON.stringify({status: <span class="string">"ok"</span>, linha: ultimaLinha}))
+      .setMimeType(ContentService.MimeType.JSON);
 
-    vals_aluno = []
-    vals_turma = []
-    for c in criterios:
-        m = df_aluno[df_aluno[col_crit] == c]["Nota"].mean()
-        vals_aluno.append(m if pd.notna(m) else 0)
-        mt = df_turma[df_turma[col_crit] == c]["Nota"].mean()
-        vals_turma.append(mt if pd.notna(mt) else 0)
+  } <span class="keyword">catch</span>(err) {
+    <span class="keyword">return</span> ContentService
+      .createTextOutput(JSON.stringify({status: <span class="string">"erro"</span>, msg: err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
-    c_fechado = criterios + [criterios[0]]
-    va = vals_aluno + [vals_aluno[0]]
-    vt = vals_turma + [vals_turma[0]]
+<span class="keyword">function</span> <span class="func">doGet</span>(e) {
+  <span class="comment">// Endpoint de health check — confirma que o script está ativo</span>
+  <span class="keyword">return</span> ContentService
+    .createTextOutput(JSON.stringify({
+      status: <span class="string">"online"</span>,
+      planilha: SpreadsheetApp.openById(SHEET_ID).getName(),
+      timestamp: <span class="keyword">new</span> Date().toISOString()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-    fig_radar = go.Figure()
-    if comparar_turma:
-        fig_radar.add_trace(go.Scatterpolar(
-            r=vt, theta=c_fechado, fill="toself", name="Média Turma",
-            line=dict(color="#9CA3AF", width=2), fillcolor="rgba(156,163,175,0.15)"
-        ))
-    fig_radar.add_trace(go.Scatterpolar(
-        r=va, theta=c_fechado, fill="toself", name=aluno_sel,
-        line=dict(color=COR_AZUL, width=2.5), fillcolor="rgba(0,83,159,0.2)"
-    ))
-    fig_radar.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0,10], tickfont=dict(size=9), gridcolor="#E5E7EB"),
-            angularaxis=dict(tickfont=dict(size=9.5)),
-            bgcolor="white"
-        ),
-        showlegend=comparar_turma,
-        legend=dict(orientation="h", y=-0.15, font=dict(size=10)),
-        margin=dict(t=20,b=20,l=20,r=20),
-        paper_bgcolor="white", height=360
+<span class="comment">// ── Função auxiliar: testar manualmente no editor ──</span>
+<span class="keyword">function</span> <span class="func">testarScript</span>() {
+  <span class="keyword">var</span> dados = {
+    data: <span class="string">"01/01/2025"</span>, turma: <span class="string">"Técnico Mecânica A"</span>,
+    aluno: <span class="string">"Teste Silva"</span>, uc: <span class="string">"Produção Mecânica"</span>,
+    vetor: <span class="string">"Fazer (40%)"</span>, instrumento: <span class="string">"Observação Oficina"</span>,
+    criterio: <span class="string">"Exatidão Dimensional"</span>, nota: 7.5, observacao: <span class="string">"Teste"</span>
+  };
+  <span class="keyword">var</span> ss       = SpreadsheetApp.openById(SHEET_ID);
+  <span class="keyword">var</span> abaAval  = ss.getSheetByName(<span class="string">"Avaliações"</span>);
+  abaAval.appendRow([
+    dados.data, dados.turma, dados.aluno, dados.uc,
+    dados.vetor, dados.instrumento, dados.criterio,
+    dados.nota, dados.nota * 0.4, dados.observacao, <span class="keyword">new</span> Date()
+  ]);
+  Logger.log(<span class="string">"✅ Linha de teste inserida com sucesso!"</span>);
+}</pre>
+    </div>
+  </div>
+
+  <div class="step-card verde">
+    <div class="step-title"><span class="step-num" style="background:var(--verde)">4</span> Implante como App da Web</div>
+    <div class="step-body">
+      No editor do Apps Script:<br><br>
+      1. Clique em <strong>Implantar → Nova implantação</strong><br>
+      2. Tipo: <strong>App da Web</strong><br>
+      3. Executar como: <strong>Eu (seu email)</strong><br>
+      4. Quem tem acesso: <strong>Qualquer pessoa</strong><br>
+      5. Clique em <strong>Implantar</strong> e copie a URL gerada
+    </div>
+    <div class="info-box">
+      ℹ️ <strong>"Qualquer pessoa"</strong> significa apenas que o App do celular pode <em>enviar</em> dados. 
+      Não dá acesso à sua planilha — ela continua privada.
+    </div>
+    <div class="success-box">
+      ✅ Teste o script antes: no editor, selecione a função <strong>testarScript</strong> e clique em 
+      <strong>Executar</strong>. Se uma linha aparecer na aba Avaliações, está funcionando.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">Passo 3 — Configurar o Dashboard</div>
+
+  <div class="step-card amarelo">
+    <div class="step-title"><span class="step-num" style="background:var(--amarelo);color:#1a1a1a">5</span> Configure o Dashboard Streamlit</div>
+    <div class="step-body">
+      No arquivo <strong>dashboard_senai_v2.py</strong>, localize a linha:
+    </div>
+    <div class="code-block">
+      <pre><span class="keyword">SHEET_ID</span> = <span class="string">"SEU_ID_AQUI"</span></pre>
+    </div>
+    <div class="step-body">
+      Substitua pelo ID copiado no Passo 2. A planilha precisa estar compartilhada como 
+      <strong>"Qualquer pessoa com o link pode visualizar"</strong> para o Dashboard conseguir ler 
+      sem autenticação (leitura pública ≠ edição pública).<br><br>
+      Para manter <strong>totalmente privado</strong>, use a opção abaixo com Service Account.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">Opcional — Leitura 100% Privada com Service Account</div>
+
+  <div class="step-card vermelho">
+    <div class="step-title"><span class="step-num" style="background:var(--vermelho)">+</span> Autenticação via Google Service Account</div>
+    <div class="step-body">
+      Se não quiser deixar a planilha pública nem para visualização, instale a biblioteca e use autenticação:<br><br>
+      <code style="background:#F1F5F9;padding:4px 10px;border-radius:6px;font-family:'Fira Code'">
+        pip install gspread google-auth
+      </code>
+    </div>
+    <div class="code-block">
+      <pre><span class="comment"># Adicione ao início do dashboard_senai_v2.py</span>
+<span class="keyword">import</span> gspread
+<span class="keyword">from</span> google.oauth2.service_account <span class="keyword">import</span> Credentials
+
+<span class="keyword">def</span> <span class="func">carregar_aba_privada</span>(sheet_id, nome_aba):
+    creds = Credentials.from_service_account_file(
+        <span class="string">"credenciais.json"</span>,  <span class="comment"># arquivo baixado do Google Cloud</span>
+        scopes=[<span class="string">"https://spreadsheets.google.com/feeds"</span>,
+                <span class="string">"https://www.googleapis.com/auth/drive"</span>]
     )
-    st.plotly_chart(fig_radar, use_container_width=True)
+    cliente  = gspread.authorize(creds)
+    planilha = cliente.open_by_key(sheet_id)
+    aba      = planilha.worksheet(nome_aba)
+    <span class="keyword">return</span> pd.DataFrame(aba.get_all_records())</pre>
+    </div>
+    <div class="info-box">
+      Para usar: crie um projeto no <strong>Google Cloud Console</strong> → ative Google Sheets API → 
+      crie uma Service Account → baixe o JSON de credenciais → compartilhe a planilha com o email 
+      da service account como <em>Visualizador</em>.
+    </div>
+  </div>
 
-with graf_col2:
-    st.markdown('<div class="section-title">📅 Evolução ao Longo do Tempo</div>', unsafe_allow_html=True)
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">Referência — Estrutura das Abas</div>
 
-    df_tempo = df_aluno.sort_values("Data").copy()
-    df_tempo["Tendência Aluno"] = df_tempo["Nota"].expanding().mean()
-    cores_vetores = {"Fazer (40%)": COR_AZUL, "Saber (30%)": COR_VERMELHO, "Comport. (30%)": "#6B7280"}
+  <div class="table-wrap">
+    <table>
+      <tr><th>Aba</th><th>Quem preenche</th><th>Colunas principais</th></tr>
+      <tr>
+        <td><strong>Avaliações</strong></td>
+        <td>Apps Script (automático)</td>
+        <td>Data · Turma · Aluno · UC · Vetor · Instrumento · Critério · Nota · Nota Ponderada · Observação</td>
+      </tr>
+      <tr>
+        <td><strong>Alunos</strong></td>
+        <td>Você (manual, uma vez)</td>
+        <td>ID · Nome · Turma · Turno · Período · Contato · Observações Gerais</td>
+      </tr>
+      <tr>
+        <td><strong>Recuperações</strong></td>
+        <td>Você (manual)</td>
+        <td>Data Original · Data Rec. · Aluno · UC · Critério · Nota Original · Nota Rec. · Aprovado? · Obs.</td>
+      </tr>
+      <tr>
+        <td><strong>📊 Resumo</strong></td>
+        <td>Automático (fórmulas)</td>
+        <td>Turma · Total Avaliações · Média · Notas &lt; 6 · % Aprovação</td>
+      </tr>
+      <tr>
+        <td><strong>⚙ Configurações</strong></td>
+        <td>Você (edite ao mudar semestre)</td>
+        <td>Turmas · UCs · Critérios · Vetores · Instrumentos · Tags</td>
+      </tr>
+    </table>
+  </div>
 
-    fig_linha = px.scatter(
-        df_tempo, x="Data", y="Nota", color="Vetor (Peso)",
-        color_discrete_map=cores_vetores,
-        hover_data={col_crit: True, "Nota": ":.1f"}
-    )
-    fig_linha.update_traces(marker=dict(size=9, line=dict(width=1.5, color="white")))
-    fig_linha.add_trace(go.Scatter(
-        x=df_tempo["Data"], y=df_tempo["Tendência Aluno"],
-        mode="lines", name="Tendência Aluno",
-        line=dict(color=COR_AMARELO, width=3, dash="dot")
-    ))
-    fig_linha.add_hline(y=6.0, line_dash="dash", line_color=COR_VERMELHO,
-        line_width=1.5, annotation_text="Mínimo (6,0)",
-        annotation_position="bottom right", annotation_font_size=10)
+</div>
 
-    if comparar_turma:
-        dtt = df_turma.sort_values("Data").copy()
-        dtt["Tendência Turma"] = dtt["Nota"].expanding().mean()
-        fig_linha.add_trace(go.Scatter(
-            x=dtt["Data"], y=dtt["Tendência Turma"], mode="lines",
-            name="Tendência Turma", line=dict(color="#9CA3AF", width=2.5, dash="dash")
-        ))
+<footer>SENAI · Sistema de Avaliação Docente · Gerado automaticamente</footer>
 
-    fig_linha.update_layout(
-        xaxis=dict(tickformat="%b/%Y", gridcolor="#F3F4F6"),
-        yaxis=dict(range=[0,10.5], gridcolor="#F3F4F6"),
-        legend=dict(orientation="h", y=-0.2, font=dict(size=10)),
-        plot_bgcolor="white", paper_bgcolor="white",
-        margin=dict(t=10,b=10,l=10,r=10), height=360, hovermode="x unified"
-    )
-    st.plotly_chart(fig_linha, use_container_width=True)
-
-st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-
-# ── BOXPLOT + HISTOGRAMA ───────────────────────────────────────────────────
-col_box, col_hist = st.columns(2)
-
-with col_box:
-    st.markdown('<div class="section-title">📦 Distribuição por Vetor</div>', unsafe_allow_html=True)
-    fig_box = px.box(
-        df_aluno, x="Vetor (Peso)", y="Nota", color="Vetor (Peso)",
-        color_discrete_map={"Fazer (40%)": COR_AZUL,"Saber (30%)": COR_VERMELHO,"Comport. (30%)": "#6B7280"},
-        points="all"
-    )
-    fig_box.update_layout(showlegend=False, plot_bgcolor="white", paper_bgcolor="white",
-        yaxis=dict(range=[0,10.5], gridcolor="#F3F4F6"),
-        xaxis_title="", margin=dict(t=10,b=10,l=10,r=10), height=280)
-    fig_box.add_hline(y=6.0, line_dash="dash", line_color=COR_VERMELHO, line_width=1.5)
-    st.plotly_chart(fig_box, use_container_width=True)
-
-with col_hist:
-    st.markdown('<div class="section-title">📊 Distribuição de Notas</div>', unsafe_allow_html=True)
-    fig_hist = px.histogram(df_aluno, x="Nota", nbins=10, color_discrete_sequence=[COR_AZUL])
-    fig_hist.update_layout(
-        plot_bgcolor="white", paper_bgcolor="white",
-        xaxis=dict(range=[0,10.5], gridcolor="#F3F4F6"),
-        yaxis=dict(gridcolor="#F3F4F6"),
-        margin=dict(t=10,b=10,l=10,r=10), height=280, bargap=0.08
-    )
-    fig_hist.add_vline(x=media_aluno, line_dash="dash", line_color=COR_AMARELO, line_width=2,
-        annotation_text=f"Média: {media_aluno:.1f}", annotation_position="top right",
-        annotation_font_size=11)
-    st.plotly_chart(fig_hist, use_container_width=True)
-
-# ── RANKING ────────────────────────────────────────────────────────────────
-if mostrar_ranking:
-    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">🏆 Ranking da Turma</div>', unsafe_allow_html=True)
-
-    ranking = calcular_ranking(df_turma)
-    pos     = ranking[ranking["Aluno"] == aluno_sel].index
-    posicao = pos[0] + 1 if len(pos) > 0 else None
-
-    if posicao:
-        st.markdown(f"""
-        <div style="background:linear-gradient(135deg,{COR_AZUL}15,{COR_AZUL}05);
-                    border:1px solid {COR_AZUL}30;border-radius:12px;padding:14px 20px;
-                    margin-bottom:16px;display:inline-block;">
-            <span style="font-family:Montserrat;font-weight:700;font-size:0.9rem;color:{COR_AZUL};">
-                {aluno_sel} está em <b>{posicao}º lugar</b> de {len(ranking)} alunos
-            </span>
-        </div>""", unsafe_allow_html=True)
-
-    fig_rank = px.bar(
-        ranking.head(20), x="Aluno", y="Média", color="Média", text="Média",
-        color_continuous_scale=[[0,COR_VERMELHO],[0.6,COR_AMARELO],[1,COR_VERDE]]
-    )
-    fig_rank.update_traces(texttemplate="%{text:.1f}", textposition="outside")
-    fig_rank.update_layout(
-        plot_bgcolor="white", paper_bgcolor="white",
-        yaxis=dict(range=[0,11], gridcolor="#F3F4F6"),
-        xaxis_title="", coloraxis_showscale=False,
-        margin=dict(t=20,b=10,l=10,r=10), height=320
-    )
-    fig_rank.add_hline(y=6.0, line_dash="dash", line_color="#9CA3AF", line_width=1.5)
-    st.plotly_chart(fig_rank, use_container_width=True)
-
-# ── RECUPERAÇÕES ───────────────────────────────────────────────────────────
-st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-title">🔁 Histórico de Recuperações</div>', unsafe_allow_html=True)
-
-if not df_rec_aluno.empty:
-    for _, row in df_rec_aluno.iterrows():
-        nota_orig = row.get("Nota_Orig", "—")
-        nota_rec  = row.get("Nota_Rec",  "—")
-        delta_rec = (nota_rec - nota_orig) if isinstance(nota_rec, float) and isinstance(nota_orig, float) else 0
-        data_r    = row.get("Data_Rec","")
-        data_fmt  = data_r.strftime("%d/%m/%Y") if pd.notna(data_r) and hasattr(data_r,"strftime") else str(data_r)
-        aprovado  = "✅ Aprovado" if isinstance(nota_rec, float) and nota_rec >= 6 else "❌ Não aprovado"
-        obs_r     = row.get("Observação", "") or ""
-
-        st.markdown(f"""
-        <div class="rec-item">
-            <div style="text-align:center;min-width:64px">
-                <div style="font-size:0.7rem;color:#92400E">ANTES</div>
-                <div style="font-family:Montserrat;font-size:1.3rem;font-weight:800;color:#B45309">{nota_orig if isinstance(nota_orig,float) else '—':.1f if isinstance(nota_orig,float) else ''}</div>
-            </div>
-            <div style="font-size:1.4rem;color:#D97706">→</div>
-            <div style="text-align:center;min-width:64px">
-                <div style="font-size:0.7rem;color:#065F46">DEPOIS</div>
-                <div style="font-family:Montserrat;font-size:1.3rem;font-weight:800;
-                    color:{'#059669' if isinstance(nota_rec,float) and nota_rec>=6 else '#E30613'}">
-                    {nota_rec if isinstance(nota_rec,float) else '—':.1f if isinstance(nota_rec,float) else ''}
-                </div>
-            </div>
-            <div style="flex:1">
-                <strong style="font-size:0.88rem">{row.get('Critério','—')} · {aprovado}</strong>
-                <span style="display:block;font-size:0.78rem;color:#6B7280">{data_fmt} · {row.get('UC','—')}</span>
-                {f'<span style="font-size:0.78rem;color:#92400E;font-style:italic">{obs_r}</span>' if obs_r else ''}
-            </div>
-            <div style="font-family:Montserrat;font-weight:800;font-size:1rem;
-                color:{'#059669' if delta_rec>=0 else '#E30613'}">
-                {'▲' if delta_rec>=0 else '▼'}{abs(delta_rec):.1f if isinstance(delta_rec,float) else ''}
-            </div>
-        </div>""", unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;
-                padding:14px 18px;font-size:0.88rem;color:#64748B;">
-        Nenhuma recuperação registrada para este aluno.
-    </div>""", unsafe_allow_html=True)
-
-# ── ALERTAS ────────────────────────────────────────────────────────────────
-st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-title">⚠️ Alertas e Intervenção Pedagógica</div>', unsafe_allow_html=True)
-
-df_alertas = df_aluno[df_aluno["Nota"] < 6.0].sort_values("Data", ascending=False)
-col_obs = "Observação" if "Observação" in df_aluno.columns else "Observação Técnica (Log)"
-
-if not df_alertas.empty:
-    st.markdown(f"""
-    <div style="background:#FFF5F5;border:1px solid #FECACA;border-radius:10px;
-                padding:12px 18px;margin-bottom:16px;font-size:0.88rem;color:#991B1B;">
-        🚨 <b>{len(df_alertas)} ocorrência(s)</b> com nota abaixo de 6,0. Considere ações de reforço.
-    </div>""", unsafe_allow_html=True)
-
-    for _, row in df_alertas.iterrows():
-        data_fmt = row["Data"].strftime("%d/%m/%Y") if pd.notna(row["Data"]) else "—"
-        obs_val  = row.get(col_obs, "—") or "—"
-        uc_val   = row.get("UC", row.get("Unidade Curricular (UC)", "—"))
-        st.markdown(f"""
-        <div class="alert-item">
-            <div class="alert-nota">{row['Nota']:.1f}</div>
-            <div class="alert-info">
-                <strong>{row.get(col_crit,'—')} · {row.get('Vetor (Peso)','—')}</strong>
-                <span>{data_fmt} · {uc_val}</span>
-                <span style="margin-top:4px;display:block;color:#374151;font-style:italic">"{obs_val}"</span>
-            </div>
-        </div>""", unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;
-                padding:14px 18px;font-size:0.88rem;color:#166534;">
-        ✅ <b>Ótimo!</b> Nenhuma nota crítica nos filtros selecionados.
-    </div>""", unsafe_allow_html=True)
-
-# ── TABELA COMPLETA ────────────────────────────────────────────────────────
-st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-with st.expander("🗂️ Ver todos os registros do aluno"):
-    df_disp = df_aluno.copy()
-    df_disp["Data"] = df_disp["Data"].dt.strftime("%d/%m/%Y")
-    st.dataframe(df_disp.sort_values("Data", ascending=False),
-                 use_container_width=True, hide_index=True)
+<script>
+function copiarCodigo(btn) {
+  const pre = document.getElementById('scriptCode');
+  const texto = pre.innerText;
+  navigator.clipboard.writeText(texto).then(() => {
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => btn.textContent = '📋 Copiar', 2000);
+  });
+}
+</script>
+</body>
+</html>
