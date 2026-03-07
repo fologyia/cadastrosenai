@@ -574,13 +574,14 @@ function carregarPlanilha(cb){
     })
     .catch(function(){ feito(false); });
 
-  // ── Aba ⚙ Configurações ───────────────────────────────────────────────────
-  fetch(csvUrl('⚙ Configurações'))
+  // ── Aba Configurações ─────────────────────────────────────────────────────
+  fetch(csvUrl('Configurações'))
     .then(function(r){ return r.text(); })
     .then(function(csv){
       var rows = parseCSV(csv);
-      if(rows.length < 2){ feito(false); return; }
-      var hdr = rows[0].map(function(h){ return h.toLowerCase(); });
+      if(rows.length < 3){ feito(false); return; }
+      var hdrIdx = 1; // Linha 1 = título decorativo, Linha 2 = cabeçalho
+      var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase(); });
 
       function colVals(keywords){
         var idx = -1;
