@@ -579,26 +579,63 @@ function carregarPlanilha(cb){
     .then(function(r){ return r.text(); })
     .then(function(csv){
       var rows = parseCSV(csv);
-      if(rows.length < 3){ feito(false); return; }
-      var hdrIdx = 1; // Linha 1 = título decorativo, Linha 2 = cabeçalho
-      var hdr = rows[hdrIdx].map(function(h){ return h.toLowerCase(); });
 
-      function colVals(keywords){
-        var idx = -1;
-        for(var i=0;i<hdr.length;i++){
-          for(var k=0;k<keywords.length;k++){
-            if(hdr[i].indexOf(keywords[k])>=0){ idx=i; break; }
-          }
-          if(idx>=0) break;
+      // Encontra a linha de cabeçalho: primeira linha que tenha pelo menos 2 células não-vazias
+      // e que contenha alguma keyword típica de cabeçalho de configuração
+      var hdrIdx = -1;
+      var cfgKeywords = ['uc','unidade','crit','vetor','instrumento','turma','curso'];
+      for(var ri = 0; ri < Math.min(rows.length, 6); ri++){
+        var rowClean = rows[ri].map(function(c){ return c.toLowerCase().replace(/[^a-z]/g,''); });
+        var nonEmpty = rowClean.filter(function(c){ return c.length > 0; }).length;
+        if(nonEmpty < 2) continue;
+        var hasKw = cfgKeywords.some(function(kw){
+          return rowClean.some(function(c){ return c.length > 0 && c.indexOf(kw) >= 0; });
+        });
+        if(hasKw){ hdrIdx = ri; break; }
+      }
+      // Fallback: primeira linha com >= 2 células não-vazias
+      if(hdrIdx < 0){
+        for(var ri = 0; ri < Math.min(rows.length, 6); ri++){
+          if(rows[ri].filter(function(c){ return c.trim().length > 0; }).length >= 2){ hdrIdx = ri; break; }
         }
-        if(idx<0) return [];
-        return rows.slice(1).map(function(r){ return (r[idx]||'').trim(); }).filter(Boolean);
+      }
+      if(hdrIdx < 0 || hdrIdx >= rows.length - 1){ 
+        // Sem dados úteis — usa defaults
+        novosDados.vetores      = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
+        novosDados.instrumentos = ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
+        novosDados.criterios    = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
+        feito(true); return;
       }
 
-      var ucs   = colVals(['uc','unidade']);
-      var crits = colVals(['crit']);
-      var vets  = colVals(['vetor','vet']);
-      var insts = colVals(['instrumento','inst']);
+      var hdrRaw = rows[hdrIdx];
+      var hdr = hdrRaw.map(function(h){ return h.toLowerCase().replace(/[^a-z0-9 \/]/g,'').trim(); });
+      var hdrClean = hdr.map(function(h){ return h.replace(/[^a-z]/g,''); });
+
+      // DEBUG: mostra cabeçalhos encontrados
+      toast('Config hdr['+hdrIdx+']: '+hdrRaw.filter(function(h){return h.trim();}).join(' | '));
+
+      function colIdx(keywords){
+        // 1) match exato limpo
+        for(var k=0;k<keywords.length;k++)
+          for(var i=0;i<hdrClean.length;i++)
+            if(hdrClean[i]===keywords[k] && hdrClean[i].length>0) return i;
+        // 2) match parcial
+        for(var k=0;k<keywords.length;k++)
+          for(var i=0;i<hdrClean.length;i++)
+            if(hdrClean[i].length>0 && hdrClean[i].indexOf(keywords[k])>=0) return i;
+        return -1;
+      }
+
+      function colVals(keywords){
+        var idx = colIdx(keywords);
+        if(idx < 0) return [];
+        return rows.slice(hdrIdx + 1).map(function(r){ return (r[idx]||'').trim(); }).filter(Boolean);
+      }
+
+      var ucs   = colVals(['ucs','uc','unidadecurricular','unidade']);
+      var crits = colVals(['criterios','criterio','crit']);
+      var vets  = colVals(['vetores','vetor','vet']);
+      var insts = colVals(['instrumentos','instrumento','inst']);
 
       if(ucs.length)   novosDados.ucs           = ucs;
       if(crits.length) novosDados.criterios      = crits;
