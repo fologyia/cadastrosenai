@@ -629,7 +629,12 @@ function carregarPlanilha(cb){
       function colVals(keywords){
         var idx = colIdx(keywords);
         if(idx < 0) return [];
-        return rows.slice(hdrIdx + 1).map(function(r){ return (r[idx]||'').trim(); }).filter(Boolean);
+        var seen = {};
+        return rows.slice(hdrIdx + 1).map(function(r){ return (r[idx]||'').trim(); }).filter(function(v){
+          if(!v || seen[v]) return false;
+          seen[v] = true;
+          return true;
+        });
       }
 
       var ucs   = colVals(['ucs','uc','unidadecurricular','unidade']);
