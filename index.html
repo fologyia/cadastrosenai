@@ -505,14 +505,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   function registerEventListeners() {
     // Setup
     on('btnSetup', 'click', setupConfig);
-    
+
     // Turma
     on('btnTrocarTurma', 'click', () => {
       state.turmaAtual = null;
       updateTurmaBar();
       goToTurmaSelect();
     });
-    
+
     on('btnRecarregar', 'click', () => {
       state.dados = {};
       try { localStorage.removeItem(LS_KEYS.DATA); } catch(e) {}
@@ -550,7 +550,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     on('btnSalvar', 'click', saveIndividualAvaliacao);
     on('btnMesmo', 'click', () => goToFormulario(state.alunoAtual));
     on('btnNova', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunosList(''); });
-    
+
     on('btnIniciarVarredura', 'click', iniciarVarredura);
     on('btnEnviarTudo', 'click', enviarVarredura);
     on('btnCancelarSw', 'click', () => { showScreen('s3'); updateDots(2); });
@@ -590,6 +590,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       showToast('⚠️ Cole a URL do Apps Script', 'err');
       return;
     }
+    if (url.includes('/edit')) {
+      showToast('⚠️ Use a URL do executável (/exec), não a de edição.', 'err');
+      return;
+    }
     if (!sheetId) {
       showToast('⚠️ Cole o ID da planilha', 'err');
       return;
@@ -601,10 +605,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
     state.config = { url, sheetId };
     safeLocalStorageSet(LS_KEYS.CONFIG, JSON.stringify(state.config));
-    
+
     showScreen('s1');
     setLoadingText('Carregando turmas e alunos...');
-    
+
     loadPlanilha((ok) => {
       if (ok) {
         goToTurmaSelect();
@@ -630,11 +634,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         state.config = JSON.parse(savedConfig);
         state.queue = JSON.parse(localStorage.getItem(LS_KEYS.QUEUE) || '[]');
         const savedData = localStorage.getItem(LS_KEYS.DATA);
-        
+
         if (savedData) {
           state.dados = JSON.parse(savedData);
         }
-        
+
         updatePendingUI();
 
         if (state.dados.turmas && state.dados.turmas.length > 0) {
@@ -686,10 +690,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       // Se a linha começa com aspas mas não fecha, continua nas próximas linhas
       while (i < lines.length) {
         const line = i === lines.indexOf(fullLine) ? fullLine : '\n' + lines[i];
-        
+
         for (let k = (i === lines.indexOf(fullLine) ? 0 : 1); k < line.length; k++) {
           const ch = line[k];
-          
+
           if (inQuotes) {
             if (ch === '"' && line[k + 1] === '"') {
               current += '"';
@@ -753,9 +757,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     function taskDone(ok) {
       done++;
       if (!ok) errors++;
-      
+
       if (done < total) return;
-      
+
       if (errors === total) {
         // ✅ MELHORIA #11: Feedback de erro
         showErrorBanner('loadErrorBanner', 'Falha ao carregar dados. Verifique sua conexão e o ID da planilha.');
@@ -801,10 +805,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         rows.slice(hdrIdx + 1).forEach(r => {
           const nome = (r[iNome] || '').trim();
           const turma = iTurma >= 0 ? (r[iTurma] || '').trim() : 'Geral';
-          
+
           if (!nome) return;
           const turmaFinal = turma || 'Geral';
-          
+
           if (!newData.alunos[turmaFinal]) {
             newData.alunos[turmaFinal] = [];
           }
@@ -865,9 +869,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
               }
               if (colIdx >= 0) break;
             }
-            
+
             if (colIdx < 0) return [];
-            
+
             const seen = {};
             return rows.slice(hdrIdx + 1)
               .map(r => (r[colIdx] || '').trim())
@@ -944,7 +948,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       const el = document.getElementById(s);
       if (el) el.classList.remove('on');
     });
-    
+
     const target = document.getElementById(id);
     if (target) {
       target.classList.add('on');
@@ -960,7 +964,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     for (let i = 1; i <= 3; i++) {
       const dot = document.getElementById('d' + i);
       if (!dot) continue;
-      
+
       dot.className = 'dot';
       if (i < step) {
         dot.classList.add('d');
@@ -1027,7 +1031,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   function renderTurmas() {
     const grid = document.getElementById('turmaGrid');
     if (!grid) return;
-    
+
     const turmas = state.dados.turmas || [];
     grid.innerHTML = '';
 
@@ -1037,7 +1041,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       });
       msg.innerHTML = 'Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.';
       grid.appendChild(msg);
-      
+
       const sub = document.getElementById('s2sub');
       if (sub) sub.textContent = 'Nenhuma turma encontrada';
       return;
@@ -1088,7 +1092,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
     const filtered = alunos.filter(a => a.toLowerCase().includes(query.toLowerCase()));
     const container = document.getElementById('aList');
-    
+
     if (!container) return;
     container.innerHTML = '';
 
@@ -1133,7 +1137,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
   function goToFormulario(nome) {
     state.alunoAtual = nome;
-    
+
     const initials = nome.split(' ')
       .map(p => p[0])
       .slice(0, 2)
@@ -1164,7 +1168,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     fillSelect('vetSel', state.dados.vetores || [], 'Vetor...');
     fillSelect('instSel', state.dados.instrumentos || [], 'Instrumento...');
     fillSelect('critSel', state.dados.criterios || [], 'Critério...');
-    
+
     fillSelect('swUcSel', state.dados.ucs || [], 'Selecione a UC...');
     fillSelect('swVetSel', state.dados.vetores || [], 'Vetor...');
     fillSelect('swInstSel', state.dados.instrumentos || [], 'Instrumento...');
@@ -1195,12 +1199,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     const tagsList = state.dados.tags && state.dados.tags.length
       ? state.dados.tags
       : ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
-    
+
     const container = document.getElementById('tagsCont');
     if (!container) return;
-    
+
     container.innerHTML = '';
-    
+
     const negativeKeywords = ['fora', 'sem epi', 'desorganiz', 'erro', 'atraso', 'falta', 'ausente'];
 
     tagsList.forEach(tag => {
@@ -1223,7 +1227,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     if (notaEl) {
       const formatted = value.toFixed(1).replace('.', ',');
       notaEl.innerHTML = formatted + '<span>/10</span>';
-      
+
       if (value < 5) {
         notaEl.style.color = '#E30613';
       } else if (value < 7) {
@@ -1374,7 +1378,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
     const titleEl = document.getElementById('swTitle');
     const subEl = document.getElementById('swSub');
-    
+
     if (titleEl) titleEl.textContent = `⚡ ${criterio}`;
     if (subEl) subEl.textContent = `${uc} · ${vetor} · ${instrumento}`;
 
@@ -1390,7 +1394,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     // Se já existe, só atualiza, não recria
     if (container.children.length === 0) {
       container.innerHTML = '';
-      
+
       alunos.forEach(nome => {
         const item = createSafeElement('div', {
           className: 'sw-item',
@@ -1414,12 +1418,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
             className: 'sw-btn',
             'data-v': String(v)
           }, v.toFixed(1));
-          
+
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             updateVarreduraNota(nome, v);
           });
-          
+
           quickBtns.appendChild(btn);
         });
 
@@ -1454,7 +1458,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
   function updateVarreduraNota(nome, nota) {
     state.swNotas[nome] = nota;
-    
+
     const item = document.querySelector(`.sw-item[data-aluno="${nome}"]`);
     if (!item) return;
 
@@ -1568,29 +1572,41 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
     fetch(state.config.url, {
       method: 'POST',
+      redirect: 'follow',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain;charset=utf-8'
       },
       body: JSON.stringify(registro)
-      // ✅ REMOVIDO mode: 'no-cors' para poder ler a resposta
     })
       .then(response => {
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          return response.text().then(text => {
+            throw new Error(`HTTP ${response.status}: ${text.substring(0, 40)}...`);
+          });
         }
-        return response.json();
+        return response.text().then(text => {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            throw new Error('Resposta inválida do servidor');
+          }
+        });
       })
       .then(data => {
         if (data && data.status === 'success') {
           showToast('✅ Enviado com sucesso', 'ok');
           callback('online');
         } else {
-          throw new Error(data && data.message ? data.message : 'Resposta inválida do servidor');
+          throw new Error(data && data.message ? data.message : 'Erro desconhecido');
         }
       })
       .catch(err => {
         console.error('Erro ao enviar:', err);
-        showToast('⚠️ Erro no envio. Salvo localmente.', 'wrn');
+        let msg = 'Erro de conexão';
+        if (err.message.includes('Failed to fetch')) msg = 'Bloqueio de acesso (CORS) ou URL errada';
+        else if (err.message.includes('HTTP')) msg = err.message;
+
+        showToast('⚠️ ' + msg + '. Salvo localmente.', 'wrn');
         queueRegistro(registro);
         callback('offline');
       });
@@ -1603,31 +1619,43 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       return;
     }
 
-    // Envia batch como array
     fetch(state.config.url, {
       method: 'POST',
+      redirect: 'follow',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain;charset=utf-8'
       },
       body: JSON.stringify({ batch: registros })
     })
       .then(response => {
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          return response.text().then(text => {
+            throw new Error(`HTTP ${response.status}: ${text.substring(0, 40)}...`);
+          });
         }
-        return response.json();
+        return response.text().then(text => {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            throw new Error('Resposta inválida do servidor');
+          }
+        });
       })
       .then(data => {
         if (data && data.status === 'success') {
           showToast('✅ Batch enviado com sucesso', 'ok');
           callback('online');
         } else {
-          throw new Error(data && data.message ? data.message : 'Resposta inválida do servidor');
+          throw new Error(data && data.message ? data.message : 'Erro desconhecido');
         }
       })
       .catch(err => {
         console.error('Erro ao enviar batch:', err);
-        showToast('⚠️ Erro no envio. Salvo localmente.', 'wrn');
+        let msg = 'Erro de conexão';
+        if (err.message.includes('Failed to fetch')) msg = 'Bloqueio de acesso (CORS) ou URL errada';
+        else if (err.message.includes('HTTP')) msg = err.message;
+
+        showToast('⚠️ ' + msg + '. Salvo localmente.', 'wrn');
         registros.forEach(r => queueRegistro(r));
         callback('offline');
       });
@@ -1646,7 +1674,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   function updatePendingUI() {
     const pendEl = document.getElementById('pend');
     const ctEl = document.getElementById('pendCt');
-    
+
     if (state.queue.length > 0) {
       if (pendEl) pendEl.style.display = 'block';
       if (ctEl) ctEl.textContent = state.queue.length;
@@ -1681,8 +1709,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
       fetch(state.config.url, {
         method: 'POST',
+        redirect: 'follow',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'text/plain;charset=utf-8'
         },
         body: JSON.stringify(registro)
       })
@@ -1690,17 +1719,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
-          return response.json();
+          return response.text();
         })
-        .then(data => {
-          if (data && data.status === 'success') {
-            // Remove da fila
-            state.queue.shift();
-            updatePendingUI();
-            // Processa próximo
-            setTimeout(processNext, 500); // Pequeno delay para não sobrecarregar
-          } else {
-            throw new Error('Resposta inválida');
+        .then(text => {
+          try {
+             const data = JSON.parse(text);
+             if (data && data.status === 'success') {
+                // Remove da fila
+                state.queue.shift();
+                updatePendingUI();
+                // Processa próximo
+                setTimeout(processNext, 500);
+             } else {
+                throw new Error('Resposta inválida');
+             }
+          } catch(e) {
+             throw new Error('JSON inválido');
           }
         })
         .catch(err => {
@@ -1727,7 +1761,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
     toast.textContent = message;
     toast.className = 'toast ' + type;
-    
+
     setTimeout(() => toast.classList.add('on'), 10);
 
     toastTimer = setTimeout(() => {
