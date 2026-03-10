@@ -17,7 +17,6 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{height:100%}
-/* ✅ MELHORIA #12: Removido position:fixed do body para melhorar scroll em mobile */
 body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);min-height:100vh;}
 .bg{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0a1628 0%,#00274d 50%,#0a1628 100%);}
 .bg::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,83,159,0.3) 0%,transparent 70%);top:-150px;right:-150px;animation:pulse 6s ease-in-out infinite;}
@@ -108,19 +107,36 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .tag.d.on{border-color:var(--vermelho);background:rgba(227,6,19,0.07);color:var(--vermelho);}
 .obs-ta{-webkit-appearance:none;appearance:none;width:100%;border:2px solid var(--cinza2);border-radius:10px;padding:11px 12px;font-family:'Sora',sans-serif;font-size:15px;color:var(--texto);resize:none;background:var(--cinza);outline:none;transition:border-color 0.2s;}
 .obs-ta:focus{border-color:var(--azul);background:white;}
+
+/* ── Presença individual ────────────────────────── */
+.presenca-badge{display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;border:1.5px solid #86EFAC;border-radius:8px;padding:7px 12px;font-size:0.74rem;font-weight:700;color:#166534;margin-bottom:14px;}
+
+/* ── Botão salvar ──────────────────────────────── */
 .btn-salvar{-webkit-appearance:none;appearance:none;width:100%;padding:17px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--azul),var(--azul-dark));color:white;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:10px;box-shadow:0 4px 20px rgba(0,83,159,0.35);display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .btn-salvar:active{opacity:0.85}.btn-salvar:disabled{opacity:0.45}
+
+/* ── Varredura ──────────────────────────────────── */
 .sweep-header{background:rgba(234,88,12,0.15);border:1px solid rgba(234,88,12,0.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
 .sweep-title{color:#FB923C;font-size:0.88rem;font-weight:700;margin-bottom:2px;}
 .sweep-sub{color:rgba(255,255,255,0.45);font-size:0.76rem;}
 .sweep-bar-wrap{background:rgba(255,255,255,0.1);border-radius:50px;height:6px;flex:1;margin:0 12px;}
 .sweep-bar{background:linear-gradient(90deg,var(--laranja),var(--amarelo));height:6px;border-radius:50px;transition:width 0.3s;}
+.sweep-legend{display:flex;gap:12px;margin-top:8px;font-size:0.67rem;color:rgba(255,255,255,0.4);}
+.sweep-legend span{display:flex;align-items:center;gap:4px;}
+.sweep-legend .dot-p{width:8px;height:8px;border-radius:50%;background:var(--verde);}
+.sweep-legend .dot-f{width:8px;height:8px;border-radius:50%;background:var(--vermelho);}
+.sweep-legend .dot-n{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);}
+
 .sw-item{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:13px;padding:14px 15px;margin-bottom:10px;-webkit-tap-highlight-color:transparent;}
 .sw-item.done{border-color:var(--verde);background:rgba(5,150,105,0.12);}
+/* NOVO: estado falta */
+.sw-item.falta{border-color:var(--vermelho);background:rgba(227,6,19,0.1);}
 .sw-top{display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;}
 .sw-status{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;}
 .sw-item.done .sw-status{background:var(--verde);border-color:var(--verde);color:white;}
+.sw-item.falta .sw-status{background:var(--vermelho);border-color:var(--vermelho);color:white;}
 .sw-nome{color:white;font-size:0.9rem;font-weight:600;}
+.sw-nome-falta{color:rgba(255,255,255,0.45);text-decoration:line-through;}
 .sw-nota-atual{margin-left:auto;font-size:0.85rem;font-weight:700;}
 .sw-nota-ctrl{display:none;padding-top:10px;}
 .sw-item.open .sw-nota-ctrl{display:block;}
@@ -128,6 +144,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .sw-btn{-webkit-appearance:none;appearance:none;padding:8px 2px;border:2px solid var(--cinza2);border-radius:8px;background:white;font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;color:var(--texto2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .sw-btn:active{transform:scale(0.9)}.sw-btn.on{border-color:var(--azul);background:var(--azul);color:white;}
 .sw-confirm{-webkit-appearance:none;appearance:none;width:100%;margin-top:10px;padding:11px;border:none;border-radius:10px;background:var(--verde);color:white;font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+/* NOVO: botão marcar falta */
+.sw-falta-btn{-webkit-appearance:none;appearance:none;width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:rgba(227,6,19,0.15);border:1.5px solid rgba(227,6,19,0.35);color:#FCA5A5;font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.sw-falta-btn:active{background:rgba(227,6,19,0.3);}
+/* NOVO: desfazer falta */
+.sw-desfazer{display:none;padding-top:8px;}
+.sw-item.falta .sw-desfazer{display:block;}
+.sw-desfazer-btn{-webkit-appearance:none;appearance:none;width:100%;padding:9px;border:none;border-radius:9px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-family:'Sora',sans-serif;font-size:0.78rem;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+
 .suc-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:16px 0;text-align:center;}
 .suc-icon{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.3rem;margin-bottom:20px;animation:popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);}
 .suc-icon.verde{background:linear-gradient(135deg,var(--verde),#047857);box-shadow:0 8px 32px rgba(5,150,105,0.4);}
@@ -141,11 +165,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:#1e293b;color:white;padding:12px 20px;border-radius:50px;font-size:0.82rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:200;transition:transform 0.3s ease;white-space:nowrap;}
 .toast.on{transform:translateX(-50%) translateY(0);}
 .toast.err{background:var(--vermelho)}.toast.ok{background:var(--verde)}.toast.wrn{background:var(--amarelo);color:#1a1a1a;}
-.pend{position:fixed;top:50px;right:16px;z-index:50;background:var(--amarelo);color:#1a1a1a;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:50px;display:none;}
+.pend{position:fixed;top:50px;right:16px;z-index:50;background:var(--amarelo);color:#1a1a1a;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:50px;display:none;cursor:pointer;}
 .clink{text-align:center;margin-top:18px;}
 .clink a{color:rgba(255,255,255,0.28);font-size:0.74rem;text-decoration:none;cursor:pointer;}
 ::-webkit-scrollbar{width:0;background:transparent;}
-/* ✅ MELHORIA #11: Feedback visual de erro */
 .error-banner{background:rgba(227,6,19,0.15);border:1px solid rgba(227,6,19,0.4);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:rgba(255,255,255,0.85);line-height:1.6;display:none;}
 .error-banner.on{display:block;}
 </style>
@@ -182,6 +205,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="info-box">
       <strong>📋 O que você precisa:</strong><br>
       A URL do Apps Script (para enviar notas) e o ID da planilha (para carregar turmas, alunos e critérios automaticamente).
+      <br><br>
+      <strong style="color:#F59E0B">⚠️ Importante:</strong> Ao implantar o script, defina "Quem pode acessar" como <strong>"Qualquer pessoa"</strong> (Anyone).
     </div>
     <div class="fwrap">
       <label class="flbl">URL do Google Apps Script</label>
@@ -194,7 +219,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
     <button class="btn btn-primary" id="btnSetup">✅ Salvar e Carregar Dados</button>
     <div class="error-banner" id="errorBanner"></div>
-    <div class="clink"><a>v2.0 · SENAI Avaliador Refatorado</a></div>
+    <div class="clink"><a>v3.0 · SENAI Avaliador + Frequência</a></div>
   </div>
 
   <!-- TELA 1: LOADING -->
@@ -204,6 +229,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="loading-txt" id="loadingTxt">Carregando dados da planilha...</div>
     </div>
     <div class="error-banner" id="loadErrorBanner"></div>
+    <button class="btn btn-ghost" id="btnRetryLoad" style="display:none;margin-top:20px">🔄 Tentar Novamente</button>
   </div>
 
   <!-- TELA 2: ESCOLHER TURMA -->
@@ -233,8 +259,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       </div>
     </div>
     <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:14px 16px;font-size:0.78rem;color:rgba(255,255,255,0.4);line-height:1.7;">
-      <strong style="color:rgba(255,255,255,0.7)">⚡ Varredura</strong> — define critério uma vez, desliza nota para cada aluno e envia tudo junto.<br><br>
-      <strong style="color:rgba(255,255,255,0.7)">👤 Individual</strong> — fluxo completo com observações e tags.
+      <strong style="color:rgba(255,255,255,0.7)">⚡ Varredura</strong> — define critério uma vez, desliza nota para cada aluno e envia tudo junto. Alunos ausentes são marcados como falta automaticamente.<br><br>
+      <strong style="color:rgba(255,255,255,0.7)">👤 Individual</strong> — fluxo completo com observações e tags. Frequência registrada automaticamente.
     </div>
   </div>
 
@@ -264,7 +290,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       </div>
       <div class="swrap"><label>🔬 Critério</label><select id="swCritSel"><option value="">Critério...</option></select></div>
       <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;color:#166534;">
-        💡 Esses valores valem para <strong>todos os alunos</strong>. Você só define a nota de cada um.
+        💡 Esses valores valem para <strong>todos os alunos presentes</strong>. Alunos ausentes podem ser marcados como ❌ Falta durante a varredura.
       </div>
       <button class="btn btn-orange" id="btnIniciarVarredura">⚡ Iniciar Varredura</button>
     </div>
@@ -279,6 +305,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div><div class="sel-nm" id="selNm"></div><div class="sel-tr" id="selTr"></div></div>
         <div class="sel-chg" id="btnChg">Trocar</div>
       </div>
+      <!-- Badge de presença automática -->
+      <div class="presenca-badge">✅ Presença registrada automaticamente</div>
       <div class="swrap"><label>📚 Unidade Curricular</label>
         <select id="ucSel"><option value="">Selecione a UC...</option></select></div>
       <div class="two">
@@ -318,11 +346,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div class="sweep-bar-wrap"><div class="sweep-bar" id="swBar" style="width:0%"></div></div>
         <span style="color:rgba(255,255,255,0.5);font-size:0.72rem" id="swCt">0/0</span>
       </div>
+      <!-- Legenda de status -->
+      <div class="sweep-legend">
+        <span><i class="dot-p"></i> <span id="swLegP">0 presentes</span></span>
+        <span><i class="dot-f"></i> <span id="swLegF">0 faltas</span></span>
+        <span><i class="dot-n"></i> <span id="swLegN">0 pendentes</span></span>
+      </div>
     </div>
     <div id="swList"></div>
     <div id="swActions" style="display:none;margin-top:8px;">
       <button class="btn btn-orange" id="btnEnviarTudo">📤 Enviar tudo para o Sheets</button>
       <button class="btn btn-ghost"  id="btnCancelarSw">✕ Cancelar</button>
+    </div>
+    <!-- Botão para avançar mesmo com pendentes -->
+    <div id="swActionsPartial" style="display:none;margin-top:8px;">
+      <button class="btn btn-ghost" id="btnEnviarParcial" style="border-color:rgba(255,165,0,0.4);color:rgba(255,165,0,0.8);">⚠️ Enviar apenas os já avaliados</button>
     </div>
   </div>
 
@@ -352,114 +390,62 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════════════════════
-// ✅ MELHORIA #3: IIFE para encapsular e evitar poluição do escopo global
-// ════════════════════════════════════════════════════════════════════════════
 (function() {
   'use strict';
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ✅ MELHORIA #10: Constantes nomeadas para chaves localStorage
-  // ══════════════════════════════════════════════════════════════════════════
   const LS_KEYS = {
     CONFIG: 'senai_config_v2',
     QUEUE: 'senai_queue_v2',
     DATA: 'senai_data_v2'
   };
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ⚠️ CONFIGURE AQUI A URL DO SEU GOOGLE APPS SCRIPT
-  // ══════════════════════════════════════════════════════════════════════════
-  // Esta URL será preenchida após a configuração inicial.
-  // Você pode pré-preencher aqui se quiser hardcode a URL
-  // ══════════════════════════════════════════════════════════════════════════
-
-  // Estado da aplicação
   const state = {
     config: {},
     dados: {},
     turmaAtual: null,
     alunoAtual: null,
     queue: [],
-    swNotas: {},
+    swNotas: {},      // { nome: nota (número) }
+    swFaltas: {},     // { nome: true }
+    swConfirmados: {}, // { nome: true } - confirmados com click
     swCfg: {},
     isSyncing: false
   };
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ✅ MELHORIA #14: Comentários explicativos organizados
-  // ══════════════════════════════════════════════════════════════════════════
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // INICIALIZAÇÃO
-  // ══════════════════════════════════════════════════════════════════════════
   window.addEventListener('load', init);
 
   function init() {
-    // Atualiza data/hora no header
     updateHeaderDate();
-
-    // Registra todos os event listeners
     registerEventListeners();
-
-    // Inicializa UI
     updateNotaUI(7);
     updatePendingUI();
-
-    // Listeners de conectividade
     window.addEventListener('online', syncOfflineQueue);
     window.addEventListener('offline', () => showToast('📴 Offline', 'wrn'));
-
-    // Carrega configuração salva
     loadSavedConfig();
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // UTILITIES
-  // ══════════════════════════════════════════════════════════════════════════
-
-  /**
-   * Helper para adicionar event listener
-   */
   function on(id, event, handler) {
     const el = document.getElementById(id);
     if (el) el.addEventListener(event, handler);
   }
 
-  /**
-   * ✅ MELHORIA #5: Sanitização de texto para prevenir XSS
-   */
-  function sanitizeText(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  /**
-   * ✅ MELHORIA #5: Criação segura de elementos DOM
-   */
   function createSafeElement(tag, attrs, textContent) {
     const el = document.createElement(tag);
     if (attrs) {
       Object.keys(attrs).forEach(key => {
         if (key === 'className') {
           el.className = attrs[key];
-        } else if (key.startsWith('data-')) {
+        } else if (key.startsWith('data-') || key === 'style') {
           el.setAttribute(key, attrs[key]);
         } else {
           el[key] = attrs[key];
         }
       });
     }
-    if (textContent) {
-      el.textContent = textContent;
-    }
+    if (textContent !== undefined) el.textContent = textContent;
     return el;
   }
 
-  /**
-   * ✅ MELHORIA #8: Salvar no localStorage com tratamento de quota
-   */
   function safeLocalStorageSet(key, value) {
     try {
       localStorage.setItem(key, value);
@@ -467,7 +453,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     } catch (e) {
       if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
         showToast('⚠️ Memória local cheia. Limpando cache...', 'wrn');
-        // Limpa dados antigos mas mantém config
         try {
           localStorage.removeItem(LS_KEYS.DATA);
           localStorage.setItem(key, value);
@@ -476,98 +461,50 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
           showToast('❌ Erro ao salvar dados localmente', 'err');
           return false;
         }
-      } else {
-        console.error('localStorage error:', e);
-        return false;
       }
+      return false;
     }
   }
 
-  /**
-   * ✅ MELHORIA #6: Debounce para busca de alunos
-   */
   function debounce(func, wait) {
     let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
+    return function(...args) {
       clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      timeout = setTimeout(() => func(...args), wait);
     };
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // EVENT LISTENERS
-  // ══════════════════════════════════════════════════════════════════════════
+  function getCurrentDate() {
+    return new Date().toLocaleDateString('pt-BR');
+  }
 
   function registerEventListeners() {
-    // Setup
     on('btnSetup', 'click', setupConfig);
-
-    // Turma
-    on('btnTrocarTurma', 'click', () => {
-      state.turmaAtual = null;
-      updateTurmaBar();
-      goToTurmaSelect();
-    });
-
-    on('btnRecarregar', 'click', () => {
-      state.dados = {};
-      try { localStorage.removeItem(LS_KEYS.DATA); } catch(e) {}
-      showScreen('s1');
-      setLoadingText('Recarregando...');
-      loadPlanilha(() => goToTurmaSelect());
-    });
-
-    on('lkCfg', 'click', (e) => {
-      e.preventDefault();
-      goToSetup();
-    });
-
-    // Modo
-    on('modoIndividual', 'click', () => {
-      showScreen('s4a');
-      updateDots(3);
-      renderAlunosList('');
-    });
-
-    on('modoVarredura', 'click', () => {
-      showScreen('s4b');
-      updateDots(3);
-      fillAllForms();
-    });
-
-    // Navegação
+    on('btnTrocarTurma', 'click', () => { state.turmaAtual = null; updateTurmaBar(); goToTurmaSelect(); });
+    on('btnRecarregar', 'click', reloadData);
+    on('btnRetryLoad', 'click', reloadData);
+    on('lkCfg', 'click', (e) => { e.preventDefault(); goToSetup(); });
+    on('modoIndividual', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunosList(''); });
+    on('modoVarredura', 'click', () => { showScreen('s4b'); updateDots(3); fillAllForms(); });
     on('btnBack4b', 'click', () => { showScreen('s3'); updateDots(2); });
     on('lkVoltar4a', 'click', () => { showScreen('s3'); updateDots(2); });
     on('btnBack5a', 'click', () => { showScreen('s4a'); updateDots(3); });
     on('btnChg', 'click', () => { showScreen('s4a'); updateDots(3); });
     on('btnBack5b', 'click', () => { showScreen('s4b'); updateDots(3); });
-
-    // Ações
     on('btnSalvar', 'click', saveIndividualAvaliacao);
     on('btnMesmo', 'click', () => goToFormulario(state.alunoAtual));
     on('btnNova', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunosList(''); });
-
     on('btnIniciarVarredura', 'click', iniciarVarredura);
-    on('btnEnviarTudo', 'click', enviarVarredura);
+    on('btnEnviarTudo', 'click', () => enviarVarredura(false));
+    on('btnEnviarParcial', 'click', () => enviarVarredura(true));
     on('btnCancelarSw', 'click', () => { showScreen('s3'); updateDots(2); });
     on('btnNovaVarredura', 'click', () => { showScreen('s4b'); updateDots(3); fillAllForms(); });
     on('btnVoltarModo', 'click', () => { showScreen('s3'); updateDots(2); });
-
-    // Range slider
     on('slider', 'input', (e) => updateNotaUI(parseFloat(e.target.value)));
-
-    // ✅ MELHORIA #6: Search com debounce
     const searchInput = document.getElementById('srch');
     if (searchInput) {
-      const debouncedSearch = debounce((value) => renderAlunosList(value), 300);
-      searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
+      searchInput.addEventListener('input', debounce((e) => renderAlunosList(e.target.value), 300));
     }
-
-    // Botões de nota rápida
     document.querySelectorAll('.nb').forEach(btn => {
       btn.addEventListener('click', function() {
         const value = parseFloat(this.dataset.v);
@@ -575,44 +512,32 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         updateNotaUI(value);
       });
     });
+    on('pend', 'click', syncOfflineQueue);
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // SETUP & CONFIGURAÇÃO
-  // ══════════════════════════════════════════════════════════════════════════
+  function reloadData() {
+    state.dados = {};
+    try { localStorage.removeItem(LS_KEYS.DATA); } catch(e) {}
+    showScreen('s1');
+    setLoadingText('Recarregando...');
+    document.getElementById('btnRetryLoad').style.display = 'none';
+    loadPlanilha().then(ok => { if(ok) goToTurmaSelect(); });
+  }
 
   function setupConfig() {
     const url = (document.getElementById('fUrl').value || '').trim();
     const sheetId = (document.getElementById('fSheetId').value || '').trim();
-
-    // ✅ MELHORIA #4: Validação completa
-    if (!url) {
-      showToast('⚠️ Cole a URL do Apps Script', 'err');
-      return;
-    }
-    if (url.includes('/edit')) {
-      showToast('⚠️ Use a URL do executável (/exec), não a de edição.', 'err');
-      return;
-    }
-    if (!sheetId) {
-      showToast('⚠️ Cole o ID da planilha', 'err');
-      return;
-    }
-    if (!url.includes('script.google.com')) {
-      showToast('⚠️ URL inválida. Use a URL do Google Apps Script', 'err');
-      return;
-    }
-
+    if (!url) { showToast('⚠️ Cole a URL do Apps Script', 'err'); return; }
+    if (url.includes('/edit')) { showToast('⚠️ Use a URL do executável (/exec), não a de edição.', 'err'); return; }
+    if (!sheetId) { showToast('⚠️ Cole o ID da planilha', 'err'); return; }
+    if (!url.includes('script.google.com')) { showToast('⚠️ URL inválida.', 'err'); return; }
     state.config = { url, sheetId };
     safeLocalStorageSet(LS_KEYS.CONFIG, JSON.stringify(state.config));
-
     showScreen('s1');
     setLoadingText('Carregando turmas e alunos...');
-
-    loadPlanilha((ok) => {
-      if (ok) {
-        goToTurmaSelect();
-      } else {
+    loadPlanilha().then(ok => {
+      if (ok) { goToTurmaSelect(); }
+      else {
         showToast('⚠️ Erro ao carregar — verifique o ID', 'err');
         showErrorBanner('errorBanner', 'Não foi possível carregar os dados. Verifique se o ID da planilha está correto e se ela está compartilhada publicamente.');
         goToSetup();
@@ -621,8 +546,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   }
 
   function goToSetup() {
-    showScreen('s0');
-    updateDots(0);
+    showScreen('s0'); updateDots(0);
     if (state.config.url) document.getElementById('fUrl').value = state.config.url;
     if (state.config.sheetId) document.getElementById('fSheetId').value = state.config.sheetId;
   }
@@ -634,352 +558,175 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         state.config = JSON.parse(savedConfig);
         state.queue = JSON.parse(localStorage.getItem(LS_KEYS.QUEUE) || '[]');
         const savedData = localStorage.getItem(LS_KEYS.DATA);
-
-        if (savedData) {
-          state.dados = JSON.parse(savedData);
-        }
-
+        if (savedData) state.dados = JSON.parse(savedData);
         updatePendingUI();
-
         if (state.dados.turmas && state.dados.turmas.length > 0) {
-          // Mostra dados do cache e recarrega em background
           goToTurmaSelect();
-          loadPlanilha((ok) => {
-            if (ok) {
-              renderTurmas();
-              fillAllForms();
-            }
-          });
+          loadPlanilha().then(ok => { if (ok) { renderTurmas(); fillAllForms(); } });
           return;
         } else {
           showScreen('s1');
-          loadPlanilha(() => goToTurmaSelect());
+          loadPlanilha().then(ok => { if(ok) goToTurmaSelect(); });
           return;
         }
       }
-    } catch (e) {
-      console.error('Erro ao carregar config:', e);
-    }
-
-    showScreen('s0');
-    updateDots(0);
+    } catch (e) { console.error('Erro ao carregar config:', e); }
+    showScreen('s0'); updateDots(0);
   }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // ✅ MELHORIA #9: parseCSV melhorado para tratar quebras de linha
-  // ══════════════════════════════════════════════════════════════════════════
 
   function parseCSV(csv) {
     csv = csv.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const lines = csv.split('\n');
     const result = [];
     let i = 0;
-
     while (i < lines.length) {
-      if (!lines[i].trim()) {
-        i++;
-        continue;
-      }
-
+      if (!lines[i].trim()) { i++; continue; }
       const cols = [];
       let current = '';
       let inQuotes = false;
-      let j = 0;
       let fullLine = lines[i];
-
-      // Se a linha começa com aspas mas não fecha, continua nas próximas linhas
       while (i < lines.length) {
         const line = i === lines.indexOf(fullLine) ? fullLine : '\n' + lines[i];
-
         for (let k = (i === lines.indexOf(fullLine) ? 0 : 1); k < line.length; k++) {
           const ch = line[k];
-
           if (inQuotes) {
-            if (ch === '"' && line[k + 1] === '"') {
-              current += '"';
-              k++;
-            } else if (ch === '"') {
-              inQuotes = false;
-            } else {
-              current += ch;
-            }
+            if (ch === '"' && line[k + 1] === '"') { current += '"'; k++; }
+            else if (ch === '"') { inQuotes = false; }
+            else { current += ch; }
           } else {
-            if (ch === '"') {
-              inQuotes = true;
-            } else if (ch === ',') {
-              cols.push(current.trim());
-              current = '';
-            } else {
-              current += ch;
-            }
+            if (ch === '"') { inQuotes = true; }
+            else if (ch === ',') { cols.push(current.trim()); current = ''; }
+            else { current += ch; }
           }
         }
-
-        // Se ainda está em quotes, continua na próxima linha
-        if (inQuotes && i + 1 < lines.length) {
-          i++;
-        } else {
-          break;
-        }
+        if (inQuotes && i + 1 < lines.length) { i++; } else { break; }
       }
-
       cols.push(current.trim());
       result.push(cols);
       i++;
     }
-
     return result;
   }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // CARREGAR PLANILHA
-  // ══════════════════════════════════════════════════════════════════════════
 
   function csvUrl(aba) {
     return 'https://docs.google.com/spreadsheets/d/' + state.config.sheetId +
            '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(aba);
   }
 
-  function loadPlanilha(callback) {
-    let total = 2;
-    let done = 0;
-    let errors = 0;
-    const newData = {
-      turmas: [],
-      alunos: {},
-      ucs: [],
-      vetores: [],
-      instrumentos: [],
-      criterios: [],
-      tags: []
-    };
-
-    function taskDone(ok) {
-      done++;
-      if (!ok) errors++;
-
-      if (done < total) return;
-
-      if (errors === total) {
-        // ✅ MELHORIA #11: Feedback de erro
-        showErrorBanner('loadErrorBanner', 'Falha ao carregar dados. Verifique sua conexão e o ID da planilha.');
-        callback(false);
-        return;
-      }
-
-      // ✅ MELHORIA #11: Feedback parcial
-      if (errors > 0) {
-        showToast('⚠️ Alguns dados não foram carregados completamente', 'wrn');
-      }
-
-      state.dados = newData;
-      safeLocalStorageSet(LS_KEYS.DATA, JSON.stringify(state.dados));
-      callback(true);
-    }
-
-    // ── Carregar Alunos ──
-    fetch(csvUrl('Alunos'))
-      .then(r => r.text())
-      .then(csv => {
-        const rows = parseCSV(csv);
-        if (rows.length < 2) {
-          taskDone(false);
-          return;
-        }
-
-        // Detecta cabeçalho
-        let hdrIdx = 1;
-        if (rows[0].some(c => c.toLowerCase().includes('nome') || c.toLowerCase().includes('turma'))) {
-          hdrIdx = 0;
-        }
-
-        const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
-        const iNome = findColIndex(hdr, ['nome completo', 'nome', 'aluno']);
-        const iTurma = findColIndex(hdr, ['turma / curso', 'turma/curso', 'turma', 'curso']);
-
-        if (iNome < 0) {
-          taskDone(false);
-          return;
-        }
-
-        rows.slice(hdrIdx + 1).forEach(r => {
-          const nome = (r[iNome] || '').trim();
-          const turma = iTurma >= 0 ? (r[iTurma] || '').trim() : 'Geral';
-
-          if (!nome) return;
-          const turmaFinal = turma || 'Geral';
-
-          if (!newData.alunos[turmaFinal]) {
-            newData.alunos[turmaFinal] = [];
-          }
-          if (!newData.turmas.includes(turmaFinal)) {
-            newData.turmas.push(turmaFinal);
-          }
-          newData.alunos[turmaFinal].push(nome);
-        });
-
-        newData.turmas.sort();
-        taskDone(true);
-      })
-      .catch(err => {
-        console.error('Erro ao carregar alunos:', err);
-        taskDone(false);
-      });
-
-    // ── Carregar Configurações ──
-    function fetchConfig(names, idx) {
-      if (idx >= names.length) {
-        applyDefaults(newData);
-        taskDone(true);
-        return;
-      }
-
-      fetch(csvUrl(names[idx]))
+  function loadPlanilha() {
+    return new Promise((resolve) => {
+      const newData = { turmas: [], alunos: {}, ucs: [], vetores: [], instrumentos: [], criterios: [], tags: [] };
+      const timeoutId = setTimeout(() => {
+        showErrorBanner('loadErrorBanner', 'O carregamento está demorando muito. Verifique sua conexão.');
+        document.getElementById('btnRetryLoad').style.display = 'block';
+        resolve(false);
+      }, 15000);
+      const pAlunos = fetch(csvUrl('Alunos'))
         .then(r => r.text())
         .then(csv => {
-          if (!csv || csv.trim().charAt(0) === '<') {
-            fetchConfig(names, idx + 1);
-            return;
-          }
-
           const rows = parseCSV(csv);
-          if (rows.length < 2) {
-            fetchConfig(names, idx + 1);
-            return;
-          }
-
+          if (rows.length < 2) return;
           let hdrIdx = 1;
-          if (rows[0].some(c => {
-            const lc = c.toLowerCase();
-            return lc.includes('uc') || lc.includes('crit') || lc.includes('vetor');
-          })) {
-            hdrIdx = 0;
-          }
-
+          if (rows[0].some(c => c.toLowerCase().includes('nome') || c.toLowerCase().includes('turma'))) hdrIdx = 0;
           const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
-
-          function getColumnValues(keywords) {
-            let colIdx = -1;
-            for (let i = 0; i < hdr.length; i++) {
-              for (let k of keywords) {
-                if (hdr[i].includes(k)) {
-                  colIdx = i;
-                  break;
-                }
-              }
-              if (colIdx >= 0) break;
-            }
-
-            if (colIdx < 0) return [];
-
-            const seen = {};
-            return rows.slice(hdrIdx + 1)
-              .map(r => (r[colIdx] || '').trim())
-              .filter(v => {
-                if (!v || seen[v]) return false;
-                seen[v] = true;
-                return true;
-              });
-          }
-
-          const ucs = getColumnValues(['uc', 'unidade']);
-          const crits = getColumnValues(['crit']);
-          const vets = getColumnValues(['vetor']);
-          const insts = getColumnValues(['instru']);
-          const tags = getColumnValues(['tag', 'observa']);
-
-          if (ucs.length) newData.ucs = ucs;
-          if (crits.length) newData.criterios = crits;
-          if (vets.length) newData.vetores = vets;
-          if (insts.length) newData.instrumentos = insts;
-          if (tags.length) newData.tags = tags;
-
-          applyDefaults(newData);
-          taskDone(true);
+          const iNome = findColIndex(hdr, ['nome completo', 'nome', 'aluno']);
+          const iTurma = findColIndex(hdr, ['turma / curso', 'turma/curso', 'turma', 'curso']);
+          if (iNome < 0) return;
+          rows.slice(hdrIdx + 1).forEach(r => {
+            const nome = (r[iNome] || '').trim();
+            const turma = iTurma >= 0 ? (r[iTurma] || '').trim() : 'Geral';
+            if (!nome) return;
+            const turmaFinal = turma || 'Geral';
+            if (!newData.alunos[turmaFinal]) newData.alunos[turmaFinal] = [];
+            if (!newData.turmas.includes(turmaFinal)) newData.turmas.push(turmaFinal);
+            newData.alunos[turmaFinal].push(nome);
+          });
+          newData.turmas.sort();
+        });
+      const fetchConfigRecursive = (names, idx) => {
+        return new Promise((resCfg) => {
+          if (idx >= names.length) { applyDefaults(newData); resCfg(); return; }
+          fetch(csvUrl(names[idx]))
+            .then(r => r.text())
+            .then(csv => {
+              if (!csv || csv.trim().charAt(0) === '<') { fetchConfigRecursive(names, idx + 1).then(resCfg); return; }
+              const rows = parseCSV(csv);
+              if (rows.length < 2) { fetchConfigRecursive(names, idx + 1).then(resCfg); return; }
+              let hdrIdx = 1;
+              if (rows[0].some(c => { const lc = c.toLowerCase(); return lc.includes('uc') || lc.includes('crit') || lc.includes('vetor'); })) hdrIdx = 0;
+              const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
+              const getColumnValues = (keywords) => {
+                let colIdx = -1;
+                for (let i = 0; i < hdr.length; i++) { for (let k of keywords) { if (hdr[i].includes(k)) { colIdx = i; break; } } if (colIdx >= 0) break; }
+                if (colIdx < 0) return [];
+                const seen = {};
+                return rows.slice(hdrIdx + 1).map(r => (r[colIdx] || '').trim()).filter(v => { if (!v || seen[v]) return false; seen[v] = true; return true; });
+              };
+              const ucs = getColumnValues(['uc', 'unidade']);
+              const crits = getColumnValues(['crit']);
+              const vets = getColumnValues(['vetor']);
+              const insts = getColumnValues(['instru']);
+              const tags = getColumnValues(['tag', 'observa']);
+              if (ucs.length) newData.ucs = ucs;
+              if (crits.length) newData.criterios = crits;
+              if (vets.length) newData.vetores = vets;
+              if (insts.length) newData.instrumentos = insts;
+              if (tags.length) newData.tags = tags;
+              applyDefaults(newData);
+              resCfg();
+            })
+            .catch(() => fetchConfigRecursive(names, idx + 1).then(resCfg));
+        });
+      };
+      const pConfig = fetchConfigRecursive(['⚙ Configurações', 'Configurações', 'Configuracoes'], 0);
+      Promise.all([pAlunos, pConfig])
+        .then(() => {
+          clearTimeout(timeoutId);
+          state.dados = newData;
+          safeLocalStorageSet(LS_KEYS.DATA, JSON.stringify(state.dados));
+          resolve(true);
         })
         .catch(err => {
-          console.error('Erro ao carregar config:', err);
-          fetchConfig(names, idx + 1);
+          clearTimeout(timeoutId);
+          console.error(err);
+          showErrorBanner('loadErrorBanner', 'Falha ao carregar dados. Verifique sua conexão.');
+          resolve(false);
         });
-    }
-
-    fetchConfig(['⚙ Configurações', 'Configurações', 'Configuracoes'], 0);
+    });
   }
 
   function findColIndex(hdr, keywords) {
-    // Exact match
-    for (let k of keywords) {
-      for (let i = 0; i < hdr.length; i++) {
-        if (hdr[i] === k) return i;
-      }
-    }
-    // Partial match
-    for (let k of keywords) {
-      for (let i = 0; i < hdr.length; i++) {
-        if (hdr[i].includes(k)) return i;
-      }
-    }
+    for (let k of keywords) { for (let i = 0; i < hdr.length; i++) { if (hdr[i] === k) return i; } }
+    for (let k of keywords) { for (let i = 0; i < hdr.length; i++) { if (hdr[i].includes(k)) return i; } }
     return -1;
   }
 
   function applyDefaults(data) {
-    if (!data.vetores.length) {
-      data.vetores = ['Fazer (40%)', 'Saber (30%)', 'Comport. (30%)'];
-    }
-    if (!data.instrumentos.length) {
-      data.instrumentos = ['Observação Oficina', 'Micro-Quiz', 'Projeto Prático', 'Apresentação Pitch', 'Prova de Consulta'];
-    }
-    if (!data.criterios.length) {
-      data.criterios = ['Exatidão Dimensional', 'Segurança e EPI', 'Retenção Teórica', 'Resolução de Problemas', 'Organização / 5S', 'Planejamento / Lógica', 'Trabalho em Equipe', 'Aplicação de Normas'];
-    }
-    if (!data.tags.length) {
-      data.tags = ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
-    }
+    if (!data.vetores.length) data.vetores = ['Fazer (40%)', 'Saber (30%)', 'Comport. (30%)'];
+    if (!data.instrumentos.length) data.instrumentos = ['Observação Oficina', 'Micro-Quiz', 'Projeto Prático', 'Apresentação Pitch', 'Prova de Consulta'];
+    if (!data.criterios.length) data.criterios = ['Exatidão Dimensional', 'Segurança e EPI', 'Retenção Teórica', 'Resolução de Problemas', 'Organização / 5S', 'Planejamento / Lógica', 'Trabalho em Equipe', 'Aplicação de Normas'];
+    if (!data.tags.length) data.tags = ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // NAVEGAÇÃO & UI
-  // ══════════════════════════════════════════════════════════════════════════
-
-  const ALL_SCREENS = ['s0', 's1', 's2', 's3', 's4a', 's4b', 's5a', 's5b', 's6a', 's6b'];
+  const ALL_SCREENS = ['s0','s1','s2','s3','s4a','s4b','s5a','s5b','s6a','s6b'];
 
   function showScreen(id) {
-    ALL_SCREENS.forEach(s => {
-      const el = document.getElementById(s);
-      if (el) el.classList.remove('on');
-    });
-
+    ALL_SCREENS.forEach(s => { const el = document.getElementById(s); if (el) el.classList.remove('on'); });
     const target = document.getElementById(id);
-    if (target) {
-      target.classList.add('on');
-      target.scrollTop = 0;
-    }
-
-    // Limpa error banners ao mudar de tela
-    hideErrorBanner('errorBanner');
-    hideErrorBanner('loadErrorBanner');
+    if (target) { target.classList.add('on'); target.scrollTop = 0; }
+    hideErrorBanner('errorBanner'); hideErrorBanner('loadErrorBanner');
   }
 
   function updateDots(step) {
     for (let i = 1; i <= 3; i++) {
       const dot = document.getElementById('d' + i);
       if (!dot) continue;
-
       dot.className = 'dot';
-      if (i < step) {
-        dot.classList.add('d');
-      } else if (i === step) {
-        dot.classList.add('a');
-      }
+      if (i < step) dot.classList.add('d'); else if (i === step) dot.classList.add('a');
     }
   }
 
-  function goToTurmaSelect() {
-    updateTurmaBar();
-    renderTurmas();
-    showScreen('s2');
-    updateDots(1);
-  }
+  function goToTurmaSelect() { updateTurmaBar(); renderTurmas(); showScreen('s2'); updateDots(1); }
 
   function updateTurmaBar() {
     const bar = document.getElementById('turmaBar');
@@ -987,19 +734,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       bar.classList.add('on');
       const nome = document.getElementById('turmaNomeBar');
       if (nome) nome.textContent = state.turmaAtual;
-    } else {
-      bar.classList.remove('on');
-    }
+    } else { bar.classList.remove('on'); }
   }
 
   function updateHeaderDate() {
     const now = new Date();
     const dateEl = document.getElementById('hdate');
     if (dateEl) {
-      dateEl.innerHTML =
-        now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) +
-        '<br>' +
-        now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      dateEl.innerHTML = now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) + '<br>' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
   }
 
@@ -1008,154 +750,86 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     if (el) el.textContent = text;
   }
 
-  // ✅ MELHORIA #11: Mostrar/ocultar banners de erro
   function showErrorBanner(id, message) {
     const banner = document.getElementById(id);
-    if (banner) {
-      banner.textContent = '⚠️ ' + message;
-      banner.classList.add('on');
-    }
+    if (banner) { banner.textContent = '⚠️ ' + message; banner.classList.add('on'); }
   }
 
   function hideErrorBanner(id) {
     const banner = document.getElementById(id);
-    if (banner) {
-      banner.classList.remove('on');
-    }
+    if (banner) banner.classList.remove('on');
   }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // TURMAS
-  // ══════════════════════════════════════════════════════════════════════════
 
   function renderTurmas() {
     const grid = document.getElementById('turmaGrid');
     if (!grid) return;
-
     const turmas = state.dados.turmas || [];
     grid.innerHTML = '';
-
     if (!turmas.length) {
-      const msg = createSafeElement('div', {
-        style: 'color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7'
-      });
+      const msg = createSafeElement('div', { style: 'color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7' });
       msg.innerHTML = 'Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.';
       grid.appendChild(msg);
-
       const sub = document.getElementById('s2sub');
       if (sub) sub.textContent = 'Nenhuma turma encontrada';
       return;
     }
-
     const totalAlunos = turmas.reduce((acc, t) => acc + (state.dados.alunos[t] || []).length, 0);
     const sub = document.getElementById('s2sub');
-    if (sub) {
-      sub.textContent = `${turmas.length} turma(s) · ${totalAlunos} aluno(s)`;
-    }
-
+    if (sub) sub.textContent = `${turmas.length} turma(s) · ${totalAlunos} aluno(s)`;
     const icons = ['🏭', '⚙️', '🔧', '📐', '🛠️', '💡', '🔩', '📊'];
-
     turmas.forEach((turma, idx) => {
       const alunos = state.dados.alunos[turma] || [];
-      const card = createSafeElement('div', {
-        className: 'turma-card' + (state.turmaAtual === turma ? ' sel' : '')
-      });
-
+      const card = createSafeElement('div', { className: 'turma-card' + (state.turmaAtual === turma ? ' sel' : '') });
       const icon = createSafeElement('div', { className: 'tc-icon' }, icons[idx % icons.length]);
       const info = createSafeElement('div', { style: 'flex:1' });
       const nome = createSafeElement('div', { className: 'tc-nome' }, turma);
       const count = createSafeElement('div', { className: 'tc-info' }, `${alunos.length} aluno${alunos.length !== 1 ? 's' : ''}`);
       const arrow = createSafeElement('span', { className: 'tc-arrow' }, '›');
-
-      info.appendChild(nome);
-      info.appendChild(count);
-      card.appendChild(icon);
-      card.appendChild(info);
-      card.appendChild(arrow);
-
-      card.addEventListener('click', () => {
-        state.turmaAtual = turma;
-        updateTurmaBar();
-        showScreen('s3');
-        updateDots(2);
-      });
-
+      info.appendChild(nome); info.appendChild(count);
+      card.appendChild(icon); card.appendChild(info); card.appendChild(arrow);
+      card.addEventListener('click', () => { state.turmaAtual = turma; updateTurmaBar(); showScreen('s3'); updateDots(2); });
       grid.appendChild(card);
     });
   }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // LISTA DE ALUNOS
-  // ══════════════════════════════════════════════════════════════════════════
 
   function renderAlunosList(query) {
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
     const filtered = alunos.filter(a => a.toLowerCase().includes(query.toLowerCase()));
     const container = document.getElementById('aList');
-
     if (!container) return;
     container.innerHTML = '';
-
     if (!filtered.length) {
-      const msg = createSafeElement('div', {
-        style: 'color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem'
-      }, 'Nenhum aluno encontrado');
-      container.appendChild(msg);
+      container.appendChild(createSafeElement('div', { style: 'color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem' }, 'Nenhum aluno encontrado'));
       return;
     }
-
     filtered.forEach(nome => {
-      const initials = nome.split(' ')
-        .map(p => p[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
-
+      const initials = nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
       const item = createSafeElement('div', { className: 'ai' });
       const avatar = createSafeElement('div', { className: 'av' }, initials);
       const infoDiv = createSafeElement('div');
       const nomeEl = createSafeElement('div', { className: 'an' }, nome);
       const turmaEl = createSafeElement('div', { className: 'as' }, state.turmaAtual || '');
-      const arrow = createSafeElement('span', {
-        style: 'margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem'
-      }, '›');
-
-      infoDiv.appendChild(nomeEl);
-      infoDiv.appendChild(turmaEl);
-      item.appendChild(avatar);
-      item.appendChild(infoDiv);
-      item.appendChild(arrow);
-
+      const arrow = createSafeElement('span', { style: 'margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem' }, '›');
+      infoDiv.appendChild(nomeEl); infoDiv.appendChild(turmaEl);
+      item.appendChild(avatar); item.appendChild(infoDiv); item.appendChild(arrow);
       item.addEventListener('click', () => goToFormulario(nome));
       container.appendChild(item);
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // FORMULÁRIO INDIVIDUAL
-  // ══════════════════════════════════════════════════════════════════════════
-
   function goToFormulario(nome) {
     state.alunoAtual = nome;
-
-    const initials = nome.split(' ')
-      .map(p => p[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-
+    const initials = nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
     const avEl = document.getElementById('selAv');
     const nmEl = document.getElementById('selNm');
     const trEl = document.getElementById('selTr');
     const obsEl = document.getElementById('obsTA');
     const sliderEl = document.getElementById('slider');
-
     if (avEl) avEl.textContent = initials;
     if (nmEl) nmEl.textContent = nome;
     if (trEl) trEl.textContent = state.turmaAtual || '';
     if (obsEl) obsEl.value = '';
     if (sliderEl) sliderEl.value = 7;
-
     updateNotaUI(7);
     fillAllForms();
     renderTags();
@@ -1164,60 +838,39 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   }
 
   function fillAllForms() {
-    fillSelect('ucSel', state.dados.ucs || [], 'Selecione a UC...');
-    fillSelect('vetSel', state.dados.vetores || [], 'Vetor...');
-    fillSelect('instSel', state.dados.instrumentos || [], 'Instrumento...');
-    fillSelect('critSel', state.dados.criterios || [], 'Critério...');
-
-    fillSelect('swUcSel', state.dados.ucs || [], 'Selecione a UC...');
-    fillSelect('swVetSel', state.dados.vetores || [], 'Vetor...');
-    fillSelect('swInstSel', state.dados.instrumentos || [], 'Instrumento...');
-    fillSelect('swCritSel', state.dados.criterios || [], 'Critério...');
+    fillSelect('ucSel',     state.dados.ucs || [],          'Selecione a UC...');
+    fillSelect('vetSel',    state.dados.vetores || [],       'Vetor...');
+    fillSelect('instSel',   state.dados.instrumentos || [],  'Instrumento...');
+    fillSelect('critSel',   state.dados.criterios || [],     'Critério...');
+    fillSelect('swUcSel',   state.dados.ucs || [],          'Selecione a UC...');
+    fillSelect('swVetSel',  state.dados.vetores || [],       'Vetor...');
+    fillSelect('swInstSel', state.dados.instrumentos || [],  'Instrumento...');
+    fillSelect('swCritSel', state.dados.criterios || [],     'Critério...');
   }
 
   function fillSelect(id, values, placeholder) {
     const select = document.getElementById(id);
     if (!select) return;
-
     const prevValue = select.value;
     select.innerHTML = '';
-
-    const defaultOpt = createSafeElement('option', { value: '' }, placeholder || 'Selecione...');
-    select.appendChild(defaultOpt);
-
-    values.forEach(v => {
-      const opt = createSafeElement('option', { value: v }, v);
-      select.appendChild(opt);
-    });
-
-    if (prevValue && values.includes(prevValue)) {
-      select.value = prevValue;
-    }
+    select.appendChild(createSafeElement('option', { value: '' }, placeholder || 'Selecione...'));
+    values.forEach(v => select.appendChild(createSafeElement('option', { value: v }, v)));
+    if (prevValue && values.includes(prevValue)) select.value = prevValue;
   }
 
   function renderTags() {
     const tagsList = state.dados.tags && state.dados.tags.length
       ? state.dados.tags
       : ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
-
     const container = document.getElementById('tagsCont');
     if (!container) return;
-
     container.innerHTML = '';
-
     const negativeKeywords = ['fora', 'sem epi', 'desorganiz', 'erro', 'atraso', 'falta', 'ausente'];
-
     tagsList.forEach(tag => {
       const isNegative = negativeKeywords.some(k => tag.toLowerCase().includes(k));
-      const tagEl = createSafeElement('span', {
-        className: 'tag' + (isNegative ? ' d' : ''),
-        'data-t': tag
-      }, tag);
-
-      tagEl.addEventListener('click', function() {
-        this.classList.toggle('on');
-      });
-
+      const tagEl = createSafeElement('span', { className: 'tag' + (isNegative ? ' d' : '') }, tag);
+      tagEl.setAttribute('data-t', tag);
+      tagEl.addEventListener('click', function() { this.classList.toggle('on'); });
       container.appendChild(tagEl);
     });
   }
@@ -1225,445 +878,368 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   function updateNotaUI(value) {
     const notaEl = document.getElementById('notaNum');
     if (notaEl) {
-      const formatted = value.toFixed(1).replace('.', ',');
-      notaEl.innerHTML = formatted + '<span>/10</span>';
-
-      if (value < 5) {
-        notaEl.style.color = '#E30613';
-      } else if (value < 7) {
-        notaEl.style.color = '#F59E0B';
-      } else {
-        notaEl.style.color = '#059669';
-      }
+      notaEl.innerHTML = value.toFixed(1).replace('.', ',') + '<span>/10</span>';
+      notaEl.style.color = value < 5 ? '#E30613' : value < 7 ? '#F59E0B' : '#059669';
     }
-
     document.querySelectorAll('.nb').forEach(btn => {
-      const btnValue = parseFloat(btn.dataset.v);
-      btn.classList.toggle('on', btnValue === value);
+      btn.classList.toggle('on', parseFloat(btn.dataset.v) === value);
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ✅ MELHORIA #4: Validação completa antes de salvar
-  // ══════════════════════════════════════════════════════════════════════════
-
   function validateFormulario() {
-    const uc = document.getElementById('ucSel').value;
-    const vetor = document.getElementById('vetSel').value;
-    const instrumento = document.getElementById('instSel').value;
-    const criterio = document.getElementById('critSel').value;
-
-    if (!uc) {
-      showToast('⚠️ Selecione a Unidade Curricular', 'err');
-      return false;
-    }
-    if (!vetor) {
-      showToast('⚠️ Selecione o Vetor', 'err');
-      return false;
-    }
-    if (!instrumento) {
-      showToast('⚠️ Selecione o Instrumento', 'err');
-      return false;
-    }
-    if (!criterio) {
-      showToast('⚠️ Selecione o Critério', 'err');
-      return false;
-    }
-
+    if (!document.getElementById('ucSel').value)    { showToast('⚠️ Selecione a Unidade Curricular', 'err'); return false; }
+    if (!document.getElementById('vetSel').value)   { showToast('⚠️ Selecione o Vetor', 'err');             return false; }
+    if (!document.getElementById('instSel').value)  { showToast('⚠️ Selecione o Instrumento', 'err');       return false; }
+    if (!document.getElementById('critSel').value)  { showToast('⚠️ Selecione o Critério', 'err');          return false; }
     return true;
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // SALVAR INDIVIDUAL
-  // ══════════════════════════════════════════════════════════════════════════
-
+  // ══════════════════════════════════════════════════════
+  // INDIVIDUAL — registra avaliação + frequência (Presente)
+  // ══════════════════════════════════════════════════════
   function saveIndividualAvaliacao() {
     if (!validateFormulario()) return;
-
     const selectedTags = [];
-    document.querySelectorAll('#tagsCont .tag.on').forEach(t => {
-      selectedTags.push(t.getAttribute('data-t'));
-    });
-
+    document.querySelectorAll('#tagsCont .tag.on').forEach(t => selectedTags.push(t.getAttribute('data-t')));
     let observacao = selectedTags.join(' · ');
     const extraObs = (document.getElementById('obsTA').value || '').trim();
-    if (extraObs) {
-      observacao += (observacao ? ' · ' : '') + extraObs;
-    }
+    if (extraObs) observacao += (observacao ? ' · ' : '') + extraObs;
 
-    const now = new Date();
     const registro = {
-      data: now.toLocaleDateString('pt-BR'),
-      turma: state.turmaAtual || '',
-      aluno: state.alunoAtual,
-      uc: document.getElementById('ucSel').value,
-      vetor: document.getElementById('vetSel').value,
+      data:        getCurrentDate(),
+      turma:       state.turmaAtual || '',
+      aluno:       state.alunoAtual,
+      uc:          document.getElementById('ucSel').value,
+      vetor:       document.getElementById('vetSel').value,
       instrumento: document.getElementById('instSel').value,
-      criterio: document.getElementById('critSel').value,
-      nota: parseFloat(document.getElementById('slider').value),
-      observacao: observacao
+      criterio:    document.getElementById('critSel').value,
+      nota:        parseFloat(document.getElementById('slider').value),
+      observacao:  observacao,
+      frequencia: 'Sim'   // ← NOVO: sempre presente no modo individual
     };
 
     const btn = document.getElementById('btnSalvar');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = '⏳ Enviando...';
-    }
-
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
     sendToSheet(registro, (status) => {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '💾 Registrar Avaliação';
-      }
-
-      showScreen('s6a');
-      updateDots(3);
-
+      if (btn) { btn.disabled = false; btn.innerHTML = '💾 Registrar Avaliação'; }
+      showScreen('s6a'); updateDots(3);
       const infoEl = document.getElementById('sucInfo');
-      if (infoEl) {
-        infoEl.textContent = status === 'offline'
-          ? '⏳ Salvo localmente — enviará ao reconectar.'
-          : '✅ Enviado ao Google Sheets.';
-      }
-
+      if (infoEl) infoEl.textContent = status === 'offline'
+        ? '⏳ Salvo localmente — enviará ao reconectar.'
+        : '✅ Avaliação e frequência enviadas ao Google Sheets.';
       const cardEl = document.getElementById('sucCard');
       if (cardEl) {
-        cardEl.innerHTML =
-          makeRow('Aluno', registro.aluno) +
-          makeRow('UC', registro.uc) +
-          makeRow('Critério', registro.criterio) +
-          makeRow('Nota', registro.nota.toFixed(1).replace('.', ','), registro.nota >= 6 ? '#059669' : '#E30613');
+        cardEl.innerHTML = '';
+        cardEl.appendChild(makeRowDOM('Aluno',      registro.aluno));
+        cardEl.appendChild(makeRowDOM('UC',         registro.uc));
+        cardEl.appendChild(makeRowDOM('Critério',   registro.criterio));
+        cardEl.appendChild(makeRowDOM('Nota',       registro.nota.toFixed(1).replace('.', ','), registro.nota >= 6 ? '#059669' : '#E30613'));
+        cardEl.appendChild(makeRowDOM('Frequência', '✅ Presente', '#059669'));
       }
     });
   }
 
-  function makeRow(label, value, color) {
-    const colorStyle = color ? ` style="color:${color}"` : '';
-    return `<div class="sr"><span class="sl">${sanitizeText(label)}</span><span class="sv"${colorStyle}>${sanitizeText(String(value))}</span></div>`;
+  function makeRowDOM(label, value, color) {
+    const row = createSafeElement('div', { className: 'sr' });
+    const lbl = createSafeElement('span', { className: 'sl' }, label);
+    const val = createSafeElement('span', { className: 'sv' }, String(value));
+    if (color) val.style.color = color;
+    row.appendChild(lbl); row.appendChild(val);
+    return row;
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // VARREDURA
-  // ══════════════════════════════════════════════════════════════════════════
-
+  // ══════════════════════════════════════════════════════
+  // VARREDURA — configurar
+  // ══════════════════════════════════════════════════════
   function iniciarVarredura() {
-    const uc = document.getElementById('swUcSel').value;
-    const vetor = document.getElementById('swVetSel').value;
-    const instrumento = document.getElementById('swInstSel').value;
-    const criterio = document.getElementById('swCritSel').value;
-
-    // ✅ MELHORIA #4: Validação completa
-    if (!uc) {
-      showToast('⚠️ Selecione a Unidade Curricular', 'err');
-      return;
-    }
-    if (!vetor) {
-      showToast('⚠️ Selecione o Vetor', 'err');
-      return;
-    }
-    if (!instrumento) {
-      showToast('⚠️ Selecione o Instrumento', 'err');
-      return;
-    }
-    if (!criterio) {
-      showToast('⚠️ Selecione o Critério', 'err');
-      return;
-    }
-
-    state.swCfg = { uc, vetor, instrumento, criterio };
+    const uc         = document.getElementById('swUcSel').value;
+    const vetor      = document.getElementById('swVetSel').value;
+    const instrumento= document.getElementById('swInstSel').value;
+    const criterio   = document.getElementById('swCritSel').value;
+    if (!uc)         { showToast('⚠️ Selecione a Unidade Curricular', 'err'); return; }
+    if (!vetor)      { showToast('⚠️ Selecione o Vetor', 'err');             return; }
+    if (!instrumento){ showToast('⚠️ Selecione o Instrumento', 'err');       return; }
+    if (!criterio)   { showToast('⚠️ Selecione o Critério', 'err');          return; }
+    state.swCfg   = { uc, vetor, instrumento, criterio };
     state.swNotas = {};
-
-    showScreen('s5b');
-    updateDots(3);
-
+    state.swFaltas = {};
+    state.swConfirmados = {};
+    showScreen('s5b'); updateDots(3);
     const titleEl = document.getElementById('swTitle');
-    const subEl = document.getElementById('swSub');
-
+    const subEl   = document.getElementById('swSub');
     if (titleEl) titleEl.textContent = `⚡ ${criterio}`;
-    if (subEl) subEl.textContent = `${uc} · ${vetor} · ${instrumento}`;
-
+    if (subEl)   subEl.textContent   = `${uc} · ${vetor} · ${instrumento}`;
+    // Limpar lista para re-render
+    const list = document.getElementById('swList');
+    if (list) list.innerHTML = '';
     renderVarredura();
   }
 
-  // ✅ MELHORIA #7: Renderização otimizada - não recria todo DOM
+  // ══════════════════════════════════════════════════════
+  // VARREDURA — renderizar lista de alunos
+  // ══════════════════════════════════════════════════════
   function renderVarredura() {
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
     const container = document.getElementById('swList');
-    if (!container) return;
+    if (!container || container.children.length > 0) return;
 
-    // Se já existe, só atualiza, não recria
-    if (container.children.length === 0) {
-      container.innerHTML = '';
+    alunos.forEach(nome => {
+      const item = createSafeElement('div', { className: 'sw-item' });
+      item.setAttribute('data-aluno', nome);
 
-      alunos.forEach(nome => {
-        const item = createSafeElement('div', {
-          className: 'sw-item',
-          'data-aluno': nome
-        });
+      // ── Linha de topo ──
+      const top = createSafeElement('div', { className: 'sw-top' });
+      const status = createSafeElement('div', { className: 'sw-status' });
+      const nomeEl = createSafeElement('div', { className: 'sw-nome' }, nome);
+      const notaAtual = createSafeElement('div', { className: 'sw-nota-atual' }, '—');
+      top.appendChild(status); top.appendChild(nomeEl); top.appendChild(notaAtual);
 
-        const top = createSafeElement('div', { className: 'sw-top' });
-        const status = createSafeElement('div', { className: 'sw-status' });
-        const nomeEl = createSafeElement('div', { className: 'sw-nome' }, nome);
-        const notaAtual = createSafeElement('div', { className: 'sw-nota-atual' }, '—');
-
-        top.appendChild(status);
-        top.appendChild(nomeEl);
-        top.appendChild(notaAtual);
-
-        const controls = createSafeElement('div', { className: 'sw-nota-ctrl' });
-        const quickBtns = createSafeElement('div', { className: 'sw-quick' });
-
-        [0, 2, 4, 5, 6, 7, 8, 9, 10].forEach(v => {
-          const btn = createSafeElement('button', {
-            className: 'sw-btn',
-            'data-v': String(v)
-          }, v.toFixed(1));
-
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            updateVarreduraNota(nome, v);
-          });
-
-          quickBtns.appendChild(btn);
-        });
-
-        const confirmBtn = createSafeElement('button', { className: 'sw-confirm' }, '✓ Confirmar');
-        confirmBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (state.swNotas[nome] !== undefined) {
-            item.classList.remove('open');
-            item.classList.add('done');
-            status.textContent = '✓';
-            updateVarreduraProgress();
-          }
-        });
-
-        controls.appendChild(quickBtns);
-        controls.appendChild(confirmBtn);
-        item.appendChild(top);
-        item.appendChild(controls);
-
-        top.addEventListener('click', () => {
-          if (!item.classList.contains('done')) {
-            item.classList.toggle('open');
-          }
-        });
-
-        container.appendChild(item);
+      // ── Controles de nota ──
+      const controls = createSafeElement('div', { className: 'sw-nota-ctrl' });
+      const quickBtns = createSafeElement('div', { className: 'sw-quick' });
+      [0, 2, 4, 5, 6, 7, 8, 9, 10].forEach(v => {
+        const btn = createSafeElement('button', { className: 'sw-btn' }, v.toFixed(1));
+        btn.setAttribute('data-v', String(v));
+        btn.addEventListener('click', (e) => { e.stopPropagation(); updateVarreduraNota(nome, v); });
+        quickBtns.appendChild(btn);
       });
-    }
+
+      // Botão confirmar nota
+      const confirmBtn = createSafeElement('button', { className: 'sw-confirm' }, '✓ Confirmar Presença');
+      confirmBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.swNotas[nome] !== undefined) {
+          state.swConfirmados[nome] = true;   // registra em state, não só no DOM
+          item.classList.remove('open', 'falta');
+          item.classList.add('done');
+          status.textContent = '✓';
+          nomeEl.className = 'sw-nome';
+          delete state.swFaltas[nome];
+          updateVarreduraProgress();
+        } else {
+          showToast('⚠️ Selecione uma nota primeiro', 'wrn');
+        }
+      });
+
+      // ── NOVO: Botão marcar falta ──
+      const faltaBtn = createSafeElement('button', { className: 'sw-falta-btn' }, '❌ Marcar como Falta');
+      faltaBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.swFaltas[nome] = true;
+        delete state.swNotas[nome];
+        item.classList.remove('open', 'done');
+        item.classList.add('falta');
+        status.textContent = '✕';
+        nomeEl.className = 'sw-nome sw-nome-falta';
+        notaAtual.textContent = 'Falta';
+        notaAtual.style.color = '#F87171';
+        // Limpar botões de nota
+        quickBtns.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
+        updateVarreduraProgress();
+      });
+
+      controls.appendChild(quickBtns);
+      controls.appendChild(confirmBtn);
+      controls.appendChild(faltaBtn);
+
+      // ── NOVO: Desfazer falta ──
+      const desfazerWrap = createSafeElement('div', { className: 'sw-desfazer' });
+      const desfazerBtn = createSafeElement('button', { className: 'sw-desfazer-btn' }, '↩ Desfazer falta');
+      desfazerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        delete state.swFaltas[nome];
+        delete state.swConfirmados[nome];
+        delete state.swNotas[nome];
+        item.classList.remove('falta', 'open', 'done');
+        status.textContent = '';
+        nomeEl.className = 'sw-nome';
+        notaAtual.textContent = '—';
+        notaAtual.style.color = '';
+        item.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
+        updateVarreduraProgress();
+      });
+      desfazerWrap.appendChild(desfazerBtn);
+
+      item.appendChild(top);
+      item.appendChild(controls);
+      item.appendChild(desfazerWrap);
+
+      // Expandir ao tocar (só se não for falta)
+      top.addEventListener('click', () => {
+        if (!item.classList.contains('done') && !item.classList.contains('falta')) {
+          item.classList.toggle('open');
+        }
+      });
+
+      container.appendChild(item);
+    });
 
     updateVarreduraProgress();
   }
 
+  function getSwItem(nome) {
+    const items = document.querySelectorAll('.sw-item');
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].getAttribute('data-aluno') === nome) return items[i];
+    }
+    return null;
+  }
+
   function updateVarreduraNota(nome, nota) {
     state.swNotas[nome] = nota;
-
-    const item = document.querySelector(`.sw-item[data-aluno="${nome}"]`);
+    delete state.swFaltas[nome];
+    delete state.swConfirmados[nome];
+    const item = getSwItem(nome);
     if (!item) return;
-
     const notaEl = item.querySelector('.sw-nota-atual');
     if (notaEl) {
       notaEl.textContent = nota.toFixed(1).replace('.', ',');
       notaEl.style.color = nota >= 6 ? '#059669' : '#E30613';
     }
-
-    const buttons = item.querySelectorAll('.sw-btn');
-    buttons.forEach(btn => {
-      btn.classList.toggle('on', parseFloat(btn.getAttribute('data-v')) === nota);
+    const nomeEl = item.querySelector('.sw-nome');
+    if (nomeEl) nomeEl.className = 'sw-nome';
+    item.querySelectorAll('.sw-btn').forEach(btn => {
+      btn.classList.toggle('on', Number(btn.getAttribute('data-v')) === nota);
     });
   }
 
   function updateVarreduraProgress() {
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
-    const done = document.querySelectorAll('.sw-item.done').length;
-    const total = alunos.length;
-    const percent = total > 0 ? (done / total * 100) : 0;
+    const total    = alunos.length;
+    const doneEls  = document.querySelectorAll('.sw-item.done').length;   // nota confirmada
+    const faltaEls = document.querySelectorAll('.sw-item.falta').length;  // falta marcada
+    const pending  = total - doneEls - faltaEls;
+    const resolved = doneEls + faltaEls;
+    const percent  = total > 0 ? (resolved / total * 100) : 0;
 
-    const barEl = document.getElementById('swBar');
-    const ctEl = document.getElementById('swCt');
-    const actionsEl = document.getElementById('swActions');
+    const barEl      = document.getElementById('swBar');
+    const ctEl       = document.getElementById('swCt');
+    const actionsEl  = document.getElementById('swActions');
+    const partialEl  = document.getElementById('swActionsPartial');
+    const legP       = document.getElementById('swLegP');
+    const legF       = document.getElementById('swLegF');
+    const legN       = document.getElementById('swLegN');
 
-    if (barEl) barEl.style.width = percent + '%';
-    if (ctEl) ctEl.textContent = `${done}/${total}`;
+    if (barEl)  barEl.style.width = percent + '%';
+    if (ctEl)   ctEl.textContent  = `${resolved}/${total}`;
+    if (legP)   legP.textContent  = `${doneEls} presente${doneEls !== 1 ? 's' : ''}`;
+    if (legF)   legF.textContent  = `${faltaEls} falta${faltaEls !== 1 ? 's' : ''}`;
+    if (legN)   legN.textContent  = `${pending} pendente${pending !== 1 ? 's' : ''}`;
 
-    if (actionsEl) {
-      if (done === total && total > 0) {
-        actionsEl.style.display = 'block';
-      } else {
-        actionsEl.style.display = 'none';
-      }
-    }
+    // Mostrar botão principal só quando 100% resolvido
+    if (actionsEl)  actionsEl.style.display  = (resolved === total && total > 0) ? 'block' : 'none';
+    // Mostrar botão parcial quando há pelo menos 1 avaliado mas ainda há pendentes
+    if (partialEl)  partialEl.style.display  = (doneEls > 0 && pending > 0) ? 'block' : 'none';
   }
 
-  function enviarVarredura() {
+  // ══════════════════════════════════════════════════════
+  // VARREDURA — enviar (incluindo faltas)
+  // ══════════════════════════════════════════════════════
+  function enviarVarredura(apenasAvaliados) {
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
     const registros = [];
-    const now = new Date();
 
     alunos.forEach(nome => {
-      if (state.swNotas[nome] !== undefined) {
+      if (state.swFaltas[nome]) {
+        // ← NOVO: Registrar falta (sem nota de avaliação)
         registros.push({
-          data: now.toLocaleDateString('pt-BR'),
-          turma: state.turmaAtual || '',
-          aluno: nome,
-          uc: state.swCfg.uc,
-          vetor: state.swCfg.vetor,
+          data:        getCurrentDate(),
+          turma:       state.turmaAtual || '',
+          aluno:       nome,
+          uc:          state.swCfg.uc,
+          vetor:       state.swCfg.vetor,
           instrumento: state.swCfg.instrumento,
-          criterio: state.swCfg.criterio,
-          nota: state.swNotas[nome],
-          observacao: ''
+          criterio:    state.swCfg.criterio,
+          nota:        null,
+          observacao:  'Falta registrada via varredura',
+          frequencia: 'Não'
         });
+      } else if (state.swNotas[nome] !== undefined) {
+        // Presente com nota — usa state.swConfirmados
+        const foiConfirmado = !!state.swConfirmados[nome];
+        if (!apenasAvaliados || foiConfirmado) {
+          registros.push({
+            data:        getCurrentDate(),
+            turma:       state.turmaAtual || '',
+            aluno:       nome,
+            uc:          state.swCfg.uc,
+            vetor:       state.swCfg.vetor,
+            instrumento: state.swCfg.instrumento,
+            criterio:    state.swCfg.criterio,
+            nota:        Number(state.swNotas[nome]),
+            observacao:  'Varredura de turma',
+            frequencia:  'Sim'
+          });
+        }
       }
     });
 
-    if (registros.length === 0) {
-      showToast('⚠️ Nenhuma nota foi definida', 'err');
-      return;
-    }
+    if (registros.length === 0) { showToast('⚠️ Nenhuma avaliação ou falta registrada', 'err'); return; }
 
     const btn = document.getElementById('btnEnviarTudo');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = '⏳ Enviando...';
-    }
+    const btnP = document.getElementById('btnEnviarParcial');
+    if (btn)  { btn.disabled  = true; btn.textContent  = '⏳ Enviando...'; }
+    if (btnP) { btnP.disabled = true; }
 
     sendBatch(registros, (status) => {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '📤 Enviar tudo para o Sheets';
-      }
+      if (btn)  { btn.disabled  = false; btn.innerHTML  = '📤 Enviar tudo para o Sheets'; }
+      if (btnP) { btnP.disabled = false; }
+      showScreen('s6b'); updateDots(3);
 
-      showScreen('s6b');
-      updateDots(3);
+      const presentes = registros.filter(r => r.frequencia === 'Sim').length;
+      const faltas    = registros.filter(r => r.frequencia === 'Não').length;
 
       const infoEl = document.getElementById('sucSwInfo');
-      if (infoEl) {
-        infoEl.textContent = status === 'offline'
-          ? `⏳ ${registros.length} avaliações salvas localmente — enviarão ao reconectar.`
-          : `✅ ${registros.length} avaliações enviadas ao Google Sheets.`;
-      }
+      if (infoEl) infoEl.textContent = status === 'offline'
+        ? `⏳ ${registros.length} registros salvos localmente — enviarão ao reconectar.`
+        : `✅ ${registros.length} registros enviados ao Google Sheets.`;
 
       const cardEl = document.getElementById('sucSwCard');
       if (cardEl) {
-        cardEl.innerHTML =
-          makeRow('Turma', state.turmaAtual || '') +
-          makeRow('UC', state.swCfg.uc) +
-          makeRow('Critério', state.swCfg.criterio) +
-          makeRow('Registros', registros.length);
+        cardEl.innerHTML = '';
+        cardEl.appendChild(makeRowDOM('Turma',     state.turmaAtual || ''));
+        cardEl.appendChild(makeRowDOM('UC',        state.swCfg.uc));
+        cardEl.appendChild(makeRowDOM('Critério',  state.swCfg.criterio));
+        cardEl.appendChild(makeRowDOM('Presentes', presentes, '#059669'));
+        cardEl.appendChild(makeRowDOM('Faltas',    faltas,    faltas > 0 ? '#F87171' : undefined));
       }
 
-      state.swNotas = {};
-      state.swCfg = {};
+      state.swNotas = {}; state.swFaltas = {}; state.swConfirmados = {}; state.swCfg = {};
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ✅ MELHORIA #1: Remover mode:no-cors e tratar resposta real
-  // ✅ MELHORIA #13: Tratamento robusto de erros
-  // ══════════════════════════════════════════════════════════════════════════
-
+  // ══════════════════════════════════════════════════════
+  // Comunicação com o Apps Script
+  // ══════════════════════════════════════════════════════
   function sendToSheet(registro, callback) {
-    if (!navigator.onLine) {
-      queueRegistro(registro);
-      callback('offline');
-      return;
-    }
-
+    if (!navigator.onLine) { queueRegistro(registro); callback('offline'); return; }
     fetch(state.config.url, {
-      method: 'POST',
-      redirect: 'follow',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(registro)
     })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            throw new Error(`HTTP ${response.status}: ${text.substring(0, 40)}...`);
-          });
-        }
-        return response.text().then(text => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            throw new Error('Resposta inválida do servidor');
-          }
-        });
-      })
-      .then(data => {
-        if (data && data.status === 'success') {
-          showToast('✅ Enviado com sucesso', 'ok');
-          callback('online');
-        } else {
-          throw new Error(data && data.message ? data.message : 'Erro desconhecido');
-        }
-      })
-      .catch(err => {
-        console.error('Erro ao enviar:', err);
-        let msg = 'Erro de conexão';
-        if (err.message.includes('Failed to fetch')) msg = 'Bloqueio de acesso (CORS) ou URL errada';
-        else if (err.message.includes('HTTP')) msg = err.message;
-
-        showToast('⚠️ ' + msg + '. Salvo localmente.', 'wrn');
-        queueRegistro(registro);
-        callback('offline');
-      });
+    .then(() => { showToast('✅ Enviado', 'ok'); callback('online'); syncOfflineQueue(); })
+    .catch(err => {
+      console.error('Erro ao enviar:', err);
+      showToast('⚠️ Erro de conexão. Salvo localmente.', 'wrn');
+      queueRegistro(registro); callback('offline');
+    });
   }
 
   function sendBatch(registros, callback) {
-    if (!navigator.onLine) {
-      registros.forEach(r => queueRegistro(r));
-      callback('offline');
-      return;
-    }
-
+    if (!navigator.onLine) { registros.forEach(r => queueRegistro(r)); callback('offline'); return; }
     fetch(state.config.url, {
-      method: 'POST',
-      redirect: 'follow',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ batch: registros })
     })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            throw new Error(`HTTP ${response.status}: ${text.substring(0, 40)}...`);
-          });
-        }
-        return response.text().then(text => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            throw new Error('Resposta inválida do servidor');
-          }
-        });
-      })
-      .then(data => {
-        if (data && data.status === 'success') {
-          showToast('✅ Batch enviado com sucesso', 'ok');
-          callback('online');
-        } else {
-          throw new Error(data && data.message ? data.message : 'Erro desconhecido');
-        }
-      })
-      .catch(err => {
-        console.error('Erro ao enviar batch:', err);
-        let msg = 'Erro de conexão';
-        if (err.message.includes('Failed to fetch')) msg = 'Bloqueio de acesso (CORS) ou URL errada';
-        else if (err.message.includes('HTTP')) msg = err.message;
-
-        showToast('⚠️ ' + msg + '. Salvo localmente.', 'wrn');
-        registros.forEach(r => queueRegistro(r));
-        callback('offline');
-      });
+    .then(() => { showToast('✅ Batch enviado', 'ok'); callback('online'); syncOfflineQueue(); })
+    .catch(err => {
+      console.error('Erro ao enviar batch:', err);
+      showToast('⚠️ Erro de conexão. Salvo localmente.', 'wrn');
+      registros.forEach(r => queueRegistro(r)); callback('offline');
+    });
   }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // OFFLINE QUEUE
-  // ══════════════════════════════════════════════════════════════════════════
 
   function queueRegistro(registro) {
     state.queue.push(registro);
@@ -1673,29 +1249,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
   function updatePendingUI() {
     const pendEl = document.getElementById('pend');
-    const ctEl = document.getElementById('pendCt');
-
+    const ctEl   = document.getElementById('pendCt');
     if (state.queue.length > 0) {
       if (pendEl) pendEl.style.display = 'block';
-      if (ctEl) ctEl.textContent = state.queue.length;
+      if (ctEl)   ctEl.textContent     = state.queue.length;
     } else {
       if (pendEl) pendEl.style.display = 'none';
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ✅ MELHORIA #2: Fix race condition - processar fila sequencialmente
-  // ══════════════════════════════════════════════════════════════════════════
-
   function syncOfflineQueue() {
-    if (!navigator.onLine || state.isSyncing || state.queue.length === 0) {
-      return;
-    }
-
+    if (!navigator.onLine || state.isSyncing || state.queue.length === 0) return;
     state.isSyncing = true;
     showToast('🔄 Sincronizando...', 'wrn');
-
-    // Processa um por vez, sequencialmente
     function processNext() {
       if (state.queue.length === 0) {
         state.isSyncing = false;
@@ -1704,73 +1270,34 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         showToast('✅ Sincronização concluída', 'ok');
         return;
       }
-
       const registro = state.queue[0];
-
       fetch(state.config.url, {
-        method: 'POST',
-        redirect: 'follow',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(registro)
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-          return response.text();
-        })
-        .then(text => {
-          try {
-             const data = JSON.parse(text);
-             if (data && data.status === 'success') {
-                // Remove da fila
-                state.queue.shift();
-                updatePendingUI();
-                // Processa próximo
-                setTimeout(processNext, 500);
-             } else {
-                throw new Error('Resposta inválida');
-             }
-          } catch(e) {
-             throw new Error('JSON inválido');
-          }
-        })
-        .catch(err => {
-          console.error('Erro na sync:', err);
-          state.isSyncing = false;
-          showToast('⚠️ Erro na sincronização. Tentará novamente.', 'err');
-        });
+      .then(() => { state.queue.shift(); updatePendingUI(); setTimeout(processNext, 500); })
+      .catch(err => {
+        console.error('Erro na sync:', err);
+        state.isSyncing = false;
+        showToast('⚠️ Erro na sincronização. Tentará novamente.', 'err');
+      });
     }
-
     processNext();
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // TOAST
-  // ══════════════════════════════════════════════════════════════════════════
-
   let toastTimer = null;
-
   function showToast(message, type = '') {
     const toast = document.getElementById('toast');
     if (!toast) return;
-
     if (toastTimer) clearTimeout(toastTimer);
-
     toast.textContent = message;
     toast.className = 'toast ' + type;
-
     setTimeout(() => toast.classList.add('on'), 10);
-
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('on');
-    }, 3000);
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 3000);
   }
 
 })();
 </script>
-
 </body>
 </html>
