@@ -8,175 +8,821 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#00539F">
 <title>SENAI · Avaliador</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet" crossorigin>
 <style>
-:root {
-  --azul:#00539F; --azul-dark:#003d7a; --vermelho:#E30613;
-  --verde:#059669; --amarelo:#F59E0B; --laranja:#EA580C;
-  --cinza:#F1F5F9; --cinza2:#E2E8F0; --texto:#0F172A; --texto2:#64748B;
+/* ── Variáveis ──────────────────────────────────── */
+:root{
+  --azul:#00539F;--azul-dk:#003d7a;--vermelho:#E30613;
+  --verde:#059669;--amarelo:#F59E0B;--laranja:#EA580C;
+  --cinza:#F1F5F9;--cinza2:#E2E8F0;--txt:#0F172A;--txt2:#64748B;
+  --tap:48px;
+  --r:14px;
+
+  /* Cores por nível de nota */
+  --lvl-insuf:#E30613;
+  --lvl-insuf-bg:rgba(227,6,19,.08);
+  --lvl-dev:#F59E0B;
+  --lvl-dev-bg:rgba(245,158,11,.08);
+  --lvl-sat:#3B82F6;
+  --lvl-sat-bg:rgba(59,130,246,.08);
+  --lvl-exc:#059669;
+  --lvl-exc-bg:rgba(5,150,105,.08);
 }
+
+/* ── Reset ──────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{height:100%}
-body{font-family:'Sora',sans-serif;background:#0a1628;color:var(--texto);min-height:100vh;}
-.bg{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0a1628 0%,#00274d 50%,#0a1628 100%);}
-.bg::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,83,159,0.3) 0%,transparent 70%);top:-150px;right:-150px;animation:pulse 6s ease-in-out infinite;}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-.app{position:relative;z-index:1;max-width:480px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh;}
-.header{flex-shrink:0;padding:52px 24px 14px;display:flex;align-items:center;justify-content:space-between;}
-.logo-badge{background:var(--vermelho);color:white;font-weight:800;font-size:0.75rem;letter-spacing:0.12em;padding:5px 10px;border-radius:8px;}
-.logo-txt{color:rgba(255,255,255,0.55);font-size:0.8rem;margin-left:10px;}
-.hdate{color:rgba(255,255,255,0.4);font-size:0.7rem;text-align:right;line-height:1.5;}
-.turma-bar{flex-shrink:0;display:none;align-items:center;justify-content:space-between;padding:0 20px 12px;}
-.turma-bar.on{display:flex;}
-.turma-pill{background:rgba(0,83,159,0.3);border:1px solid rgba(0,83,159,0.5);border-radius:50px;padding:6px 14px;color:white;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:6px;}
-.turma-pill span{color:rgba(255,255,255,0.5);font-weight:400;}
-.turma-trocar{color:rgba(255,255,255,0.35);font-size:0.72rem;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:6px 0;}
-.steps{flex-shrink:0;display:flex;gap:6px;padding:0 24px 14px;}
-.dot{height:4px;border-radius:4px;background:rgba(255,255,255,0.15);flex:1;transition:background 0.4s;}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{font-family:'Sora',system-ui,sans-serif;background:#0a1628;color:var(--txt);
+     min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── Fundo ──────────────────────────────────────── */
+.bg{position:fixed;inset:0;z-index:0;
+    background:linear-gradient(135deg,#0a1628 0%,#00274d 50%,#0a1628 100%);
+    will-change:transform}
+.bg::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,83,159,.3) 0%,transparent 70%);
+    top:-150px;right:-150px;animation:pulse 6s ease-in-out infinite;
+    will-change:transform}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* ── Layout ─────────────────────────────────────── */
+.app{position:relative;z-index:1;max-width:600px;margin:0 auto;
+     display:flex;flex-direction:column;min-height:100vh}
+
+@media(min-width:900px){
+  .app{max-width:900px;flex-direction:row;flex-wrap:wrap}
+  .header{width:100%;flex-shrink:0}
+  .turma-bar{width:100%;flex-shrink:0}
+  .steps{width:100%;flex-shrink:0}
+  .scr{max-width:580px;margin:0 auto}
+}
+
+/* ── Header ─────────────────────────────────────── */
+.header{flex-shrink:0;padding:env(safe-area-inset-top,48px) 24px 14px;
+        display:flex;align-items:center;justify-content:space-between}
+.logo-badge{background:var(--vermelho);color:#fff;font-weight:800;font-size:.75rem;
+            letter-spacing:.12em;padding:5px 10px;border-radius:8px}
+.logo-txt{color:rgba(255,255,255,.55);font-size:.8rem;margin-left:10px}
+.hdate{color:rgba(255,255,255,.4);font-size:.7rem;text-align:right;line-height:1.5}
+
+/* ── Barra de turma ─────────────────────────────── */
+.turma-bar{flex-shrink:0;display:none;align-items:center;
+           justify-content:space-between;padding:0 20px 12px}
+.turma-bar.on{display:flex}
+.turma-pill{background:rgba(0,83,159,.3);border:1px solid rgba(0,83,159,.5);
+            border-radius:50px;padding:6px 14px;color:#fff;font-size:.78rem;
+            font-weight:600;display:flex;align-items:center;gap:6px}
+.turma-pill span{color:rgba(255,255,255,.5);font-weight:400}
+.turma-trocar{color:rgba(255,255,255,.35);font-size:.72rem;cursor:pointer;
+              -webkit-tap-highlight-color:transparent;
+              padding:8px 0;min-height:var(--tap);display:flex;align-items:center}
+
+/* ── Steps ──────────────────────────────────────── */
+.steps{flex-shrink:0;display:flex;gap:6px;padding:0 24px 14px}
+.dot{height:4px;border-radius:4px;background:rgba(255,255,255,.15);flex:1;
+     transition:background .4s}
 .dot.a{background:var(--azul)}.dot.d{background:var(--verde)}
-.scr{display:none;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px 48px;}
-.scr.on{display:flex;animation:fadeIn 0.2s ease;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.scr-title{color:white;font-size:1.4rem;font-weight:700;margin-bottom:4px;}
-.scr-sub{color:rgba(255,255,255,0.4);font-size:0.82rem;margin-bottom:18px;}
-.inp{-webkit-appearance:none;appearance:none;width:100%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:14px 16px;font-family:'Sora',sans-serif;font-size:16px;color:white;outline:none;display:block;transition:border-color 0.2s;}
-.inp::placeholder{color:rgba(255,255,255,0.3);}
-.inp:focus{border-color:var(--azul);background:rgba(255,255,255,0.15);}
-.flbl{display:block;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-bottom:6px;}
-.fwrap{margin-bottom:16px;}
-.info-box{background:rgba(0,83,159,0.2);border:1px solid rgba(0,83,159,0.4);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:0.82rem;color:rgba(255,255,255,0.7);line-height:1.7;}
-.info-box strong{color:white;}
-.hint{color:rgba(255,255,255,0.3);font-size:0.72rem;margin-top:5px;line-height:1.5;}
-.btn{-webkit-appearance:none;appearance:none;width:100%;padding:17px;border:none;border-radius:13px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;}
-.btn:active{opacity:0.82}.btn:disabled{opacity:0.45}
-.btn-primary{background:linear-gradient(135deg,var(--azul),var(--azul-dark));color:white;box-shadow:0 4px 20px rgba(0,83,159,0.35);margin-top:4px;margin-bottom:16px;}
-.btn-ghost{background:transparent;color:white;border:2px solid rgba(255,255,255,0.2);margin-bottom:10px;}
-.btn-dim{background:rgba(0,83,159,0.25);color:white;border:none;margin-bottom:10px;}
-.btn-orange{background:linear-gradient(135deg,var(--laranja),#C2410C);color:white;box-shadow:0 4px 20px rgba(234,88,12,0.35);margin-top:4px;margin-bottom:16px;}
-.btn-back{-webkit-appearance:none;background:none;border:none;color:rgba(255,255,255,0.5);font-family:'Sora',sans-serif;font-size:0.85rem;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;padding:4px 0;-webkit-tap-highlight-color:transparent;}
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;}
-.spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,0.1);border-top-color:var(--azul);border-radius:50%;animation:spin 0.8s linear infinite;}
+
+/* ── Telas ──────────────────────────────────────── */
+.scr{display:none;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;
+     -webkit-overflow-scrolling:touch;padding:0 20px 56px;
+     scroll-behavior:smooth}
+.scr.on{display:flex}
+
+.scr-title{color:#fff;font-size:1.4rem;font-weight:700;margin-bottom:4px}
+.scr-sub{color:rgba(255,255,255,.4);font-size:.82rem;margin-bottom:18px}
+
+/* ── Inputs ─────────────────────────────────────── */
+.inp{-webkit-appearance:none;appearance:none;width:100%;
+     background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+     border-radius:var(--r);padding:14px 16px;
+     font-family:'Sora',system-ui,sans-serif;font-size:16px;color:#fff;
+     outline:none;display:block;transition:border-color .2s,background .2s}
+.inp::placeholder{color:rgba(255,255,255,.3)}
+.inp:focus{border-color:var(--azul);background:rgba(255,255,255,.15)}
+.flbl{display:block;font-size:.7rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.08em;color:rgba(255,255,255,.45);margin-bottom:6px}
+.fwrap{margin-bottom:16px}
+.info-box{background:rgba(0,83,159,.2);border:1px solid rgba(0,83,159,.4);
+          border-radius:var(--r);padding:14px 16px;margin-bottom:20px;
+          font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.7}
+.info-box strong{color:#fff}
+.hint{color:rgba(255,255,255,.3);font-size:.72rem;margin-top:5px;line-height:1.5}
+
+/* ── Botões ─────────────────────────────────────── */
+.btn{-webkit-appearance:none;appearance:none;width:100%;
+     min-height:var(--tap);padding:14px 17px;border:none;border-radius:var(--r);
+     font-family:'Sora',system-ui,sans-serif;font-size:1rem;font-weight:700;
+     cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+     -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+     transition:opacity .15s,transform .1s;user-select:none}
+.btn:active{opacity:.82;transform:scale(.98)}.btn:disabled{opacity:.45}
+.btn-primary{background:linear-gradient(135deg,var(--azul),var(--azul-dk));
+             color:#fff;box-shadow:0 4px 20px rgba(0,83,159,.35);
+             margin-top:4px;margin-bottom:16px}
+.btn-ghost{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.2);
+           margin-bottom:10px}
+.btn-dim{background:rgba(0,83,159,.25);color:#fff;border:none;margin-bottom:10px}
+.btn-orange{background:linear-gradient(135deg,var(--laranja),#C2410C);
+            color:#fff;box-shadow:0 4px 20px rgba(234,88,12,.35);
+            margin-top:4px;margin-bottom:16px}
+.btn-back{-webkit-appearance:none;background:none;border:none;
+          color:rgba(255,255,255,.5);font-family:'Sora',system-ui,sans-serif;
+          font-size:.85rem;cursor:pointer;margin-bottom:14px;
+          display:flex;align-items:center;gap:6px;
+          min-height:var(--tap);padding:4px 0;
+          -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+/* ── Loading ────────────────────────────────────── */
+.loading{display:flex;flex-direction:column;align-items:center;
+         justify-content:center;flex:1;gap:16px}
+.spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,.1);
+         border-top-color:var(--azul);border-radius:50%;
+         animation:spin .8s linear infinite;will-change:transform}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{color:rgba(255,255,255,0.5);font-size:0.85rem;}
-.turma-grid{display:flex;flex-direction:column;gap:10px;}
-.turma-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:18px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:all 0.2s;}
-.turma-card:active{background:rgba(0,83,159,0.3);border-color:var(--azul);transform:scale(0.98);}
-.turma-card.sel{border-color:var(--azul);background:rgba(0,83,159,0.2);}
-.tc-icon{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--azul),var(--azul-dark));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-.tc-nome{color:white;font-size:0.95rem;font-weight:700;}
-.tc-info{color:rgba(255,255,255,0.4);font-size:0.75rem;margin-top:3px;}
-.tc-arrow{margin-left:auto;color:rgba(255,255,255,0.25);font-size:1.2rem;}
-.modo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-.modo-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:20px 14px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:all 0.2s;}
-.modo-card:active{transform:scale(0.96);}
-.modo-icon{font-size:2rem;margin-bottom:8px;}
-.modo-title{color:white;font-size:0.9rem;font-weight:700;margin-bottom:4px;}
-.modo-desc{color:rgba(255,255,255,0.4);font-size:0.72rem;line-height:1.4;}
-.search-box{background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:13px;display:flex;align-items:center;padding:0 14px;margin-bottom:14px;}
-.search-box input{-webkit-appearance:none;background:transparent;border:none;outline:none;color:white;font-family:'Sora',sans-serif;font-size:16px;padding:14px 0;flex:1;}
-.search-box input::placeholder{color:rgba(255,255,255,0.3);}
-.ai{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:13px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background 0.15s;}
-.ai:active{background:rgba(0,83,159,0.3);border-color:var(--azul);}
-.av{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--azul),var(--azul-dark));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.85rem;}
-.an{color:white;font-size:0.92rem;font-weight:500;}
-.as{color:rgba(255,255,255,0.38);font-size:0.72rem;margin-top:2px;}
-.form-card{background:white;border-radius:22px 22px 0 0;padding:22px 18px 20px;margin:0 -20px;flex:1;}
-.sel-box{display:flex;align-items:center;gap:12px;background:var(--cinza);border-radius:11px;padding:11px 13px;margin-bottom:18px;}
-.sel-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--azul),var(--azul-dark));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.78rem;}
-.sel-nm{font-weight:600;font-size:0.88rem;}
-.sel-tr{font-size:0.7rem;color:var(--texto2);margin-top:1px;}
-.sel-chg{margin-left:auto;font-size:0.72rem;color:var(--azul);font-weight:600;padding:4px 8px;border-radius:6px;background:rgba(0,83,159,0.09);cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.swrap{position:relative;margin-bottom:14px;}
-.swrap label{display:block;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--texto2);margin-bottom:5px;}
-.swrap select{-webkit-appearance:none;appearance:none;width:100%;background:var(--cinza);border:2px solid transparent;border-radius:10px;padding:12px 34px 12px 12px;font-family:'Sora',sans-serif;font-size:15px;color:var(--texto);outline:none;cursor:pointer;transition:border-color 0.2s;}
-.swrap select:focus{border-color:var(--azul);background:white;}
-.swrap::after{content:'▾';position:absolute;right:12px;bottom:13px;color:var(--texto2);pointer-events:none;font-size:0.9rem;}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.nota-lbl{display:block;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--texto2);margin-bottom:4px;}
-.nota-num{text-align:center;font-size:3rem;font-weight:800;line-height:1;margin:8px 0 6px;transition:color 0.25s;}
-.nota-num span{font-size:0.92rem;color:var(--texto2);font-weight:400;}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:8px;background:var(--cinza2);outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--azul);border:3px solid white;box-shadow:0 2px 8px rgba(0,83,159,0.4);cursor:pointer;}
-.nota-labs{display:flex;justify-content:space-between;font-size:0.67rem;color:var(--texto2);margin-top:4px;}
-.nota-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;}
-.nb{-webkit-appearance:none;appearance:none;padding:9px 4px;border:2px solid var(--cinza2);border-radius:9px;background:white;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:600;color:var(--texto2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-.nb:active{transform:scale(0.92)}.nb.on{border-color:var(--azul);background:var(--azul);color:white;}
-.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
-.tag{padding:6px 11px;border-radius:50px;border:1.5px solid var(--cinza2);background:white;font-size:0.73rem;font-weight:500;color:var(--texto2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
-.tag.on{border-color:var(--azul);background:rgba(0,83,159,0.08);color:var(--azul);}
-.tag.d.on{border-color:var(--vermelho);background:rgba(227,6,19,0.07);color:var(--vermelho);}
-.obs-ta{-webkit-appearance:none;appearance:none;width:100%;border:2px solid var(--cinza2);border-radius:10px;padding:11px 12px;font-family:'Sora',sans-serif;font-size:15px;color:var(--texto);resize:none;background:var(--cinza);outline:none;transition:border-color 0.2s;}
-.obs-ta:focus{border-color:var(--azul);background:white;}
+.loading-txt{color:rgba(255,255,255,.5);font-size:.85rem}
 
-/* ── Presença individual ────────────────────────── */
-.presenca-badge{display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;border:1.5px solid #86EFAC;border-radius:8px;padding:7px 12px;font-size:0.74rem;font-weight:700;color:#166534;margin-bottom:14px;}
+/* ── Turmas ─────────────────────────────────────── */
+.turma-grid{display:flex;flex-direction:column;gap:10px}
+@media(min-width:600px){.turma-grid{display:grid;grid-template-columns:1fr 1fr}}
+.turma-card{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+            border-radius:16px;padding:16px 18px;cursor:pointer;
+            display:flex;align-items:center;gap:14px;min-height:72px;
+            -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+            transition:background .15s,border-color .15s,transform .1s;
+            contain:layout}
+.turma-card:active{background:rgba(0,83,159,.3);border-color:var(--azul);transform:scale(.98)}
+.turma-card.sel{border-color:var(--azul);background:rgba(0,83,159,.2)}
+.tc-icon{width:46px;height:46px;border-radius:13px;flex-shrink:0;
+         background:linear-gradient(135deg,var(--azul),var(--azul-dk));
+         display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.tc-nome{color:#fff;font-size:.95rem;font-weight:700}
+.tc-info{color:rgba(255,255,255,.4);font-size:.75rem;margin-top:3px}
+.tc-arrow{margin-left:auto;color:rgba(255,255,255,.25);font-size:1.2rem}
 
-/* ── Botão salvar ──────────────────────────────── */
-.btn-salvar{-webkit-appearance:none;appearance:none;width:100%;padding:17px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--azul),var(--azul-dark));color:white;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:10px;box-shadow:0 4px 20px rgba(0,83,159,0.35);display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-.btn-salvar:active{opacity:0.85}.btn-salvar:disabled{opacity:0.45}
+/* ── Modo ───────────────────────────────────────── */
+.modo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.modo-card{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+           border-radius:16px;padding:22px 14px;cursor:pointer;text-align:center;
+           -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+           transition:background .15s,border-color .15s,transform .1s;contain:layout}
+.modo-card:active{transform:scale(.96)}
+.modo-icon{font-size:2.2rem;margin-bottom:10px}
+.modo-title{color:#fff;font-size:.9rem;font-weight:700;margin-bottom:4px}
+.modo-desc{color:rgba(255,255,255,.4);font-size:.72rem;line-height:1.5}
 
-/* ── Varredura ──────────────────────────────────── */
-.sweep-header{background:rgba(234,88,12,0.15);border:1px solid rgba(234,88,12,0.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
-.sweep-title{color:#FB923C;font-size:0.88rem;font-weight:700;margin-bottom:2px;}
-.sweep-sub{color:rgba(255,255,255,0.45);font-size:0.76rem;}
-.sweep-bar-wrap{background:rgba(255,255,255,0.1);border-radius:50px;height:6px;flex:1;margin:0 12px;}
-.sweep-bar{background:linear-gradient(90deg,var(--laranja),var(--amarelo));height:6px;border-radius:50px;transition:width 0.3s;}
-.sweep-legend{display:flex;gap:12px;margin-top:8px;font-size:0.67rem;color:rgba(255,255,255,0.4);}
-.sweep-legend span{display:flex;align-items:center;gap:4px;}
-.sweep-legend .dot-p{width:8px;height:8px;border-radius:50%;background:var(--verde);}
-.sweep-legend .dot-f{width:8px;height:8px;border-radius:50%;background:var(--vermelho);}
-.sweep-legend .dot-n{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);}
+/* ── Lista alunos ───────────────────────────────── */
+.search-box{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
+            border-radius:13px;display:flex;align-items:center;
+            padding:0 14px;margin-bottom:14px;min-height:var(--tap)}
+.search-box input{-webkit-appearance:none;background:transparent;border:none;
+                  outline:none;color:#fff;font-family:'Sora',system-ui,sans-serif;
+                  font-size:16px;padding:14px 0;flex:1}
+.search-box input::placeholder{color:rgba(255,255,255,.3)}
+.ai{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);
+    border-radius:13px;padding:13px 15px;cursor:pointer;
+    display:flex;align-items:center;gap:12px;margin-bottom:8px;
+    min-height:var(--tap);
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+    transition:background .12s;contain:layout}
+.ai:active{background:rgba(0,83,159,.3);border-color:var(--azul)}
+.av{width:42px;height:42px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--azul),var(--azul-dk));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:.85rem}
+.an{color:#fff;font-size:.92rem;font-weight:500}
+.as{color:rgba(255,255,255,.38);font-size:.72rem;margin-top:2px}
 
-.sw-item{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:13px;padding:14px 15px;margin-bottom:10px;-webkit-tap-highlight-color:transparent;}
-.sw-item.done{border-color:var(--verde);background:rgba(5,150,105,0.12);}
-/* NOVO: estado falta */
-.sw-item.falta{border-color:var(--vermelho);background:rgba(227,6,19,0.1);}
-.sw-top{display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;}
-.sw-status{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;}
-.sw-item.done .sw-status{background:var(--verde);border-color:var(--verde);color:white;}
-.sw-item.falta .sw-status{background:var(--vermelho);border-color:var(--vermelho);color:white;}
-.sw-nome{color:white;font-size:0.9rem;font-weight:600;}
-.sw-nome-falta{color:rgba(255,255,255,0.45);text-decoration:line-through;}
-.sw-nota-atual{margin-left:auto;font-size:0.85rem;font-weight:700;}
-.sw-nota-ctrl{display:none;padding-top:10px;}
-.sw-item.open .sw-nota-ctrl{display:block;}
-.sw-quick{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:8px;}
-.sw-btn{-webkit-appearance:none;appearance:none;padding:8px 2px;border:2px solid var(--cinza2);border-radius:8px;background:white;font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;color:var(--texto2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-.sw-btn:active{transform:scale(0.9)}.sw-btn.on{border-color:var(--azul);background:var(--azul);color:white;}
-.sw-confirm{-webkit-appearance:none;appearance:none;width:100%;margin-top:10px;padding:11px;border:none;border-radius:10px;background:var(--verde);color:white;font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-/* NOVO: botão marcar falta */
-.sw-falta-btn{-webkit-appearance:none;appearance:none;width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:rgba(227,6,19,0.15);border:1.5px solid rgba(227,6,19,0.35);color:#FCA5A5;font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.sw-falta-btn:active{background:rgba(227,6,19,0.3);}
-/* NOVO: desfazer falta */
-.sw-desfazer{display:none;padding-top:8px;}
-.sw-item.falta .sw-desfazer{display:block;}
-.sw-desfazer-btn{-webkit-appearance:none;appearance:none;width:100%;padding:9px;border:none;border-radius:9px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-family:'Sora',sans-serif;font-size:0.78rem;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+/* ── Form card (branco) ─────────────────────────── */
+.form-card{background:#fff;border-radius:22px 22px 0 0;
+           padding:22px 18px 24px;margin:0 -20px;flex:1}
+@media(min-width:600px){
+  .form-card{border-radius:22px;margin:0;padding:24px 24px 28px}
+}
+.sel-box{display:flex;align-items:center;gap:12px;background:var(--cinza);
+         border-radius:11px;padding:11px 13px;margin-bottom:18px}
+.sel-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;
+        background:linear-gradient(135deg,var(--azul),var(--azul-dk));
+        display:flex;align-items:center;justify-content:center;
+        color:#fff;font-weight:700;font-size:.78rem}
+.sel-nm{font-weight:600;font-size:.88rem}
+.sel-tr{font-size:.7rem;color:var(--txt2);margin-top:1px}
+.sel-chg{margin-left:auto;font-size:.72rem;color:var(--azul);font-weight:600;
+         padding:6px 10px;border-radius:6px;background:rgba(0,83,159,.09);
+         cursor:pointer;-webkit-tap-highlight-color:transparent;
+         min-height:36px;display:flex;align-items:center}
 
-.suc-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:16px 0;text-align:center;}
-.suc-icon{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.3rem;margin-bottom:20px;animation:popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);}
-.suc-icon.verde{background:linear-gradient(135deg,var(--verde),#047857);box-shadow:0 8px 32px rgba(5,150,105,0.4);}
-.suc-icon.laranja{background:linear-gradient(135deg,var(--laranja),#C2410C);box-shadow:0 8px 32px rgba(234,88,12,0.4);}
+/* ── Selects ────────────────────────────────────── */
+.swrap{position:relative;margin-bottom:14px}
+.swrap label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;
+             letter-spacing:.08em;color:var(--txt2);margin-bottom:5px}
+.swrap select{-webkit-appearance:none;appearance:none;width:100%;
+              background:var(--cinza);border:2px solid transparent;
+              border-radius:10px;padding:13px 34px 13px 12px;
+              font-family:'Sora',system-ui,sans-serif;font-size:15px;
+              color:var(--txt);outline:none;cursor:pointer;
+              min-height:var(--tap);transition:border-color .2s}
+.swrap select:focus{border-color:var(--azul);background:#fff}
+.swrap::after{content:'▾';position:absolute;right:12px;bottom:14px;
+              color:var(--txt2);pointer-events:none;font-size:.9rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ══════════════════════════════════════════════════
+   NOTA — Seção reformulada com níveis e cores
+   ══════════════════════════════════════════════════ */
+
+/* Label row com botão i */
+.nota-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.nota-lbl{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;
+          letter-spacing:.08em;color:var(--txt2)}
+.btn-info{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--txt2);
+          background:transparent;display:flex;align-items:center;justify-content:center;
+          color:var(--txt2);font-size:.72rem;font-weight:700;cursor:pointer;
+          font-family:'Sora',system-ui,sans-serif;
+          -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+          transition:border-color .2s,color .2s,background .2s;
+          line-height:1;padding:0;flex-shrink:0}
+.btn-info:hover,.btn-info:active{border-color:var(--azul);color:var(--azul);
+  background:rgba(0,83,159,.07)}
+
+/* Número + badge nível */
+.nota-row{display:flex;align-items:baseline;gap:10px;margin:8px 0 6px}
+.nota-num{font-size:3.2rem;font-weight:800;line-height:1;
+          transition:color .25s;will-change:color}
+.nota-num span{font-size:.92rem;color:var(--txt2);font-weight:400}
+.nota-nivel{font-size:.72rem;font-weight:700;letter-spacing:.04em;
+            opacity:.55;transition:color .25s,opacity .25s;
+            text-transform:uppercase;padding-bottom:4px;align-self:flex-end}
+
+/* Slider com gradiente dinâmico */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;
+                  height:10px;border-radius:10px;outline:none;cursor:pointer;
+                  touch-action:manipulation;transition:background .25s}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
+  width:30px;height:30px;border-radius:50%;background:#fff;
+  border:3px solid var(--azul);box-shadow:0 2px 10px rgba(0,0,0,.18);
+  cursor:pointer;transition:border-color .25s,transform .15s}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18)}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
+  background:#fff;border:3px solid var(--azul);cursor:pointer}
+.nota-labs{display:flex;justify-content:space-between;
+           font-size:.67rem;color:var(--txt2);margin-top:4px}
+
+/* Legenda de faixas abaixo do slider */
+.nota-faixas{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
+             gap:4px;margin-top:8px}
+.faixa{border-radius:6px;padding:5px 4px;text-align:center;font-size:.6rem;
+       font-weight:700;letter-spacing:.03em;line-height:1.3}
+.faixa-insuf{background:rgba(227,6,19,.08);color:var(--lvl-insuf);border:1px solid rgba(227,6,19,.15)}
+.faixa-dev  {background:rgba(245,158,11,.08);color:var(--lvl-dev); border:1px solid rgba(245,158,11,.15)}
+.faixa-sat  {background:rgba(59,130,246,.08);color:var(--lvl-sat); border:1px solid rgba(59,130,246,.15)}
+.faixa-exc  {background:rgba(5,150,105,.08);color:var(--lvl-exc);  border:1px solid rgba(5,150,105,.15)}
+
+/* Quick notes coloridos */
+.nota-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.nb{-webkit-appearance:none;appearance:none;padding:10px 4px;
+    border:2px solid var(--cinza2);border-radius:9px;background:#fff;
+    font-family:'Sora',system-ui,sans-serif;font-size:.82rem;font-weight:700;
+    cursor:pointer;min-height:42px;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+    transition:border-color .15s,background .15s,color .15s,transform .1s}
+.nb:active{transform:scale(.92)}
+
+/* Cores idle por nível */
+.nb[data-level="insuf"]{color:var(--lvl-insuf);border-color:rgba(227,6,19,.25);background:rgba(227,6,19,.04)}
+.nb[data-level="dev"]  {color:var(--lvl-dev);  border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.04)}
+.nb[data-level="sat"]  {color:var(--lvl-sat);  border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.04)}
+.nb[data-level="exc"]  {color:var(--lvl-exc);  border-color:rgba(5,150,105,.25); background:rgba(5,150,105,.04)}
+
+/* Estado ativo (selecionado) */
+.nb.on[data-level="insuf"]{background:var(--lvl-insuf);border-color:var(--lvl-insuf);color:#fff}
+.nb.on[data-level="dev"]  {background:var(--lvl-dev);  border-color:var(--lvl-dev);  color:#fff}
+.nb.on[data-level="sat"]  {background:var(--lvl-sat);  border-color:var(--lvl-sat);  color:#fff}
+.nb.on[data-level="exc"]  {background:var(--lvl-exc);  border-color:var(--lvl-exc);  color:#fff}
+
+/* ══════════════════════════════════════════════════
+   MODAL DE AJUDA — "i"
+   ══════════════════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;z-index:300;
+               background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+               display:flex;align-items:flex-end;justify-content:center;
+               opacity:0;pointer-events:none;
+               transition:opacity .28s ease}
+.modal-overlay.on{opacity:1;pointer-events:auto}
+
+.modal-sheet{background:#fff;border-radius:24px 24px 0 0;
+             width:100%;max-width:600px;max-height:88vh;
+             overflow-y:auto;-webkit-overflow-scrolling:touch;
+             padding:0 0 env(safe-area-inset-bottom,24px);
+             transform:translateY(100%);
+             transition:transform .32s cubic-bezier(.2,.85,.4,1)}
+.modal-overlay.on .modal-sheet{transform:translateY(0)}
+
+.modal-handle{width:40px;height:4px;border-radius:4px;background:#E2E8F0;
+              margin:14px auto 0}
+.modal-head{padding:18px 20px 14px;display:flex;align-items:center;
+            justify-content:space-between;border-bottom:1px solid #F1F5F9;
+            position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-size:1rem;font-weight:800;color:var(--txt)}
+.modal-close{width:32px;height:32px;border-radius:50%;border:none;
+             background:var(--cinza);color:var(--txt2);
+             font-size:1.1rem;cursor:pointer;display:flex;
+             align-items:center;justify-content:center;
+             -webkit-tap-highlight-color:transparent;
+             font-family:'Sora',system-ui,sans-serif;font-weight:700;
+             transition:background .15s}
+.modal-close:active{background:var(--cinza2)}
+.modal-body{padding:16px 20px 28px}
+
+/* Cartões de nível */
+.lvl-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.lvl-card{border-radius:13px;padding:13px 13px;border:1.5px solid}
+.lvl-card-insuf{border-color:rgba(227,6,19,.2);background:rgba(227,6,19,.05)}
+.lvl-card-dev  {border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.05)}
+.lvl-card-sat  {border-color:rgba(59,130,246,.2);background:rgba(59,130,246,.05)}
+.lvl-card-exc  {border-color:rgba(5,150,105,.2);background:rgba(5,150,105,.05)}
+.lvl-card-badge{display:inline-flex;align-items:center;gap:5px;
+                font-size:.72rem;font-weight:800;letter-spacing:.04em;
+                text-transform:uppercase;margin-bottom:5px}
+.lvl-card-range{font-size:1.05rem;font-weight:800;line-height:1;margin-bottom:4px}
+.lvl-card-insuf .lvl-card-range,.lvl-card-insuf .lvl-card-badge{color:var(--lvl-insuf)}
+.lvl-card-dev   .lvl-card-range,.lvl-card-dev   .lvl-card-badge{color:var(--lvl-dev)}
+.lvl-card-sat   .lvl-card-range,.lvl-card-sat   .lvl-card-badge{color:var(--lvl-sat)}
+.lvl-card-exc   .lvl-card-range,.lvl-card-exc   .lvl-card-badge{color:var(--lvl-exc)}
+.lvl-card-desc{font-size:.72rem;color:var(--txt2);line-height:1.5}
+
+/* Seções do modal */
+.modal-section{margin-bottom:18px}
+.modal-section-title{font-size:.7rem;font-weight:800;text-transform:uppercase;
+                     letter-spacing:.08em;color:var(--txt2);margin-bottom:10px;
+                     display:flex;align-items:center;gap:7px}
+.modal-section-title::after{content:'';flex:1;height:1px;background:var(--cinza2)}
+
+/* Tabela de critérios */
+.crit-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.crit-table th{background:var(--cinza);padding:7px 10px;text-align:left;
+               font-size:.65rem;font-weight:700;text-transform:uppercase;
+               letter-spacing:.06em;color:var(--txt2)}
+.crit-table th:first-child{border-radius:8px 0 0 8px}
+.crit-table th:last-child{border-radius:0 8px 8px 0}
+.crit-table td{padding:8px 10px;border-bottom:1px solid var(--cinza);
+               color:var(--txt);vertical-align:top;line-height:1.5}
+.crit-table tr:last-child td{border-bottom:none}
+.crit-vetor{display:inline-block;padding:2px 7px;border-radius:4px;
+            font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.vt-fazer{background:rgba(59,130,246,.1);color:#2563EB}
+.vt-saber{background:rgba(124,58,237,.1);color:#7C3AED}
+.vt-comp {background:rgba(234,88,12,.1);color:#C2410C}
+
+/* Dicas rápidas */
+.tip-list{display:flex;flex-direction:column;gap:8px}
+.tip{display:flex;gap:10px;align-items:flex-start;
+     background:var(--cinza);border-radius:10px;padding:10px 12px}
+.tip-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.tip-txt{font-size:.78rem;color:var(--txt);line-height:1.55}
+.tip-txt strong{color:var(--txt);font-weight:700}
+
+/* Fórmula de nota */
+.formula-box{background:linear-gradient(135deg,rgba(0,83,159,.06),rgba(0,83,159,.03));
+             border:1.5px solid rgba(0,83,159,.15);border-radius:12px;
+             padding:14px 16px}
+.formula-row{display:flex;align-items:center;justify-content:space-between;
+             padding:5px 0;border-bottom:1px solid rgba(0,83,159,.08)}
+.formula-row:last-child{border:none;padding-top:8px;margin-top:2px}
+.formula-lbl{font-size:.78rem;color:var(--txt2)}
+.formula-val{font-size:.82rem;font-weight:700;color:var(--azul)}
+.formula-total{font-size:.9rem;font-weight:800;color:var(--txt)}
+.formula-total-val{font-size:.95rem;font-weight:800;color:var(--azul)}
+
+/* ── Tags ───────────────────────────────────────── */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag{padding:8px 12px;border-radius:50px;border:1.5px solid var(--cinza2);
+     background:#fff;font-size:.73rem;font-weight:500;color:var(--txt2);
+     cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:36px;
+     display:flex;align-items:center;transition:border-color .12s,background .12s,color .12s}
+.tag.on{border-color:var(--azul);background:rgba(0,83,159,.08);color:var(--azul)}
+.tag.d.on{border-color:var(--vermelho);background:rgba(227,6,19,.07);color:var(--vermelho)}
+.obs-ta{-webkit-appearance:none;appearance:none;width:100%;
+        border:2px solid var(--cinza2);border-radius:10px;padding:12px 12px;
+        font-family:'Sora',system-ui,sans-serif;font-size:15px;color:var(--txt);
+        resize:none;background:var(--cinza);outline:none;
+        transition:border-color .2s,background .2s}
+.obs-ta:focus{border-color:var(--azul);background:#fff}
+
+/* ── Badge presença ─────────────────────────────── */
+.presenca-badge{display:inline-flex;align-items:center;gap:6px;
+                background:#DCFCE7;border:1.5px solid #86EFAC;border-radius:8px;
+                padding:7px 12px;font-size:.74rem;font-weight:700;
+                color:#166534;margin-bottom:14px}
+
+/* ── Botão salvar ───────────────────────────────── */
+.btn-salvar{-webkit-appearance:none;appearance:none;width:100%;
+            min-height:var(--tap);padding:14px;border:none;border-radius:var(--r);
+            background:linear-gradient(135deg,var(--azul),var(--azul-dk));
+            color:#fff;font-family:'Sora',system-ui,sans-serif;
+            font-size:1rem;font-weight:700;cursor:pointer;margin-top:10px;
+            box-shadow:0 4px 20px rgba(0,83,159,.35);
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+            transition:opacity .15s,transform .1s}
+.btn-salvar:active{opacity:.85;transform:scale(.98)}.btn-salvar:disabled{opacity:.45}
+
+/* ── Varredura header ───────────────────────────── */
+.sweep-header{background:rgba(234,88,12,.15);border:1px solid rgba(234,88,12,.3);
+              border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
+.sweep-title{color:#FB923C;font-size:.88rem;font-weight:700;margin-bottom:2px}
+.sweep-sub{color:rgba(255,255,255,.45);font-size:.76rem}
+.sweep-bar-wrap{background:rgba(255,255,255,.1);border-radius:50px;
+                height:6px;flex:1;margin:0 12px}
+.sweep-bar{background:linear-gradient(90deg,var(--laranja),var(--amarelo));
+           height:6px;border-radius:50px;transition:width .3s;will-change:width}
+.sweep-legend{display:flex;gap:12px;margin-top:8px;font-size:.67rem;
+              color:rgba(255,255,255,.4)}
+.sweep-legend span{display:flex;align-items:center;gap:4px}
+.dot-p{width:8px;height:8px;border-radius:50%;background:var(--verde)}
+.dot-f{width:8px;height:8px;border-radius:50%;background:var(--vermelho)}
+.dot-n{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2)}
+
+/* ── Item varredura ─────────────────────────────── */
+.sw-item{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);
+         border-radius:13px;padding:14px 15px;margin-bottom:10px;
+         transition:border-color .15s,background .15s;contain:layout}
+.sw-item.done{border-color:var(--verde);background:rgba(5,150,105,.12)}
+.sw-item.falta{border-color:var(--vermelho);background:rgba(227,6,19,.1)}
+.sw-item.open{border-color:rgba(0,83,159,.5);background:rgba(0,83,159,.1)}
+
+.sw-top{display:flex;align-items:center;gap:10px;cursor:pointer;
+        touch-action:manipulation;min-height:42px;
+        -webkit-tap-highlight-color:transparent}
+.sw-status{width:30px;height:30px;border-radius:50%;flex-shrink:0;
+           border:2px solid rgba(255,255,255,.2);
+           display:flex;align-items:center;justify-content:center;font-size:.85rem;
+           transition:background .15s,border-color .15s}
+.sw-item.done  .sw-status{background:var(--verde);border-color:var(--verde);color:#fff}
+.sw-item.falta .sw-status{background:var(--vermelho);border-color:var(--vermelho);color:#fff}
+.sw-nome{color:#fff;font-size:.9rem;font-weight:600;flex:1;
+         transition:color .15s,text-decoration .15s}
+.sw-nome-falta{color:rgba(255,255,255,.4);text-decoration:line-through}
+.sw-nota-atual{font-size:.9rem;font-weight:700;min-width:36px;text-align:right;
+               transition:color .15s}
+
+.sw-nota-ctrl{display:none;padding-top:12px}
+.sw-item.open .sw-nota-ctrl{display:block}
+
+.sw-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:4px}
+@media(min-width:480px){.sw-quick{grid-template-columns:repeat(9,1fr)}}
+.sw-btn{-webkit-appearance:none;appearance:none;padding:10px 2px;
+        border:2px solid var(--cinza2);border-radius:8px;background:#fff;
+        font-family:'Sora',system-ui,sans-serif;font-size:.78rem;font-weight:700;
+        color:var(--txt2);cursor:pointer;min-height:42px;
+        -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+        transition:border-color .12s,background .12s,color .12s}
+.sw-btn:active{transform:scale(.9)}
+
+/* Cores idle por nível */
+.sw-btn[data-level="insuf"]{color:var(--lvl-insuf);border-color:rgba(227,6,19,.28);background:rgba(227,6,19,.05)}
+.sw-btn[data-level="dev"]  {color:var(--lvl-dev);  border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.05)}
+.sw-btn[data-level="sat"]  {color:var(--lvl-sat);  border-color:rgba(59,130,246,.28); background:rgba(59,130,246,.05)}
+.sw-btn[data-level="exc"]  {color:var(--lvl-exc);  border-color:rgba(5,150,105,.28);  background:rgba(5,150,105,.05)}
+
+/* Estado ativo */
+.sw-btn.on[data-level="insuf"]{background:var(--lvl-insuf);border-color:var(--lvl-insuf);color:#fff}
+.sw-btn.on[data-level="dev"]  {background:var(--lvl-dev);  border-color:var(--lvl-dev);  color:#fff}
+.sw-btn.on[data-level="sat"]  {background:var(--lvl-sat);  border-color:var(--lvl-sat);  color:#fff}
+.sw-btn.on[data-level="exc"]  {background:var(--lvl-exc);  border-color:var(--lvl-exc);  color:#fff}
+
+.sw-falta-btn{-webkit-appearance:none;appearance:none;width:100%;
+              margin-top:8px;padding:10px;border:none;border-radius:10px;
+              background:rgba(227,6,19,.12);border:1.5px solid rgba(227,6,19,.3);
+              color:#FCA5A5;font-family:'Sora',system-ui,sans-serif;
+              font-size:.82rem;font-weight:700;cursor:pointer;min-height:42px;
+              -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+              transition:background .12s}
+.sw-falta-btn:active{background:rgba(227,6,19,.25)}
+
+.sw-desfazer{display:none;padding-top:8px}
+.sw-item.falta .sw-desfazer{display:block}
+.sw-desfazer-btn{-webkit-appearance:none;appearance:none;width:100%;padding:9px;
+                 border:none;border-radius:9px;background:rgba(255,255,255,.08);
+                 color:rgba(255,255,255,.5);font-family:'Sora',system-ui,sans-serif;
+                 font-size:.78rem;cursor:pointer;min-height:40px;
+                 -webkit-tap-highlight-color:transparent}
+
+/* ── Sucesso ────────────────────────────────────── */
+.suc-wrap{display:flex;flex-direction:column;align-items:center;
+          justify-content:center;flex:1;padding:16px 0;text-align:center}
+.suc-icon{width:88px;height:88px;border-radius:50%;display:flex;
+          align-items:center;justify-content:center;font-size:2.4rem;
+          margin-bottom:20px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+.suc-icon.verde{background:linear-gradient(135deg,var(--verde),#047857);
+                box-shadow:0 8px 32px rgba(5,150,105,.4)}
+.suc-icon.laranja{background:linear-gradient(135deg,var(--laranja),#C2410C);
+                  box-shadow:0 8px 32px rgba(234,88,12,.4)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.suc-title{color:white;font-size:1.4rem;font-weight:700;margin-bottom:6px;}
-.suc-info{color:rgba(255,255,255,0.42);font-size:0.84rem;margin-bottom:22px;line-height:1.6;}
-.suc-card{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:13px;padding:14px 18px;margin-bottom:22px;text-align:left;}
-.sr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.07);}
-.sr:last-child{border:none}.sl{color:rgba(255,255,255,0.38);font-size:0.76rem}.sv{color:white;font-size:0.86rem;font-weight:600;}
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:#1e293b;color:white;padding:12px 20px;border-radius:50px;font-size:0.82rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:200;transition:transform 0.3s ease;white-space:nowrap;}
-.toast.on{transform:translateX(-50%) translateY(0);}
-.toast.err{background:var(--vermelho)}.toast.ok{background:var(--verde)}.toast.wrn{background:var(--amarelo);color:#1a1a1a;}
-.pend{position:fixed;top:50px;right:16px;z-index:50;background:var(--amarelo);color:#1a1a1a;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:50px;display:none;cursor:pointer;}
-.clink{text-align:center;margin-top:18px;}
-.clink a{color:rgba(255,255,255,0.28);font-size:0.74rem;text-decoration:none;cursor:pointer;}
-::-webkit-scrollbar{width:0;background:transparent;}
-.error-banner{background:rgba(227,6,19,0.15);border:1px solid rgba(227,6,19,0.4);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:rgba(255,255,255,0.85);line-height:1.6;display:none;}
-.error-banner.on{display:block;}
+.suc-title{color:#fff;font-size:1.4rem;font-weight:700;margin-bottom:6px}
+.suc-info{color:rgba(255,255,255,.42);font-size:.84rem;margin-bottom:22px;line-height:1.6}
+.suc-card{width:100%;background:rgba(255,255,255,.07);
+          border:1px solid rgba(255,255,255,.12);border-radius:13px;
+          padding:14px 18px;margin-bottom:22px;text-align:left}
+.sr{display:flex;justify-content:space-between;align-items:center;
+    padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.sr:last-child{border:none}
+.sl{color:rgba(255,255,255,.38);font-size:.76rem}
+.sv{color:#fff;font-size:.86rem;font-weight:600}
+
+/* ── Toast ──────────────────────────────────────── */
+.toast{position:fixed;bottom:max(28px,env(safe-area-inset-bottom));
+       left:50%;transform:translateX(-50%) translateY(100px);
+       background:#1e293b;color:#fff;padding:12px 20px;border-radius:50px;
+       font-size:.82rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.4);
+       z-index:200;transition:transform .28s ease;white-space:nowrap;
+       will-change:transform}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--vermelho)}.toast.ok{background:var(--verde)}
+.toast.wrn{background:var(--amarelo);color:#1a1a1a}
+
+/* ── Pendente ───────────────────────────────────── */
+.pend{position:fixed;top:max(50px,env(safe-area-inset-top));right:16px;z-index:50;
+      background:var(--amarelo);color:#1a1a1a;font-size:.68rem;font-weight:700;
+      padding:5px 12px;border-radius:50px;display:none;cursor:pointer;
+      min-height:30px;display:none;align-items:center}
+
+/* ── Error banner ───────────────────────────────── */
+.error-banner{background:rgba(227,6,19,.15);border:1px solid rgba(227,6,19,.4);
+              border-radius:var(--r);padding:12px 16px;margin-bottom:16px;
+              font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.6;display:none}
+.error-banner.on{display:block}
+
+/* ── Links ──────────────────────────────────────── */
+.clink{text-align:center;margin-top:18px}
+.clink a{color:rgba(255,255,255,.28);font-size:.74rem;text-decoration:none;cursor:pointer}
+
+/* ── Scrollbar ──────────────────────────────────── */
+::-webkit-scrollbar{width:0;background:transparent}
+*{scrollbar-width:none}
+
+/* ══════════════════════════════════════════════════
+   ANIMAÇÕES
+   ══════════════════════════════════════════════════ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;
+    animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+.scr{opacity:0;transform:translateY(8px);
+     transition:opacity .22s ease,transform .22s ease;pointer-events:none}
+.scr.on{opacity:1;transform:translateY(0);pointer-events:auto}
+
+.header{animation:slideDown .4s cubic-bezier(.2,.8,.4,1) both}
+@keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+
+.bg::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(234,88,12,.15) 0%,transparent 70%);
+  bottom:-80px;left:-80px;animation:pulse2 8s ease-in-out infinite 2s;will-change:transform}
+@keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+.dot{transition:background .45s cubic-bezier(.4,0,.2,1),transform .25s ease}
+.dot.a{transform:scaleX(1.08)}
+
+.turma-card{transition:background .18s ease,border-color .18s ease,
+                        transform .18s cubic-bezier(.2,.8,.4,1),box-shadow .18s ease}
+.turma-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,83,159,.25)}
+.turma-card:active{transform:scale(.97) translateY(0)}
+
+.modo-card{transition:background .18s,border-color .18s,
+                       transform .18s cubic-bezier(.2,.8,.4,1),box-shadow .18s}
+.modo-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.modo-card:active{transform:scale(.95)}
+
+.ai{transition:background .12s,border-color .12s,transform .12s}
+.ai:hover{transform:translateX(3px)}
+.ai:active{transform:scale(.98)}
+
+.btn{transition:opacity .15s,transform .15s cubic-bezier(.2,.8,.4,1),box-shadow .15s}
+.btn-primary:hover,.btn-orange:hover{box-shadow:0 6px 28px rgba(0,83,159,.5);transform:translateY(-1px)}
+.btn-orange:hover{box-shadow:0 6px 28px rgba(234,88,12,.5)}
+.btn:active{transform:scale(.97)!important}
+
+.btn-salvar{transition:opacity .15s,transform .15s cubic-bezier(.2,.8,.4,1),box-shadow .15s}
+.btn-salvar:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,83,159,.5)}
+
+.nb{transition:border-color .15s,background .15s,color .15s,transform .1s}
+.nb.on{animation:notaPop .22s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes notaPop{from{transform:scale(.85)}to{transform:scale(1)}}
+
+.tag{transition:border-color .14s,background .14s,color .14s,transform .1s}
+.tag:active{transform:scale(.92)}
+.tag.on{animation:tagPop .18s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes tagPop{from{transform:scale(.9)}to{transform:scale(1)}}
+
+.sw-item{transition:border-color .2s ease,background .2s ease,transform .15s ease}
+.sw-item.open{transform:scale(1.01)}
+.sw-item.done{animation:itemDone .3s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes itemDone{from{transform:scale(.98)}to{transform:scale(1)}}
+.sw-item.falta{animation:itemFalta .25s ease both}
+@keyframes itemFalta{from{opacity:.6}to{opacity:1}}
+
+.sw-btn{transition:border-color .1s,background .1s,color .1s,transform .1s}
+.sw-btn.on{animation:swBtnOn .2s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes swBtnOn{from{transform:scale(.8)}to{transform:scale(1)}}
+
+.sweep-bar{transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+.suc-icon{animation:sucBounce .5s cubic-bezier(.34,1.56,.64,1) both .05s}
+@keyframes sucBounce{
+  0%{transform:scale(0) rotate(-12deg);opacity:0}
+  60%{transform:scale(1.12) rotate(4deg);opacity:1}
+  100%{transform:scale(1) rotate(0)}
+}
+.suc-title{animation:fadeUp .35s ease both .15s;opacity:0}
+.suc-info {animation:fadeUp .35s ease both .22s;opacity:0}
+.suc-card {animation:fadeUp .35s ease both .28s;opacity:0}
+.suc-wrap .btn{animation:fadeUp .35s ease both .34s;opacity:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.nota-num{transition:color .2s ease}
+.nota-nivel{transition:color .25s ease,opacity .25s ease}
+
+.presenca-badge{animation:badgeIn .3s cubic-bezier(.34,1.56,.64,1) both .1s;opacity:0}
+@keyframes badgeIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+
+.toast{transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s}
+.toast:not(.on){opacity:0}
+.toast.on{opacity:1}
+
+.spinner{animation:spin .7s cubic-bezier(.5,0,.5,1) infinite}
+
+.swrap select{transition:border-color .2s,background .2s,box-shadow .2s}
+.swrap select:focus{box-shadow:0 0 0 3px rgba(0,83,159,.2)}
+.inp{transition:border-color .2s,background .2s,box-shadow .2s}
+.inp:focus{box-shadow:0 0 0 3px rgba(0,83,159,.25)}
+.obs-ta{transition:border-color .2s,background .2s,box-shadow .2s}
+.obs-ta:focus{box-shadow:0 0 0 3px rgba(0,83,159,.15)}
+
+.ai-stagger .ai{opacity:0;animation:fadeUp .22s ease both}
+.ai-stagger .ai:nth-child(1){animation-delay:.03s}
+.ai-stagger .ai:nth-child(2){animation-delay:.06s}
+.ai-stagger .ai:nth-child(3){animation-delay:.09s}
+.ai-stagger .ai:nth-child(4){animation-delay:.12s}
+.ai-stagger .ai:nth-child(5){animation-delay:.15s}
+.ai-stagger .ai:nth-child(6){animation-delay:.18s}
+.ai-stagger .ai:nth-child(n+7){animation-delay:.2s}
+
+.turma-stagger .turma-card{opacity:0;animation:fadeUp .25s ease both}
+.turma-stagger .turma-card:nth-child(1){animation-delay:.04s}
+.turma-stagger .turma-card:nth-child(2){animation-delay:.08s}
+.turma-stagger .turma-card:nth-child(3){animation-delay:.12s}
+.turma-stagger .turma-card:nth-child(4){animation-delay:.16s}
+.turma-stagger .turma-card:nth-child(n+5){animation-delay:.18s}
+
+.sw-stagger .sw-item{opacity:0;animation:swItemIn .2s ease both}
+@keyframes swItemIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.sw-stagger .sw-item:nth-child(1){animation-delay:.03s}
+.sw-stagger .sw-item:nth-child(2){animation-delay:.06s}
+.sw-stagger .sw-item:nth-child(3){animation-delay:.09s}
+.sw-stagger .sw-item:nth-child(4){animation-delay:.12s}
+.sw-stagger .sw-item:nth-child(5){animation-delay:.15s}
+.sw-stagger .sw-item:nth-child(n+6){animation-delay:.17s}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 <div class="pend" id="pend">⏳ <span id="pendCt">0</span></div>
 <div class="toast" id="toast"></div>
+
+<!-- ══ MODAL DE AJUDA ══════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <div class="modal-title">📋 Guia de Avaliação</div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Níveis de desempenho -->
+      <div class="modal-section">
+        <div class="modal-section-title">Níveis de Desempenho</div>
+        <div class="lvl-cards">
+          <div class="lvl-card lvl-card-insuf">
+            <div class="lvl-card-badge">● Insatisfatório</div>
+            <div class="lvl-card-range">0,0 – 4,0</div>
+            <div class="lvl-card-desc">Não atinge o mínimo. Precisa de intervenção direta e imediata.</div>
+          </div>
+          <div class="lvl-card lvl-card-dev">
+            <div class="lvl-card-badge">● Em Desenvolvimento</div>
+            <div class="lvl-card-range">4,5 – 6,0</div>
+            <div class="lvl-card-desc">Atende parcialmente. Executa com apoio e orientação constante.</div>
+          </div>
+          <div class="lvl-card lvl-card-sat">
+            <div class="lvl-card-badge">● Satisfatório</div>
+            <div class="lvl-card-range">6,5 – 8,5</div>
+            <div class="lvl-card-desc">Atinge o esperado. Executa com pequenas correções pontuais.</div>
+          </div>
+          <div class="lvl-card lvl-card-exc">
+            <div class="lvl-card-badge">● Excelente</div>
+            <div class="lvl-card-range">9,0 – 10,0</div>
+            <div class="lvl-card-desc">Supera o esperado. Executa com autonomia e consistência total.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fórmula da nota -->
+      <div class="modal-section">
+        <div class="modal-section-title">Como a Nota é Calculada</div>
+        <div class="formula-box">
+          <div class="formula-row">
+            <span class="formula-lbl">⚙️ Fazer (execução prática)</span>
+            <span class="formula-val">× 40%</span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-lbl">🧠 Saber (conhecimento teórico)</span>
+            <span class="formula-val">× 30%</span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-lbl">🤝 Comportamento (postura)</span>
+            <span class="formula-val">× 30%</span>
+          </div>
+          <div class="formula-row">
+            <span class="formula-total">Nota Final</span>
+            <span class="formula-total-val">= Σ pesos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critérios e vetores -->
+      <div class="modal-section">
+        <div class="modal-section-title">Critérios por Vetor</div>
+        <table class="crit-table">
+          <thead>
+            <tr>
+              <th>Critério</th>
+              <th>Vetor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Exatidão Dimensional</td><td><span class="crit-vetor vt-fazer">Fazer</span></td></tr>
+            <tr><td>Organização / 5S</td><td><span class="crit-vetor vt-fazer">Fazer</span></td></tr>
+            <tr><td>Planejamento / Lógica</td><td><span class="crit-vetor vt-fazer">Fazer</span></td></tr>
+            <tr><td>Retenção Teórica</td><td><span class="crit-vetor vt-saber">Saber</span></td></tr>
+            <tr><td>Resolução de Problemas</td><td><span class="crit-vetor vt-saber">Saber</span></td></tr>
+            <tr><td>Aplicação de Normas</td><td><span class="crit-vetor vt-saber">Saber</span></td></tr>
+            <tr><td>Segurança e EPI</td><td><span class="crit-vetor vt-comp">Comportamento</span></td></tr>
+            <tr><td>Trabalho em Equipe</td><td><span class="crit-vetor vt-comp">Comportamento</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- O que observar -->
+      <div class="modal-section">
+        <div class="modal-section-title">O Que Observar em Cada Nível</div>
+        <div class="tip-list">
+          <div class="tip">
+            <span class="tip-icon">🔴</span>
+            <div class="tip-txt"><strong>Insatisfatório (0–4):</strong> Não executa sem intervenção, ignora normas de segurança, não identifica erros próprios, precisa de correção constante.</div>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">🟡</span>
+            <div class="tip-txt"><strong>Em Desenvolvimento (4,5–6):</strong> Executa com orientação, aplica parcialmente os 5S, comete erros que corrige quando apontado, EPI com lembretes.</div>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">🔵</span>
+            <div class="tip-txt"><strong>Satisfatório (6,5–8,5):</strong> Executa corretamente na maioria das situações, com falhas pontuais e pequenas correções. Autônomo na rotina.</div>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">🟢</span>
+            <div class="tip-txt"><strong>Excelente (9–10):</strong> Supera o esperado, antecipa problemas, lidera pelo exemplo, executa com precisão e autonomia total sem necessidade de lembretes.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dicas de uso -->
+      <div class="modal-section">
+        <div class="modal-section-title">Dicas de Uso</div>
+        <div class="tip-list">
+          <div class="tip">
+            <span class="tip-icon">👁️</span>
+            <div class="tip-txt"><strong>Avalie o que você viu,</strong> não o que você sente. A nota deve refletir comportamentos observados nesta aula/atividade específica.</div>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">🏷️</span>
+            <div class="tip-txt"><strong>Use as tags de observação</strong> para registrar comportamentos específicos. Elas ajudam o aluno a saber exatamente o que melhorar.</div>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">⚡</span>
+            <div class="tip-txt"><strong>Modo Varredura</strong> é ideal para registrar a turma toda no mesmo critério — toque uma vez na nota e já está confirmado.</div>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">📊</span>
+            <div class="tip-txt"><strong>Registre por aula,</strong> não só ao final do módulo. A consistência ao longo do tempo é o que revela o real progresso do aluno.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ══════════════════════════════════════════════ -->
 
 <div class="app">
   <div class="header">
@@ -204,38 +850,38 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="scr-sub">Preencha uma vez, use sempre.</div>
     <div class="info-box">
       <strong>📋 O que você precisa:</strong><br>
-      A URL do Apps Script (para enviar notas) e o ID da planilha (para carregar turmas, alunos e critérios automaticamente).
+      A URL do Apps Script e o ID da planilha para carregar turmas, alunos e critérios.
       <br><br>
-      <strong style="color:#F59E0B">⚠️ Importante:</strong> Ao implantar o script, defina "Quem pode acessar" como <strong>"Qualquer pessoa"</strong> (Anyone).
+      <strong style="color:#F59E0B">⚠️ Importante:</strong> Ao implantar o script, defina "Quem pode acessar" como <strong>"Qualquer pessoa"</strong>.
     </div>
     <div class="fwrap">
       <label class="flbl">URL do Google Apps Script</label>
-      <input class="inp" id="fUrl" type="url" placeholder="https://script.google.com/macros/s/..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <input class="inp" id="fUrl" type="url" placeholder="https://script.google.com/macros/s/..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="url">
     </div>
     <div class="fwrap">
       <label class="flbl">ID da Planilha Google Sheets</label>
       <input class="inp" id="fSheetId" type="text" placeholder="10XkC99eFabu..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-      <div class="hint">Encontre na URL da planilha: docs.google.com/spreadsheets/d/<strong style="color:rgba(255,255,255,0.6)">ID_AQUI</strong>/edit</div>
+      <div class="hint">Encontre na URL: docs.google.com/spreadsheets/d/<strong style="color:rgba(255,255,255,.6)">ID_AQUI</strong>/edit</div>
     </div>
     <button class="btn btn-primary" id="btnSetup">✅ Salvar e Carregar Dados</button>
     <div class="error-banner" id="errorBanner"></div>
-    <div class="clink"><a>v3.0 · SENAI Avaliador + Frequência</a></div>
+    <div class="clink"><a>v5.0 · SENAI Avaliador</a></div>
   </div>
 
   <!-- TELA 1: LOADING -->
   <div class="scr" id="s1">
     <div class="loading">
       <div class="spinner"></div>
-      <div class="loading-txt" id="loadingTxt">Carregando dados da planilha...</div>
+      <div class="loading-txt" id="loadingTxt">Carregando dados...</div>
     </div>
     <div class="error-banner" id="loadErrorBanner"></div>
     <button class="btn btn-ghost" id="btnRetryLoad" style="display:none;margin-top:20px">🔄 Tentar Novamente</button>
   </div>
 
-  <!-- TELA 2: ESCOLHER TURMA -->
+  <!-- TELA 2: TURMAS -->
   <div class="scr" id="s2">
     <div class="scr-title">Qual turma?</div>
-    <div class="scr-sub" id="s2sub">Selecione para começar a avaliar</div>
+    <div class="scr-sub" id="s2sub">Selecione para começar</div>
     <div class="turma-grid" id="turmaGrid"></div>
     <div style="height:16px"></div>
     <button class="btn btn-ghost" id="btnRecarregar">🔄 Recarregar da planilha</button>
@@ -250,17 +896,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="modo-card" id="modoIndividual">
         <div class="modo-icon">👤</div>
         <div class="modo-title">Individual</div>
-        <div class="modo-desc">Avalia um aluno por vez com todos os detalhes</div>
+        <div class="modo-desc">Um aluno por vez com todos os detalhes</div>
       </div>
       <div class="modo-card" id="modoVarredura">
         <div class="modo-icon">⚡</div>
         <div class="modo-title">Varredura</div>
-        <div class="modo-desc">Nota rápida para toda a turma no mesmo critério</div>
+        <div class="modo-desc">Nota rápida para vários alunos no mesmo critério</div>
       </div>
     </div>
-    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:14px 16px;font-size:0.78rem;color:rgba(255,255,255,0.4);line-height:1.7;">
-      <strong style="color:rgba(255,255,255,0.7)">⚡ Varredura</strong> — define critério uma vez, desliza nota para cada aluno e envia tudo junto. Alunos ausentes são marcados como falta automaticamente.<br><br>
-      <strong style="color:rgba(255,255,255,0.7)">👤 Individual</strong> — fluxo completo com observações e tags. Frequência registrada automaticamente.
+    <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px 16px;font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.7;">
+      <strong style="color:rgba(255,255,255,.7)">⚡ Varredura</strong> — toque na nota e já está confirmado. Envie só quem você avaliou.<br><br>
+      <strong style="color:rgba(255,255,255,.7)">👤 Individual</strong> — fluxo completo com observações e tags.
     </div>
   </div>
 
@@ -269,7 +915,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="scr-title">Quem você está avaliando?</div>
     <div class="scr-sub">Toque no nome para iniciar</div>
     <div class="search-box">
-      <span style="color:rgba(255,255,255,0.3);margin-right:8px">🔍</span>
+      <span style="color:rgba(255,255,255,.3);margin-right:8px;font-size:1rem">🔍</span>
       <input type="search" id="srch" placeholder="Buscar aluno..." autocorrect="off" autocapitalize="none">
     </div>
     <div id="aList"></div>
@@ -280,7 +926,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   <div class="scr" id="s4b">
     <button class="btn-back" id="btnBack4b">← Voltar</button>
     <div class="scr-title">⚡ Configurar Varredura</div>
-    <div class="scr-sub">Define o critério para toda a turma</div>
+    <div class="scr-sub">Define o critério para os alunos</div>
     <div class="form-card">
       <div class="swrap"><label>📚 Unidade Curricular</label>
         <select id="swUcSel"><option value="">Selecione a UC...</option></select></div>
@@ -289,14 +935,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div class="swrap"><label>📝 Instrumento</label><select id="swInstSel"><option value="">Instrumento...</option></select></div>
       </div>
       <div class="swrap"><label>🔬 Critério</label><select id="swCritSel"><option value="">Critério...</option></select></div>
-      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;color:#166534;">
-        💡 Esses valores valem para <strong>todos os alunos presentes</strong>. Alunos ausentes podem ser marcados como ❌ Falta durante a varredura.
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:.8rem;color:#166534;">
+        💡 Toque numa nota para confirmar instantaneamente. Envie só quem você avaliou.
       </div>
       <button class="btn btn-orange" id="btnIniciarVarredura">⚡ Iniciar Varredura</button>
     </div>
   </div>
 
-  <!-- TELA 5A: FORMULÁRIO INDIVIDUAL -->
+  <!-- TELA 5A: FORM INDIVIDUAL -->
   <div class="scr" id="s5a">
     <button class="btn-back" id="btnBack5a">← Trocar aluno</button>
     <div class="form-card">
@@ -305,7 +951,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div><div class="sel-nm" id="selNm"></div><div class="sel-tr" id="selTr"></div></div>
         <div class="sel-chg" id="btnChg">Trocar</div>
       </div>
-      <!-- Badge de presença automática -->
       <div class="presenca-badge">✅ Presença registrada automaticamente</div>
       <div class="swrap"><label>📚 Unidade Curricular</label>
         <select id="ucSel"><option value="">Selecione a UC...</option></select></div>
@@ -314,17 +959,42 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div class="swrap"><label>📝 Instrumento</label><select id="instSel"><option value="">Instrumento...</option></select></div>
       </div>
       <div class="swrap"><label>🔬 Critério</label><select id="critSel"><option value="">Critério...</option></select></div>
+
+      <!-- NOTA — reformulada -->
       <div style="margin-bottom:14px">
-        <label class="nota-lbl">⭐ Nota</label>
-        <div class="nota-num" id="notaNum">7,0<span>/10</span></div>
+        <div class="nota-header">
+          <label class="nota-lbl">⭐ Nota</label>
+          <button class="btn-info" id="btnGuia" title="Guia de avaliação">i</button>
+        </div>
+
+        <!-- Número + nível -->
+        <div class="nota-row">
+          <div class="nota-num" id="notaNum">7,0<span>/10</span></div>
+          <div class="nota-nivel" id="notaNivel">Satisfatório</div>
+        </div>
+
+        <!-- Slider -->
         <input type="range" id="slider" min="0" max="10" step="0.5" value="7">
         <div class="nota-labs"><span>0</span><span>2,5</span><span>5</span><span>7,5</span><span>10</span></div>
+
+        <!-- Faixas visuais -->
+        <div class="nota-faixas">
+          <div class="faixa faixa-insuf">Insatisfatório<br>0 – 4</div>
+          <div class="faixa faixa-dev">Em Desenv.<br>4,5 – 6</div>
+          <div class="faixa faixa-sat">Satisfatório<br>6,5 – 8,5</div>
+          <div class="faixa faixa-exc">Excelente<br>9 – 10</div>
+        </div>
+
+        <!-- Atalhos coloridos -->
         <div class="nota-quick">
-          <button class="nb" data-v="4">4,0</button><button class="nb" data-v="5">5,0</button>
-          <button class="nb" data-v="6">6,0</button><button class="nb" data-v="7.5">7,5</button>
-          <button class="nb" data-v="9">9,0</button>
+          <button class="nb" data-v="4"   data-level="insuf">4,0</button>
+          <button class="nb" data-v="5"   data-level="dev">5,0</button>
+          <button class="nb" data-v="6"   data-level="dev">6,0</button>
+          <button class="nb" data-v="7.5" data-level="sat">7,5</button>
+          <button class="nb" data-v="9"   data-level="exc">9,0</button>
         </div>
       </div>
+
       <div style="margin-bottom:14px">
         <label class="nota-lbl">💬 Observação (opcional)</label>
         <div class="tags" id="tagsCont"></div>
@@ -342,11 +1012,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <div class="sweep-sub" id="swSub"></div>
       <div style="height:8px"></div>
       <div style="display:flex;align-items:center">
-        <span style="color:rgba(255,255,255,0.5);font-size:0.72rem">Progresso</span>
+        <span style="color:rgba(255,255,255,.5);font-size:.72rem">Progresso</span>
         <div class="sweep-bar-wrap"><div class="sweep-bar" id="swBar" style="width:0%"></div></div>
-        <span style="color:rgba(255,255,255,0.5);font-size:0.72rem" id="swCt">0/0</span>
+        <span style="color:rgba(255,255,255,.5);font-size:.72rem" id="swCt">0/0</span>
       </div>
-      <!-- Legenda de status -->
       <div class="sweep-legend">
         <span><i class="dot-p"></i> <span id="swLegP">0 presentes</span></span>
         <span><i class="dot-f"></i> <span id="swLegF">0 faltas</span></span>
@@ -355,12 +1024,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
     <div id="swList"></div>
     <div id="swActions" style="display:none;margin-top:8px;">
-      <button class="btn btn-orange" id="btnEnviarTudo">📤 Enviar tudo para o Sheets</button>
-      <button class="btn btn-ghost"  id="btnCancelarSw">✕ Cancelar</button>
-    </div>
-    <!-- Botão para avançar mesmo com pendentes -->
-    <div id="swActionsPartial" style="display:none;margin-top:8px;">
-      <button class="btn btn-ghost" id="btnEnviarParcial" style="border-color:rgba(255,165,0,0.4);color:rgba(255,165,0,0.8);">⚠️ Enviar apenas os já avaliados</button>
+      <button class="btn btn-orange" id="btnEnviarTudo">📤 Enviar avaliados para o Sheets</button>
+      <button class="btn btn-ghost" id="btnCancelarSw">✕ Cancelar</button>
     </div>
   </div>
 
@@ -389,14 +1054,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
   </div>
 </div>
 
+<div style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
+            color:rgba(255,255,255,.13);font-size:.62rem;font-family:'Sora',system-ui,sans-serif;
+            letter-spacing:.06em;white-space:nowrap;pointer-events:none;z-index:1;
+            user-select:none;-webkit-user-select:none">
+  Criado por Gabriel Batista
+</div>
+
 <script>
-(function() {
+(function () {
   'use strict';
 
-  const LS_KEYS = {
+  const LS = {
     CONFIG: 'senai_config_v2',
-    QUEUE: 'senai_queue_v2',
-    DATA: 'senai_data_v2'
+    QUEUE:  'senai_queue_v2',
+    DATA:   'senai_data_v2',
+    LAST:   'senai_last_sel'
   };
 
   const state = {
@@ -405,896 +1078,870 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     turmaAtual: null,
     alunoAtual: null,
     queue: [],
-    swNotas: {},      // { nome: nota (número) }
-    swFaltas: {},     // { nome: true }
-    swConfirmados: {}, // { nome: true } - confirmados com click
+    swNotas: {},
+    swFaltas: {},
+    swConfirmados: {},
     swCfg: {},
     isSyncing: false
   };
 
+  /* ── Níveis de nota ────────────────────────────── */
+  function getLevel(v) {
+    if (v <= 4.0) return { key:'insuf', label:'Insatisfatório', color:'#E30613' };
+    if (v <= 6.0) return { key:'dev',   label:'Em Desenvolvimento', color:'#F59E0B' };
+    if (v <= 8.5) return { key:'sat',   label:'Satisfatório', color:'#3B82F6' };
+    return             { key:'exc',   label:'Excelente', color:'#059669' };
+  }
+
+  /* Gradiente do slider: mapeia 0-10 para cores de nível */
+  function sliderGradient(v) {
+    // Pontos: 0=insuf, 4=insuf, 4.5=dev, 6=dev, 6.5=sat, 8.5=sat, 9=exc, 10=exc
+    const stops = [
+      { p:  0, c:'#E30613' },
+      { p: 40, c:'#E30613' },
+      { p: 45, c:'#F59E0B' },
+      { p: 60, c:'#F59E0B' },
+      { p: 65, c:'#3B82F6' },
+      { p: 85, c:'#3B82F6' },
+      { p: 90, c:'#059669' },
+      { p:100, c:'#059669' },
+    ];
+    const filled = (v / 10) * 100;
+    let gradient = stops.map(s => `${s.c} ${s.p}%`).join(', ');
+    return `linear-gradient(to right, ${gradient})`;
+  }
+
+  /* Thumb border color via CSS variable */
+  function updateSliderThumb(color) {
+    const slider = document.getElementById('slider');
+    if (slider) {
+      slider.style.setProperty('--thumb-color', color);
+      // update via style injection
+      let style = document.getElementById('slider-thumb-style');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = 'slider-thumb-style';
+        document.head.appendChild(style);
+      }
+      style.textContent = `
+        #slider::-webkit-slider-thumb { border-color: ${color}; box-shadow: 0 2px 10px ${color}44; }
+        #slider::-moz-range-thumb { border-color: ${color}; }
+      `;
+    }
+  }
+
+  /* ── Init ──────────────────────────────────────── */
   window.addEventListener('load', init);
 
   function init() {
     updateHeaderDate();
-    registerEventListeners();
+    setInterval(updateHeaderDate, 60000);
+    registerListeners();
     updateNotaUI(7);
     updatePendingUI();
-    window.addEventListener('online', syncOfflineQueue);
+    window.addEventListener('online',  syncOfflineQueue);
     window.addEventListener('offline', () => showToast('📴 Offline', 'wrn'));
     loadSavedConfig();
   }
 
-  function on(id, event, handler) {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener(event, handler);
+  /* ── Helpers DOM ───────────────────────────────── */
+  function $(id) { return document.getElementById(id); }
+  function on(id, ev, fn) { const el = $(id); if (el) el.addEventListener(ev, fn); }
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function debounce(fn, ms) {
+    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
 
-  function createSafeElement(tag, attrs, textContent) {
-    const el = document.createElement(tag);
-    if (attrs) {
-      Object.keys(attrs).forEach(key => {
-        if (key === 'className') {
-          el.className = attrs[key];
-        } else if (key.startsWith('data-') || key === 'style') {
-          el.setAttribute(key, attrs[key]);
-        } else {
-          el[key] = attrs[key];
-        }
-      });
-    }
-    if (textContent !== undefined) el.textContent = textContent;
-    return el;
-  }
-
-  function safeLocalStorageSet(key, value) {
-    try {
-      localStorage.setItem(key, value);
-      return true;
-    } catch (e) {
-      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-        showToast('⚠️ Memória local cheia. Limpando cache...', 'wrn');
-        try {
-          localStorage.removeItem(LS_KEYS.DATA);
-          localStorage.setItem(key, value);
-          return true;
-        } catch (e2) {
-          showToast('❌ Erro ao salvar dados localmente', 'err');
-          return false;
-        }
+  /* ── LocalStorage ──────────────────────────────── */
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, val); return true; }
+    catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        try { localStorage.removeItem(LS.DATA); localStorage.setItem(key, val); return true; }
+        catch (_) { showToast('❌ Memória cheia', 'err'); return false; }
       }
       return false;
     }
   }
+  function lsGet(key) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
 
-  function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
+  /* ── Data ──────────────────────────────────────── */
+  function today() { return new Date().toLocaleDateString('pt-BR'); }
+  function updateHeaderDate() {
+    const n = new Date();
+    const e = $('hdate');
+    if (e) e.innerHTML =
+      n.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) +
+      '<br>' + n.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /* ── Última seleção ────────────────────────────── */
+  function saveLastSel() {
+    const sel = {
+      uc:          $('ucSel')?.value   || $('swUcSel')?.value   || '',
+      vetor:       $('vetSel')?.value  || $('swVetSel')?.value  || '',
+      instrumento: $('instSel')?.value || $('swInstSel')?.value || '',
+      criterio:    $('critSel')?.value || $('swCritSel')?.value || ''
     };
+    lsSet(LS.LAST, JSON.stringify(sel));
   }
-
-  function getCurrentDate() {
-    return new Date().toLocaleDateString('pt-BR');
+  function loadLastSel() {
+    try { return JSON.parse(lsGet(LS.LAST) || '{}'); } catch (_) { return {}; }
   }
-
-  function registerEventListeners() {
-    on('btnSetup', 'click', setupConfig);
-    on('btnTrocarTurma', 'click', () => { state.turmaAtual = null; updateTurmaBar(); goToTurmaSelect(); });
-    on('btnRecarregar', 'click', reloadData);
-    on('btnRetryLoad', 'click', reloadData);
-    on('lkCfg', 'click', (e) => { e.preventDefault(); goToSetup(); });
-    on('modoIndividual', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunosList(''); });
-    on('modoVarredura', 'click', () => { showScreen('s4b'); updateDots(3); fillAllForms(); });
-    on('btnBack4b', 'click', () => { showScreen('s3'); updateDots(2); });
-    on('lkVoltar4a', 'click', () => { showScreen('s3'); updateDots(2); });
-    on('btnBack5a', 'click', () => { showScreen('s4a'); updateDots(3); });
-    on('btnChg', 'click', () => { showScreen('s4a'); updateDots(3); });
-    on('btnBack5b', 'click', () => { showScreen('s4b'); updateDots(3); });
-    on('btnSalvar', 'click', saveIndividualAvaliacao);
-    on('btnMesmo', 'click', () => goToFormulario(state.alunoAtual));
-    on('btnNova', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunosList(''); });
-    on('btnIniciarVarredura', 'click', iniciarVarredura);
-    on('btnEnviarTudo', 'click', () => enviarVarredura(false));
-    on('btnEnviarParcial', 'click', () => enviarVarredura(true));
-    on('btnCancelarSw', 'click', () => { showScreen('s3'); updateDots(2); });
-    on('btnNovaVarredura', 'click', () => { showScreen('s4b'); updateDots(3); fillAllForms(); });
-    on('btnVoltarModo', 'click', () => { showScreen('s3'); updateDots(2); });
-    on('slider', 'input', (e) => updateNotaUI(parseFloat(e.target.value)));
-    const searchInput = document.getElementById('srch');
-    if (searchInput) {
-      searchInput.addEventListener('input', debounce((e) => renderAlunosList(e.target.value), 300));
-    }
-    document.querySelectorAll('.nb').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const value = parseFloat(this.dataset.v);
-        document.getElementById('slider').value = value;
-        updateNotaUI(value);
-      });
-    });
-    on('pend', 'click', syncOfflineQueue);
-  }
-
-  function reloadData() {
-    state.dados = {};
-    try { localStorage.removeItem(LS_KEYS.DATA); } catch(e) {}
-    showScreen('s1');
-    setLoadingText('Recarregando...');
-    document.getElementById('btnRetryLoad').style.display = 'none';
-    loadPlanilha().then(ok => { if(ok) goToTurmaSelect(); });
-  }
-
-  function setupConfig() {
-    const url = (document.getElementById('fUrl').value || '').trim();
-    const sheetId = (document.getElementById('fSheetId').value || '').trim();
-    if (!url) { showToast('⚠️ Cole a URL do Apps Script', 'err'); return; }
-    if (url.includes('/edit')) { showToast('⚠️ Use a URL do executável (/exec), não a de edição.', 'err'); return; }
-    if (!sheetId) { showToast('⚠️ Cole o ID da planilha', 'err'); return; }
-    if (!url.includes('script.google.com')) { showToast('⚠️ URL inválida.', 'err'); return; }
-    state.config = { url, sheetId };
-    safeLocalStorageSet(LS_KEYS.CONFIG, JSON.stringify(state.config));
-    showScreen('s1');
-    setLoadingText('Carregando turmas e alunos...');
-    loadPlanilha().then(ok => {
-      if (ok) { goToTurmaSelect(); }
-      else {
-        showToast('⚠️ Erro ao carregar — verifique o ID', 'err');
-        showErrorBanner('errorBanner', 'Não foi possível carregar os dados. Verifique se o ID da planilha está correto e se ela está compartilhada publicamente.');
-        goToSetup();
+  function applyLastSel(prefix) {
+    const last = loadLastSel();
+    const mapInd = { uc:'ucSel', vetor:'vetSel', instrumento:'instSel', criterio:'critSel' };
+    const mapSw  = { uc:'swUcSel', vetor:'swVetSel', instrumento:'swInstSel', criterio:'swCritSel' };
+    const m = prefix === 'sw' ? mapSw : mapInd;
+    Object.keys(m).forEach(k => {
+      const sel = $(m[k]);
+      if (sel && last[k]) {
+        const opts = Array.from(sel.options).map(o => o.value);
+        if (opts.includes(last[k])) sel.value = last[k];
       }
     });
+  }
+
+  /* ── Telas ─────────────────────────────────────── */
+  const SCREENS = ['s0','s1','s2','s3','s4a','s4b','s5a','s5b','s6a','s6b'];
+  function showScreen(id) {
+    SCREENS.forEach(s => { const e = $(s); if (e) e.classList.remove('on'); });
+    const t = $(id);
+    if (t) { t.classList.add('on'); t.scrollTop = 0; }
+    hideErr('errorBanner'); hideErr('loadErrorBanner');
+  }
+  function updateDots(step) {
+    for (let i = 1; i <= 3; i++) {
+      const d = $('d' + i); if (!d) continue;
+      d.className = 'dot';
+      if (i < step) d.classList.add('d');
+      else if (i === step) d.classList.add('a');
+    }
+  }
+  function showErr(id, msg) { const b = $(id); if (b) { b.textContent = '⚠️ ' + msg; b.classList.add('on'); } }
+  function hideErr(id)      { const b = $(id); if (b) b.classList.remove('on'); }
+
+  /* ── Modal Guia ────────────────────────────────── */
+  function openModal() {
+    const ov = $('modalOverlay');
+    if (ov) ov.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    const ov = $('modalOverlay');
+    if (ov) ov.classList.remove('on');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Listeners ─────────────────────────────────── */
+  function registerListeners() {
+    on('btnSetup',       'click', setupConfig);
+    on('btnTrocarTurma', 'click', () => { state.turmaAtual = null; updateTurmaBar(); goToTurmaSelect(); });
+    on('btnRecarregar',  'click', reloadData);
+    on('btnRetryLoad',   'click', reloadData);
+    on('lkCfg',          'click', e => { e.preventDefault(); goToSetup(); });
+    on('modoIndividual', 'click', () => { showScreen('s4a'); updateDots(3); renderAlunos(''); });
+    on('modoVarredura',  'click', () => { showScreen('s4b'); updateDots(3); fillForms(); applyLastSel('sw'); });
+    on('btnBack4b',      'click', () => { showScreen('s3'); updateDots(2); });
+    on('lkVoltar4a',     'click', () => { showScreen('s3'); updateDots(2); });
+    on('btnBack5a',      'click', () => { showScreen('s4a'); updateDots(3); });
+    on('btnChg',         'click', () => { showScreen('s4a'); updateDots(3); });
+    on('btnBack5b',      'click', () => { showScreen('s4b'); updateDots(3); });
+    on('btnIniciarVarredura', 'click', iniciarVarredura);
+    on('btnSalvar',      'click', saveIndividual);
+    on('btnMesmo',       'click', () => goToFormulario(state.alunoAtual));
+    on('btnNova',        'click', () => { showScreen('s4a'); updateDots(3); renderAlunos(''); });
+    on('btnEnviarTudo',  'click', enviarVarredura);
+    on('btnCancelarSw',  'click', () => { showScreen('s3'); updateDots(2); });
+    on('btnNovaVarredura','click',() => { showScreen('s4b'); updateDots(3); fillForms(); applyLastSel('sw'); });
+    on('btnVoltarModo',  'click', () => { showScreen('s3'); updateDots(2); });
+    on('slider',         'input', e => updateNotaUI(parseFloat(e.target.value)));
+    on('pend',           'click', syncOfflineQueue);
+
+    // Modal
+    on('btnGuia',    'click', openModal);
+    on('modalClose', 'click', closeModal);
+    const ov = $('modalOverlay');
+    if (ov) ov.addEventListener('click', e => { if (e.target === ov) closeModal(); });
+
+    // Quick note buttons
+    document.querySelectorAll('.nb').forEach(b =>
+      b.addEventListener('click', function () {
+        const v = parseFloat(this.dataset.v);
+        $('slider').value = v;
+        updateNotaUI(v);
+      })
+    );
+
+    const srch = $('srch');
+    if (srch) srch.addEventListener('input', debounce(e => renderAlunos(e.target.value), 250));
+  }
+
+  /* ── Config ─────────────────────────────────────── */
+  function setupConfig() {
+    const url     = ($('fUrl').value     || '').trim();
+    const sheetId = ($('fSheetId').value || '').trim();
+    if (!url)                           { showToast('⚠️ Cole a URL do Apps Script', 'err'); return; }
+    if (url.includes('/edit'))          { showToast('⚠️ Use a URL /exec, não /edit', 'err'); return; }
+    if (!url.includes('script.google')) { showToast('⚠️ URL inválida', 'err'); return; }
+    if (!sheetId)                       { showToast('⚠️ Cole o ID da planilha', 'err'); return; }
+    state.config = { url, sheetId };
+    lsSet(LS.CONFIG, JSON.stringify(state.config));
+    loadData().then(ok => ok ? goToTurmaSelect() : (showErr('errorBanner', 'Não foi possível carregar. Verifique o ID.'), goToSetup()));
   }
 
   function goToSetup() {
     showScreen('s0'); updateDots(0);
-    if (state.config.url) document.getElementById('fUrl').value = state.config.url;
-    if (state.config.sheetId) document.getElementById('fSheetId').value = state.config.sheetId;
+    if (state.config.url)     $('fUrl').value     = state.config.url;
+    if (state.config.sheetId) $('fSheetId').value = state.config.sheetId;
   }
 
   function loadSavedConfig() {
     try {
-      const savedConfig = localStorage.getItem(LS_KEYS.CONFIG);
-      if (savedConfig) {
-        state.config = JSON.parse(savedConfig);
-        state.queue = JSON.parse(localStorage.getItem(LS_KEYS.QUEUE) || '[]');
-        const savedData = localStorage.getItem(LS_KEYS.DATA);
-        if (savedData) state.dados = JSON.parse(savedData);
-        updatePendingUI();
-        if (state.dados.turmas && state.dados.turmas.length > 0) {
-          goToTurmaSelect();
-          loadPlanilha().then(ok => { if (ok) { renderTurmas(); fillAllForms(); } });
-          return;
-        } else {
-          showScreen('s1');
-          loadPlanilha().then(ok => { if(ok) goToTurmaSelect(); });
-          return;
-        }
+      const cfg = lsGet(LS.CONFIG);
+      if (!cfg) { showScreen('s0'); updateDots(0); return; }
+      state.config = JSON.parse(cfg);
+      state.queue  = JSON.parse(lsGet(LS.QUEUE) || '[]');
+      const saved  = lsGet(LS.DATA);
+      if (saved) state.dados = JSON.parse(saved);
+      updatePendingUI();
+      if (state.dados.turmas?.length) {
+        goToTurmaSelect();
+        loadData(true).then(ok => { if (ok) { renderTurmas(); fillForms(); } });
+      } else {
+        showScreen('s1'); setLoading('Carregando dados...');
+        loadData().then(ok => ok ? goToTurmaSelect() : (showScreen('s0'), updateDots(0)));
       }
-    } catch (e) { console.error('Erro ao carregar config:', e); }
-    showScreen('s0'); updateDots(0);
+    } catch (_) { showScreen('s0'); updateDots(0); }
+  }
+
+  function reloadData() {
+    state.dados = {};
+    try { localStorage.removeItem(LS.DATA); } catch (_) {}
+    showScreen('s1'); setLoading('Recarregando...'); $('btnRetryLoad').style.display = 'none';
+    loadData(true).then(ok => ok ? goToTurmaSelect() : void 0);
+  }
+
+  function setLoading(t) { const e = $('loadingTxt'); if (e) e.textContent = t; }
+
+  /* ── CSV ────────────────────────────────────────── */
+  function csvUrl(aba) {
+    return `https://docs.google.com/spreadsheets/d/${state.config.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(aba)}`;
   }
 
   function parseCSV(csv) {
-    csv = csv.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    const lines = csv.split('\n');
-    const result = [];
-    let i = 0;
+    csv = csv.replace(/^\uFEFF/, '').replace(/\r\n|\r/g, '\n');
+    const rows = []; const lines = csv.split('\n'); let i = 0;
     while (i < lines.length) {
       if (!lines[i].trim()) { i++; continue; }
-      const cols = [];
-      let current = '';
-      let inQuotes = false;
-      let fullLine = lines[i];
-      while (i < lines.length) {
-        const line = i === lines.indexOf(fullLine) ? fullLine : '\n' + lines[i];
-        for (let k = (i === lines.indexOf(fullLine) ? 0 : 1); k < line.length; k++) {
-          const ch = line[k];
-          if (inQuotes) {
-            if (ch === '"' && line[k + 1] === '"') { current += '"'; k++; }
-            else if (ch === '"') { inQuotes = false; }
-            else { current += ch; }
-          } else {
-            if (ch === '"') { inQuotes = true; }
-            else if (ch === ',') { cols.push(current.trim()); current = ''; }
-            else { current += ch; }
-          }
+      const cols = []; let cur = ''; let inQ = false;
+      for (let k = 0; k < lines[i].length; k++) {
+        const c = lines[i][k];
+        if (inQ) {
+          if (c === '"' && lines[i][k+1] === '"') { cur += '"'; k++; }
+          else if (c === '"') inQ = false;
+          else cur += c;
+        } else {
+          if (c === '"') inQ = true;
+          else if (c === ',') { cols.push(cur.trim()); cur = ''; }
+          else cur += c;
         }
-        if (inQuotes && i + 1 < lines.length) { i++; } else { break; }
       }
-      cols.push(current.trim());
-      result.push(cols);
-      i++;
+      cols.push(cur.trim()); rows.push(cols); i++;
     }
-    return result;
+    return rows;
   }
 
-  function csvUrl(aba) {
-    return 'https://docs.google.com/spreadsheets/d/' + state.config.sheetId +
-           '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(aba);
-  }
-
-  function loadPlanilha() {
-    return new Promise((resolve) => {
-      const newData = { turmas: [], alunos: {}, ucs: [], vetores: [], instrumentos: [], criterios: [], tags: [] };
-      const timeoutId = setTimeout(() => {
-        showErrorBanner('loadErrorBanner', 'O carregamento está demorando muito. Verifique sua conexão.');
-        document.getElementById('btnRetryLoad').style.display = 'block';
-        resolve(false);
-      }, 15000);
-      const pAlunos = fetch(csvUrl('Alunos'))
-        .then(r => r.text())
-        .then(csv => {
-          const rows = parseCSV(csv);
-          if (rows.length < 2) return;
-          let hdrIdx = 1;
-          if (rows[0].some(c => c.toLowerCase().includes('nome') || c.toLowerCase().includes('turma'))) hdrIdx = 0;
-          const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
-          const iNome = findColIndex(hdr, ['nome completo', 'nome', 'aluno']);
-          const iTurma = findColIndex(hdr, ['turma / curso', 'turma/curso', 'turma', 'curso']);
-          if (iNome < 0) return;
-          rows.slice(hdrIdx + 1).forEach(r => {
-            const nome = (r[iNome] || '').trim();
-            const turma = iTurma >= 0 ? (r[iTurma] || '').trim() : 'Geral';
-            if (!nome) return;
-            const turmaFinal = turma || 'Geral';
-            if (!newData.alunos[turmaFinal]) newData.alunos[turmaFinal] = [];
-            if (!newData.turmas.includes(turmaFinal)) newData.turmas.push(turmaFinal);
-            newData.alunos[turmaFinal].push(nome);
-          });
-          newData.turmas.sort();
-        });
-      const fetchConfigRecursive = (names, idx) => {
-        return new Promise((resCfg) => {
-          if (idx >= names.length) { applyDefaults(newData); resCfg(); return; }
-          fetch(csvUrl(names[idx]))
-            .then(r => r.text())
-            .then(csv => {
-              if (!csv || csv.trim().charAt(0) === '<') { fetchConfigRecursive(names, idx + 1).then(resCfg); return; }
-              const rows = parseCSV(csv);
-              if (rows.length < 2) { fetchConfigRecursive(names, idx + 1).then(resCfg); return; }
-              let hdrIdx = 1;
-              if (rows[0].some(c => { const lc = c.toLowerCase(); return lc.includes('uc') || lc.includes('crit') || lc.includes('vetor'); })) hdrIdx = 0;
-              const hdr = rows[hdrIdx].map(h => h.toLowerCase().trim());
-              const getColumnValues = (keywords) => {
-                let colIdx = -1;
-                for (let i = 0; i < hdr.length; i++) { for (let k of keywords) { if (hdr[i].includes(k)) { colIdx = i; break; } } if (colIdx >= 0) break; }
-                if (colIdx < 0) return [];
-                const seen = {};
-                return rows.slice(hdrIdx + 1).map(r => (r[colIdx] || '').trim()).filter(v => { if (!v || seen[v]) return false; seen[v] = true; return true; });
-              };
-              const ucs = getColumnValues(['uc', 'unidade']);
-              const crits = getColumnValues(['crit']);
-              const vets = getColumnValues(['vetor']);
-              const insts = getColumnValues(['instru']);
-              const tags = getColumnValues(['tag', 'observa']);
-              if (ucs.length) newData.ucs = ucs;
-              if (crits.length) newData.criterios = crits;
-              if (vets.length) newData.vetores = vets;
-              if (insts.length) newData.instrumentos = insts;
-              if (tags.length) newData.tags = tags;
-              applyDefaults(newData);
-              resCfg();
-            })
-            .catch(() => fetchConfigRecursive(names, idx + 1).then(resCfg));
-        });
-      };
-      const pConfig = fetchConfigRecursive(['⚙ Configurações', 'Configurações', 'Configuracoes'], 0);
-      Promise.all([pAlunos, pConfig])
-        .then(() => {
-          clearTimeout(timeoutId);
-          state.dados = newData;
-          safeLocalStorageSet(LS_KEYS.DATA, JSON.stringify(state.dados));
-          resolve(true);
-        })
-        .catch(err => {
-          clearTimeout(timeoutId);
-          console.error(err);
-          showErrorBanner('loadErrorBanner', 'Falha ao carregar dados. Verifique sua conexão.');
-          resolve(false);
-        });
-    });
-  }
-
-  function findColIndex(hdr, keywords) {
-    for (let k of keywords) { for (let i = 0; i < hdr.length; i++) { if (hdr[i] === k) return i; } }
-    for (let k of keywords) { for (let i = 0; i < hdr.length; i++) { if (hdr[i].includes(k)) return i; } }
+  function findCol(hdr, keys) {
+    for (const k of keys) for (let i = 0; i < hdr.length; i++) if (hdr[i] === k) return i;
+    for (const k of keys) for (let i = 0; i < hdr.length; i++) if (hdr[i].includes(k)) return i;
     return -1;
   }
 
-  function applyDefaults(data) {
-    if (!data.vetores.length) data.vetores = ['Fazer (40%)', 'Saber (30%)', 'Comport. (30%)'];
-    if (!data.instrumentos.length) data.instrumentos = ['Observação Oficina', 'Micro-Quiz', 'Projeto Prático', 'Apresentação Pitch', 'Prova de Consulta'];
-    if (!data.criterios.length) data.criterios = ['Exatidão Dimensional', 'Segurança e EPI', 'Retenção Teórica', 'Resolução de Problemas', 'Organização / 5S', 'Planejamento / Lógica', 'Trabalho em Equipe', 'Aplicação de Normas'];
-    if (!data.tags.length) data.tags = ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
+  function applyDefaults(d) {
+    if (!d.vetores.length)     d.vetores     = ['Fazer (40%)','Saber (30%)','Comport. (30%)'];
+    if (!d.instrumentos.length)d.instrumentos= ['Observação Oficina','Micro-Quiz','Projeto Prático','Apresentação Pitch','Prova de Consulta'];
+    if (!d.criterios.length)   d.criterios   = ['Exatidão Dimensional','Segurança e EPI','Retenção Teórica','Resolução de Problemas','Organização / 5S','Planejamento / Lógica','Trabalho em Equipe','Aplicação de Normas'];
+    if (!d.tags.length)        d.tags        = ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
   }
 
-  const ALL_SCREENS = ['s0','s1','s2','s3','s4a','s4b','s5a','s5b','s6a','s6b'];
+  function loadData(silent = false) {
+    if (!silent) { showScreen('s1'); setLoading('Carregando dados...'); }
+    return new Promise(resolve => {
+      const nd = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[], tags:[] };
+      const tid = setTimeout(() => {
+        showErr('loadErrorBanner', 'Carregamento lento. Verifique sua conexão.');
+        $('btnRetryLoad').style.display = 'block';
+        resolve(false);
+      }, 15000);
 
-  function showScreen(id) {
-    ALL_SCREENS.forEach(s => { const el = document.getElementById(s); if (el) el.classList.remove('on'); });
-    const target = document.getElementById(id);
-    if (target) { target.classList.add('on'); target.scrollTop = 0; }
-    hideErrorBanner('errorBanner'); hideErrorBanner('loadErrorBanner');
+      const pAlunos = fetch(csvUrl('Alunos')).then(r => r.text()).then(csv => {
+        const rows = parseCSV(csv); if (rows.length < 2) return;
+        let hi = rows[0].some(c => c.toLowerCase().includes('nome') || c.toLowerCase().includes('turma')) ? 0 : 1;
+        const hdr = rows[hi].map(h => h.toLowerCase().trim());
+        const iN = findCol(hdr, ['nome completo','nome','aluno']);
+        const iT = findCol(hdr, ['turma / curso','turma/curso','turma','curso']);
+        if (iN < 0) return;
+        rows.slice(hi + 1).forEach(r => {
+          const nome  = (r[iN] || '').trim();
+          const turma = (iT >= 0 ? r[iT] : '') || 'Geral';
+          if (!nome) return;
+          if (!nd.alunos[turma]) nd.alunos[turma] = [];
+          if (!nd.turmas.includes(turma)) nd.turmas.push(turma);
+          nd.alunos[turma].push(nome);
+        });
+        nd.turmas.sort();
+      }).catch(() => {});
+
+      const tryConfig = (names, idx) => new Promise(res => {
+        if (idx >= names.length) { applyDefaults(nd); res(); return; }
+        fetch(csvUrl(names[idx])).then(r => r.text()).then(csv => {
+          if (!csv || csv.trim()[0] === '<') { tryConfig(names, idx+1).then(res); return; }
+          const rows = parseCSV(csv); if (rows.length < 2) { tryConfig(names, idx+1).then(res); return; }
+          let hi = rows[0].some(c => /uc|crit|vetor/i.test(c)) ? 0 : 1;
+          const hdr = rows[hi].map(h => h.toLowerCase().trim());
+          const cols = kws => {
+            let ci = -1;
+            for (let i = 0; i < hdr.length && ci < 0; i++) for (const k of kws) if (hdr[i].includes(k)) ci = i;
+            if (ci < 0) return [];
+            const seen = {};
+            return rows.slice(hi+1).map(r => (r[ci]||'').trim()).filter(v => v && !seen[v] && (seen[v]=true));
+          };
+          const ucs  = cols(['uc','unidade']); const crits = cols(['crit']);
+          const vets  = cols(['vetor']);        const insts = cols(['instru']);
+          const tags  = cols(['tag','observa']);
+          if (ucs.length)  nd.ucs  = ucs;
+          if (crits.length)nd.criterios = crits;
+          if (vets.length) nd.vetores = vets;
+          if (insts.length)nd.instrumentos = insts;
+          if (tags.length) nd.tags  = tags;
+          applyDefaults(nd); res();
+        }).catch(() => tryConfig(names, idx+1).then(res));
+      });
+
+      const pCfg = tryConfig(['⚙ Configurações','Configurações','Configuracoes'], 0);
+
+      Promise.all([pAlunos, pCfg]).then(() => {
+        clearTimeout(tid);
+        state.dados = nd;
+        lsSet(LS.DATA, JSON.stringify(nd));
+        resolve(true);
+      }).catch(() => { clearTimeout(tid); showErr('loadErrorBanner','Falha ao carregar.'); resolve(false); });
+    });
   }
 
-  function updateDots(step) {
-    for (let i = 1; i <= 3; i++) {
-      const dot = document.getElementById('d' + i);
-      if (!dot) continue;
-      dot.className = 'dot';
-      if (i < step) dot.classList.add('d'); else if (i === step) dot.classList.add('a');
+  /* ── Turmas ─────────────────────────────────────── */
+  function goToTurmaSelect() {
+    updateTurmaBar(); renderTurmas(); showScreen('s2'); updateDots(1);
+    const turmas = state.dados.turmas || [];
+    if (turmas.length === 1) {
+      state.turmaAtual = turmas[0];
+      updateTurmaBar();
+      showScreen('s3'); updateDots(2);
     }
   }
-
-  function goToTurmaSelect() { updateTurmaBar(); renderTurmas(); showScreen('s2'); updateDots(1); }
 
   function updateTurmaBar() {
-    const bar = document.getElementById('turmaBar');
+    const bar = $('turmaBar');
     if (state.turmaAtual) {
       bar.classList.add('on');
-      const nome = document.getElementById('turmaNomeBar');
-      if (nome) nome.textContent = state.turmaAtual;
-    } else { bar.classList.remove('on'); }
-  }
-
-  function updateHeaderDate() {
-    const now = new Date();
-    const dateEl = document.getElementById('hdate');
-    if (dateEl) {
-      dateEl.innerHTML = now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) + '<br>' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    }
-  }
-
-  function setLoadingText(text) {
-    const el = document.getElementById('loadingTxt');
-    if (el) el.textContent = text;
-  }
-
-  function showErrorBanner(id, message) {
-    const banner = document.getElementById(id);
-    if (banner) { banner.textContent = '⚠️ ' + message; banner.classList.add('on'); }
-  }
-
-  function hideErrorBanner(id) {
-    const banner = document.getElementById(id);
-    if (banner) banner.classList.remove('on');
+      $('turmaNomeBar').textContent = state.turmaAtual;
+    } else bar.classList.remove('on');
   }
 
   function renderTurmas() {
-    const grid = document.getElementById('turmaGrid');
-    if (!grid) return;
+    const grid = $('turmaGrid'); if (!grid) return;
     const turmas = state.dados.turmas || [];
     grid.innerHTML = '';
+    grid.classList.remove('turma-stagger');
     if (!turmas.length) {
-      const msg = createSafeElement('div', { style: 'color:rgba(255,255,255,0.3);text-align:center;padding:32px;font-size:0.85rem;line-height:1.7' });
-      msg.innerHTML = 'Nenhuma turma encontrada.<br>Verifique se a aba <strong>Alunos</strong> tem a coluna <strong>Turma / Curso</strong> preenchida.';
-      grid.appendChild(msg);
-      const sub = document.getElementById('s2sub');
-      if (sub) sub.textContent = 'Nenhuma turma encontrada';
+      grid.innerHTML = '<div style="color:rgba(255,255,255,.3);text-align:center;padding:32px;font-size:.85rem;line-height:1.7">Nenhuma turma encontrada.<br>Verifique a aba <strong>Alunos</strong>.</div>';
+      const s = $('s2sub'); if (s) s.textContent = 'Nenhuma turma encontrada';
       return;
     }
-    const totalAlunos = turmas.reduce((acc, t) => acc + (state.dados.alunos[t] || []).length, 0);
-    const sub = document.getElementById('s2sub');
-    if (sub) sub.textContent = `${turmas.length} turma(s) · ${totalAlunos} aluno(s)`;
-    const icons = ['🏭', '⚙️', '🔧', '📐', '🛠️', '💡', '🔩', '📊'];
-    turmas.forEach((turma, idx) => {
-      const alunos = state.dados.alunos[turma] || [];
-      const card = createSafeElement('div', { className: 'turma-card' + (state.turmaAtual === turma ? ' sel' : '') });
-      const icon = createSafeElement('div', { className: 'tc-icon' }, icons[idx % icons.length]);
-      const info = createSafeElement('div', { style: 'flex:1' });
-      const nome = createSafeElement('div', { className: 'tc-nome' }, turma);
-      const count = createSafeElement('div', { className: 'tc-info' }, `${alunos.length} aluno${alunos.length !== 1 ? 's' : ''}`);
-      const arrow = createSafeElement('span', { className: 'tc-arrow' }, '›');
-      info.appendChild(nome); info.appendChild(count);
-      card.appendChild(icon); card.appendChild(info); card.appendChild(arrow);
-      card.addEventListener('click', () => { state.turmaAtual = turma; updateTurmaBar(); showScreen('s3'); updateDots(2); });
+    const total = turmas.reduce((a, t) => a + (state.dados.alunos[t]||[]).length, 0);
+    const s = $('s2sub'); if (s) s.textContent = `${turmas.length} turma(s) · ${total} aluno(s)`;
+    const icons = ['🏭','⚙️','🔧','📐','🛠️','💡','🔩','📊'];
+    void grid.offsetWidth;
+    grid.classList.add('turma-stagger');
+    turmas.forEach((turma, i) => {
+      const al = state.dados.alunos[turma] || [];
+      const card = el('div', 'turma-card' + (state.turmaAtual === turma ? ' sel' : ''));
+      const ico  = el('div', 'tc-icon', icons[i % icons.length]);
+      const info = el('div', 'tc-info-wrap');
+      const nm   = el('div', 'tc-nome', turma);
+      const ct   = el('div', 'tc-info', `${al.length} aluno${al.length !== 1 ? 's' : ''}`);
+      const arr  = el('span', 'tc-arrow', '›');
+      info.appendChild(nm); info.appendChild(ct);
+      card.appendChild(ico); card.appendChild(info); card.appendChild(arr);
+      card.style.cssText += ';flex:1;';
+      info.style.cssText  = 'flex:1';
+      card.addEventListener('click', () => {
+        state.turmaAtual = turma; updateTurmaBar(); showScreen('s3'); updateDots(2);
+      });
       grid.appendChild(card);
     });
   }
 
-  function renderAlunosList(query) {
-    const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
+  /* ── Alunos ─────────────────────────────────────── */
+  function renderAlunos(query) {
+    const alunos   = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
     const filtered = alunos.filter(a => a.toLowerCase().includes(query.toLowerCase()));
-    const container = document.getElementById('aList');
-    if (!container) return;
-    container.innerHTML = '';
+    const cont = $('aList'); if (!cont) return;
+    cont.innerHTML = '';
+    cont.classList.remove('ai-stagger');
     if (!filtered.length) {
-      container.appendChild(createSafeElement('div', { style: 'color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:0.85rem' }, 'Nenhum aluno encontrado'));
+      cont.appendChild(el('div', null, 'Nenhum aluno encontrado')).style.cssText =
+        'color:rgba(255,255,255,.3);text-align:center;padding:24px;font-size:.85rem';
       return;
     }
+    void cont.offsetWidth;
+    cont.classList.add('ai-stagger');
+    const frag = document.createDocumentFragment();
     filtered.forEach(nome => {
       const initials = nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
-      const item = createSafeElement('div', { className: 'ai' });
-      const avatar = createSafeElement('div', { className: 'av' }, initials);
-      const infoDiv = createSafeElement('div');
-      const nomeEl = createSafeElement('div', { className: 'an' }, nome);
-      const turmaEl = createSafeElement('div', { className: 'as' }, state.turmaAtual || '');
-      const arrow = createSafeElement('span', { style: 'margin-left:auto;color:rgba(255,255,255,0.22);font-size:1.1rem' }, '›');
-      infoDiv.appendChild(nomeEl); infoDiv.appendChild(turmaEl);
-      item.appendChild(avatar); item.appendChild(infoDiv); item.appendChild(arrow);
+      const item = el('div', 'ai');
+      const av   = el('div', 'av', initials);
+      const info = el('div');
+      const nm   = el('div', 'an', nome);
+      const tr   = el('div', 'as', state.turmaAtual || '');
+      const arr  = el('span', null, '›');
+      arr.style.cssText = 'margin-left:auto;color:rgba(255,255,255,.22);font-size:1.1rem';
+      info.appendChild(nm); info.appendChild(tr);
+      item.appendChild(av); item.appendChild(info); item.appendChild(arr);
       item.addEventListener('click', () => goToFormulario(nome));
-      container.appendChild(item);
+      frag.appendChild(item);
     });
+    cont.appendChild(frag);
   }
 
+  /* ── Formulário individual ─────────────────────── */
   function goToFormulario(nome) {
     state.alunoAtual = nome;
     const initials = nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
-    const avEl = document.getElementById('selAv');
-    const nmEl = document.getElementById('selNm');
-    const trEl = document.getElementById('selTr');
-    const obsEl = document.getElementById('obsTA');
-    const sliderEl = document.getElementById('slider');
-    if (avEl) avEl.textContent = initials;
-    if (nmEl) nmEl.textContent = nome;
-    if (trEl) trEl.textContent = state.turmaAtual || '';
-    if (obsEl) obsEl.value = '';
-    if (sliderEl) sliderEl.value = 7;
+    $('selAv').textContent  = initials;
+    $('selNm').textContent  = nome;
+    $('selTr').textContent  = state.turmaAtual || '';
+    $('obsTA').value        = '';
+    $('slider').value       = 7;
     updateNotaUI(7);
-    fillAllForms();
+    fillForms();
+    applyLastSel('');
     renderTags();
-    showScreen('s5a');
-    updateDots(3);
+    showScreen('s5a'); updateDots(3);
   }
 
-  function fillAllForms() {
-    fillSelect('ucSel',     state.dados.ucs || [],          'Selecione a UC...');
-    fillSelect('vetSel',    state.dados.vetores || [],       'Vetor...');
-    fillSelect('instSel',   state.dados.instrumentos || [],  'Instrumento...');
-    fillSelect('critSel',   state.dados.criterios || [],     'Critério...');
-    fillSelect('swUcSel',   state.dados.ucs || [],          'Selecione a UC...');
-    fillSelect('swVetSel',  state.dados.vetores || [],       'Vetor...');
-    fillSelect('swInstSel', state.dados.instrumentos || [],  'Instrumento...');
-    fillSelect('swCritSel', state.dados.criterios || [],     'Critério...');
+  function fillForms() {
+    fillSel('ucSel',     state.dados.ucs          || [], 'Selecione a UC...');
+    fillSel('vetSel',    state.dados.vetores       || [], 'Vetor...');
+    fillSel('instSel',   state.dados.instrumentos  || [], 'Instrumento...');
+    fillSel('critSel',   state.dados.criterios     || [], 'Critério...');
+    fillSel('swUcSel',   state.dados.ucs           || [], 'Selecione a UC...');
+    fillSel('swVetSel',  state.dados.vetores        || [], 'Vetor...');
+    fillSel('swInstSel', state.dados.instrumentos   || [], 'Instrumento...');
+    fillSel('swCritSel', state.dados.criterios      || [], 'Critério...');
   }
 
-  function fillSelect(id, values, placeholder) {
-    const select = document.getElementById(id);
-    if (!select) return;
-    const prevValue = select.value;
-    select.innerHTML = '';
-    select.appendChild(createSafeElement('option', { value: '' }, placeholder || 'Selecione...'));
-    values.forEach(v => select.appendChild(createSafeElement('option', { value: v }, v)));
-    if (prevValue && values.includes(prevValue)) select.value = prevValue;
+  function fillSel(id, vals, placeholder) {
+    const s = $(id); if (!s) return;
+    const prev = s.value; s.innerHTML = '';
+    const opt0 = el('option', null, placeholder); opt0.value = ''; s.appendChild(opt0);
+    const frag = document.createDocumentFragment();
+    vals.forEach(v => { const o = el('option', null, v); o.value = v; frag.appendChild(o); });
+    s.appendChild(frag);
+    if (prev && vals.includes(prev)) s.value = prev;
   }
 
   function renderTags() {
-    const tagsList = state.dados.tags && state.dados.tags.length
-      ? state.dados.tags
-      : ['Fora da tolerância', 'Sem EPI', 'Bancada desorganizada', 'Erro procedimental', 'Boa evolução', 'Esforço notável', 'Liderança'];
-    const container = document.getElementById('tagsCont');
-    if (!container) return;
-    container.innerHTML = '';
-    const negativeKeywords = ['fora', 'sem epi', 'desorganiz', 'erro', 'atraso', 'falta', 'ausente'];
-    tagsList.forEach(tag => {
-      const isNegative = negativeKeywords.some(k => tag.toLowerCase().includes(k));
-      const tagEl = createSafeElement('span', { className: 'tag' + (isNegative ? ' d' : '') }, tag);
-      tagEl.setAttribute('data-t', tag);
-      tagEl.addEventListener('click', function() { this.classList.toggle('on'); });
-      container.appendChild(tagEl);
+    const tags = state.dados.tags?.length ? state.dados.tags
+      : ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
+    const cont = $('tagsCont'); if (!cont) return;
+    cont.innerHTML = '';
+    const neg = ['fora','sem epi','desorganiz','erro','atraso','falta','ausente'];
+    const frag = document.createDocumentFragment();
+    tags.forEach(t => {
+      const isNeg = neg.some(k => t.toLowerCase().includes(k));
+      const tag = el('span', 'tag' + (isNeg ? ' d' : ''), t);
+      tag.setAttribute('data-t', t);
+      tag.addEventListener('click', function () { this.classList.toggle('on'); });
+      frag.appendChild(tag);
     });
+    cont.appendChild(frag);
   }
 
-  function updateNotaUI(value) {
-    const notaEl = document.getElementById('notaNum');
-    if (notaEl) {
-      notaEl.innerHTML = value.toFixed(1).replace('.', ',') + '<span>/10</span>';
-      notaEl.style.color = value < 5 ? '#E30613' : value < 7 ? '#F59E0B' : '#059669';
+  /* ── Nota UI — atualiza cor, nível e gradiente ─── */
+  function updateNotaUI(v) {
+    const lvl = getLevel(v);
+
+    // Número grande
+    const ne = $('notaNum');
+    if (ne) {
+      ne.innerHTML = v.toFixed(1).replace('.', ',') + '<span>/10</span>';
+      ne.style.color = lvl.color;
     }
-    document.querySelectorAll('.nb').forEach(btn => {
-      btn.classList.toggle('on', parseFloat(btn.dataset.v) === value);
-    });
+
+    // Nível discreto
+    const nl = $('notaNivel');
+    if (nl) {
+      nl.textContent = lvl.label;
+      nl.style.color = lvl.color;
+      nl.style.opacity = '0.55';
+    }
+
+    // Slider gradiente
+    const slider = $('slider');
+    if (slider) {
+      slider.style.background = sliderGradient(v);
+    }
+
+    // Thumb color
+    updateSliderThumb(lvl.color);
+
+    // Quick buttons — marca o ativo
+    document.querySelectorAll('.nb').forEach(b =>
+      b.classList.toggle('on', parseFloat(b.dataset.v) === v)
+    );
   }
 
-  function validateFormulario() {
-    if (!document.getElementById('ucSel').value)    { showToast('⚠️ Selecione a Unidade Curricular', 'err'); return false; }
-    if (!document.getElementById('vetSel').value)   { showToast('⚠️ Selecione o Vetor', 'err');             return false; }
-    if (!document.getElementById('instSel').value)  { showToast('⚠️ Selecione o Instrumento', 'err');       return false; }
-    if (!document.getElementById('critSel').value)  { showToast('⚠️ Selecione o Critério', 'err');          return false; }
-    return true;
-  }
+  /* ── Salvar individual ─────────────────────────── */
+  function saveIndividual() {
+    const uc  = $('ucSel').value, vetor = $('vetSel').value;
+    const ins = $('instSel').value, crit = $('critSel').value;
+    if (!uc)   { showToast('⚠️ Selecione a UC', 'err');           return; }
+    if (!vetor){ showToast('⚠️ Selecione o Vetor', 'err');        return; }
+    if (!ins)  { showToast('⚠️ Selecione o Instrumento', 'err');  return; }
+    if (!crit) { showToast('⚠️ Selecione o Critério', 'err');     return; }
 
-  // ══════════════════════════════════════════════════════
-  // INDIVIDUAL — registra avaliação + frequência (Presente)
-  // ══════════════════════════════════════════════════════
-  function saveIndividualAvaliacao() {
-    if (!validateFormulario()) return;
-    const selectedTags = [];
-    document.querySelectorAll('#tagsCont .tag.on').forEach(t => selectedTags.push(t.getAttribute('data-t')));
-    let observacao = selectedTags.join(' · ');
-    const extraObs = (document.getElementById('obsTA').value || '').trim();
-    if (extraObs) observacao += (observacao ? ' · ' : '') + extraObs;
+    const selTags = [...document.querySelectorAll('#tagsCont .tag.on')].map(t => t.getAttribute('data-t'));
+    let obs = selTags.join(' · ');
+    const extra = ($('obsTA').value || '').trim();
+    if (extra) obs += (obs ? ' · ' : '') + extra;
 
-    const registro = {
-      data:        getCurrentDate(),
-      turma:       state.turmaAtual || '',
-      aluno:       state.alunoAtual,
-      uc:          document.getElementById('ucSel').value,
-      vetor:       document.getElementById('vetSel').value,
-      instrumento: document.getElementById('instSel').value,
-      criterio:    document.getElementById('critSel').value,
-      nota:        parseFloat(document.getElementById('slider').value),
-      observacao:  observacao,
-      frequencia: 'Sim'   // ← NOVO: sempre presente no modo individual
+    saveLastSel();
+
+    const nota = parseFloat($('slider').value);
+    const lvl  = getLevel(nota);
+
+    const reg = {
+      data: today(), turma: state.turmaAtual || '',
+      aluno: state.alunoAtual, uc, vetor,
+      instrumento: ins, criterio: crit,
+      nota, nivel: lvl.label,
+      observacao: obs, frequencia: 'Sim'
     };
 
-    const btn = document.getElementById('btnSalvar');
+    const btn = $('btnSalvar');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
-    sendToSheet(registro, (status) => {
+    sendOne(reg, status => {
       if (btn) { btn.disabled = false; btn.innerHTML = '💾 Registrar Avaliação'; }
       showScreen('s6a'); updateDots(3);
-      const infoEl = document.getElementById('sucInfo');
-      if (infoEl) infoEl.textContent = status === 'offline'
+      $('sucInfo').textContent = status === 'offline'
         ? '⏳ Salvo localmente — enviará ao reconectar.'
         : '✅ Avaliação e frequência enviadas ao Google Sheets.';
-      const cardEl = document.getElementById('sucCard');
-      if (cardEl) {
-        cardEl.innerHTML = '';
-        cardEl.appendChild(makeRowDOM('Aluno',      registro.aluno));
-        cardEl.appendChild(makeRowDOM('UC',         registro.uc));
-        cardEl.appendChild(makeRowDOM('Critério',   registro.criterio));
-        cardEl.appendChild(makeRowDOM('Nota',       registro.nota.toFixed(1).replace('.', ','), registro.nota >= 6 ? '#059669' : '#E30613'));
-        cardEl.appendChild(makeRowDOM('Frequência', '✅ Presente', '#059669'));
-      }
+      const c = $('sucCard'); c.innerHTML = '';
+      c.appendChild(row('Aluno',      reg.aluno));
+      c.appendChild(row('UC',         reg.uc));
+      c.appendChild(row('Critério',   reg.criterio));
+      c.appendChild(row('Nota',       reg.nota.toFixed(1).replace('.', ','), lvl.color));
+      c.appendChild(row('Nível',      lvl.label, lvl.color));
+      c.appendChild(row('Frequência', '✅ Presente', '#059669'));
     });
   }
 
-  function makeRowDOM(label, value, color) {
-    const row = createSafeElement('div', { className: 'sr' });
-    const lbl = createSafeElement('span', { className: 'sl' }, label);
-    const val = createSafeElement('span', { className: 'sv' }, String(value));
-    if (color) val.style.color = color;
-    row.appendChild(lbl); row.appendChild(val);
-    return row;
+  function row(lbl, val, color) {
+    const r = el('div', 'sr');
+    const l = el('span', 'sl', lbl);
+    const v = el('span', 'sv', String(val));
+    if (color) v.style.color = color;
+    r.appendChild(l); r.appendChild(v); return r;
   }
 
-  // ══════════════════════════════════════════════════════
-  // VARREDURA — configurar
-  // ══════════════════════════════════════════════════════
+  /* ── Varredura ─────────────────────────────────── */
   function iniciarVarredura() {
-    const uc         = document.getElementById('swUcSel').value;
-    const vetor      = document.getElementById('swVetSel').value;
-    const instrumento= document.getElementById('swInstSel').value;
-    const criterio   = document.getElementById('swCritSel').value;
-    if (!uc)         { showToast('⚠️ Selecione a Unidade Curricular', 'err'); return; }
-    if (!vetor)      { showToast('⚠️ Selecione o Vetor', 'err');             return; }
-    if (!instrumento){ showToast('⚠️ Selecione o Instrumento', 'err');       return; }
-    if (!criterio)   { showToast('⚠️ Selecione o Critério', 'err');          return; }
-    state.swCfg   = { uc, vetor, instrumento, criterio };
-    state.swNotas = {};
-    state.swFaltas = {};
+    const uc  = $('swUcSel').value,  vetor = $('swVetSel').value;
+    const ins = $('swInstSel').value, crit = $('swCritSel').value;
+    if (!uc)   { showToast('⚠️ Selecione a UC', 'err');          return; }
+    if (!vetor){ showToast('⚠️ Selecione o Vetor', 'err');       return; }
+    if (!ins)  { showToast('⚠️ Selecione o Instrumento', 'err'); return; }
+    if (!crit) { showToast('⚠️ Selecione o Critério', 'err');    return; }
+
+    saveLastSel();
+    state.swCfg         = { uc, vetor, instrumento: ins, criterio: crit };
+    state.swNotas       = {};
+    state.swFaltas      = {};
     state.swConfirmados = {};
+
     showScreen('s5b'); updateDots(3);
-    const titleEl = document.getElementById('swTitle');
-    const subEl   = document.getElementById('swSub');
-    if (titleEl) titleEl.textContent = `⚡ ${criterio}`;
-    if (subEl)   subEl.textContent   = `${uc} · ${vetor} · ${instrumento}`;
-    // Limpar lista para re-render
-    const list = document.getElementById('swList');
-    if (list) list.innerHTML = '';
+    $('swTitle').textContent = `⚡ ${crit}`;
+    $('swSub').textContent   = `${uc} · ${vetor} · ${ins}`;
+    $('swList').innerHTML    = '';
     renderVarredura();
   }
 
-  // ══════════════════════════════════════════════════════
-  // VARREDURA — renderizar lista de alunos
-  // ══════════════════════════════════════════════════════
   function renderVarredura() {
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
-    const container = document.getElementById('swList');
-    if (!container || container.children.length > 0) return;
+    const cont   = $('swList'); if (!cont) return;
+    cont.classList.remove('sw-stagger');
+    void cont.offsetWidth;
+    cont.classList.add('sw-stagger');
+    const frag   = document.createDocumentFragment();
 
     alunos.forEach(nome => {
-      const item = createSafeElement('div', { className: 'sw-item' });
+      const item     = el('div', 'sw-item');
       item.setAttribute('data-aluno', nome);
 
-      // ── Linha de topo ──
-      const top = createSafeElement('div', { className: 'sw-top' });
-      const status = createSafeElement('div', { className: 'sw-status' });
-      const nomeEl = createSafeElement('div', { className: 'sw-nome' }, nome);
-      const notaAtual = createSafeElement('div', { className: 'sw-nota-atual' }, '—');
-      top.appendChild(status); top.appendChild(nomeEl); top.appendChild(notaAtual);
+      const top      = el('div', 'sw-top');
+      const statusEl = el('div', 'sw-status');
+      const nomeEl   = el('div', 'sw-nome', nome);
+      const notaEl   = el('div', 'sw-nota-atual', '—');
+      top.appendChild(statusEl); top.appendChild(nomeEl); top.appendChild(notaEl);
 
-      // ── Controles de nota ──
-      const controls = createSafeElement('div', { className: 'sw-nota-ctrl' });
-      const quickBtns = createSafeElement('div', { className: 'sw-quick' });
-      [0, 2, 4, 5, 6, 7, 8, 9, 10].forEach(v => {
-        const btn = createSafeElement('button', { className: 'sw-btn' }, v.toFixed(1));
+      const ctrl     = el('div', 'sw-nota-ctrl');
+      const quick    = el('div', 'sw-quick');
+
+      [0,1,2,3,4,5,6,7,8,9,10].forEach(v => {
+        const btn = el('button', 'sw-btn', v.toFixed(0));
         btn.setAttribute('data-v', String(v));
-        btn.addEventListener('click', (e) => { e.stopPropagation(); updateVarreduraNota(nome, v); });
-        quickBtns.appendChild(btn);
+        btn.setAttribute('data-level', getLevel(v).key);
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          confirmarNota(nome, v, item, statusEl, nomeEl, notaEl, quick);
+        });
+        quick.appendChild(btn);
       });
 
-      // Botão confirmar nota
-      const confirmBtn = createSafeElement('button', { className: 'sw-confirm' }, '✓ Confirmar Presença');
-      confirmBtn.addEventListener('click', (e) => {
+      const faltaBtn = el('button', 'sw-falta-btn', '❌ Marcar como Falta');
+      faltaBtn.addEventListener('click', e => {
         e.stopPropagation();
-        if (state.swNotas[nome] !== undefined) {
-          state.swConfirmados[nome] = true;   // registra em state, não só no DOM
-          item.classList.remove('open', 'falta');
-          item.classList.add('done');
-          status.textContent = '✓';
-          nomeEl.className = 'sw-nome';
-          delete state.swFaltas[nome];
-          updateVarreduraProgress();
-        } else {
-          showToast('⚠️ Selecione uma nota primeiro', 'wrn');
-        }
+        marcarFalta(nome, item, statusEl, nomeEl, notaEl, quick);
       });
 
-      // ── NOVO: Botão marcar falta ──
-      const faltaBtn = createSafeElement('button', { className: 'sw-falta-btn' }, '❌ Marcar como Falta');
-      faltaBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        state.swFaltas[nome] = true;
-        delete state.swNotas[nome];
-        item.classList.remove('open', 'done');
-        item.classList.add('falta');
-        status.textContent = '✕';
-        nomeEl.className = 'sw-nome sw-nome-falta';
-        notaAtual.textContent = 'Falta';
-        notaAtual.style.color = '#F87171';
-        // Limpar botões de nota
-        quickBtns.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
-        updateVarreduraProgress();
-      });
+      ctrl.appendChild(quick);
+      ctrl.appendChild(faltaBtn);
 
-      controls.appendChild(quickBtns);
-      controls.appendChild(confirmBtn);
-      controls.appendChild(faltaBtn);
-
-      // ── NOVO: Desfazer falta ──
-      const desfazerWrap = createSafeElement('div', { className: 'sw-desfazer' });
-      const desfazerBtn = createSafeElement('button', { className: 'sw-desfazer-btn' }, '↩ Desfazer falta');
-      desfazerBtn.addEventListener('click', (e) => {
+      const desfWrap = el('div', 'sw-desfazer');
+      const desfBtn  = el('button', 'sw-desfazer-btn', '↩ Desfazer falta');
+      desfBtn.addEventListener('click', e => {
         e.stopPropagation();
         delete state.swFaltas[nome];
         delete state.swConfirmados[nome];
         delete state.swNotas[nome];
-        item.classList.remove('falta', 'open', 'done');
-        status.textContent = '';
-        nomeEl.className = 'sw-nome';
-        notaAtual.textContent = '—';
-        notaAtual.style.color = '';
-        item.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
-        updateVarreduraProgress();
+        item.classList.remove('falta','open','done');
+        statusEl.textContent  = '';
+        nomeEl.className      = 'sw-nome';
+        notaEl.textContent    = '—';
+        notaEl.style.color    = '';
+        quick.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
+        updateProgress();
       });
-      desfazerWrap.appendChild(desfazerBtn);
+      desfWrap.appendChild(desfBtn);
+
+      top.addEventListener('click', () => {
+        if (!item.classList.contains('done') && !item.classList.contains('falta'))
+          item.classList.toggle('open');
+      });
 
       item.appendChild(top);
-      item.appendChild(controls);
-      item.appendChild(desfazerWrap);
-
-      // Expandir ao tocar (só se não for falta)
-      top.addEventListener('click', () => {
-        if (!item.classList.contains('done') && !item.classList.contains('falta')) {
-          item.classList.toggle('open');
-        }
-      });
-
-      container.appendChild(item);
+      item.appendChild(ctrl);
+      item.appendChild(desfWrap);
+      frag.appendChild(item);
     });
 
-    updateVarreduraProgress();
+    cont.appendChild(frag);
+    updateProgress();
   }
 
-  function getSwItem(nome) {
-    const items = document.querySelectorAll('.sw-item');
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].getAttribute('data-aluno') === nome) return items[i];
-    }
-    return null;
-  }
-
-  function updateVarreduraNota(nome, nota) {
-    state.swNotas[nome] = nota;
+  function confirmarNota(nome, nota, item, statusEl, nomeEl, notaEl, quick) {
+    state.swNotas[nome]       = nota;
+    state.swConfirmados[nome] = true;
     delete state.swFaltas[nome];
-    delete state.swConfirmados[nome];
-    const item = getSwItem(nome);
-    if (!item) return;
-    const notaEl = item.querySelector('.sw-nota-atual');
-    if (notaEl) {
-      notaEl.textContent = nota.toFixed(1).replace('.', ',');
-      notaEl.style.color = nota >= 6 ? '#059669' : '#E30613';
-    }
-    const nomeEl = item.querySelector('.sw-nome');
-    if (nomeEl) nomeEl.className = 'sw-nome';
-    item.querySelectorAll('.sw-btn').forEach(btn => {
-      btn.classList.toggle('on', Number(btn.getAttribute('data-v')) === nota);
+
+    item.classList.remove('open','falta');
+    item.classList.add('done');
+    statusEl.textContent = '✓';
+    nomeEl.className     = 'sw-nome';
+    notaEl.textContent   = nota.toFixed(1).replace('.', ',');
+    notaEl.style.color   = nota >= 6 ? '#059669' : '#E30613';
+    quick.querySelectorAll('.sw-btn').forEach(b =>
+      b.classList.toggle('on', Number(b.getAttribute('data-v')) === nota)
+    );
+    updateProgress();
+
+    requestAnimationFrame(() => {
+      const todos = document.querySelectorAll('.sw-item');
+      for (let i = 0; i < todos.length; i++) {
+        if (!todos[i].classList.contains('done') && !todos[i].classList.contains('falta')) {
+          todos[i].classList.add('open');
+          todos[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
     });
   }
 
-  function updateVarreduraProgress() {
-    const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
-    const total    = alunos.length;
-    const doneEls  = document.querySelectorAll('.sw-item.done').length;   // nota confirmada
-    const faltaEls = document.querySelectorAll('.sw-item.falta').length;  // falta marcada
-    const pending  = total - doneEls - faltaEls;
-    const resolved = doneEls + faltaEls;
-    const percent  = total > 0 ? (resolved / total * 100) : 0;
+  function marcarFalta(nome, item, statusEl, nomeEl, notaEl, quick) {
+    state.swFaltas[nome]      = true;
+    state.swConfirmados[nome] = true;
+    delete state.swNotas[nome];
 
-    const barEl      = document.getElementById('swBar');
-    const ctEl       = document.getElementById('swCt');
-    const actionsEl  = document.getElementById('swActions');
-    const partialEl  = document.getElementById('swActionsPartial');
-    const legP       = document.getElementById('swLegP');
-    const legF       = document.getElementById('swLegF');
-    const legN       = document.getElementById('swLegN');
+    item.classList.remove('open','done');
+    item.classList.add('falta');
+    statusEl.textContent = '✕';
+    nomeEl.className     = 'sw-nome sw-nome-falta';
+    notaEl.textContent   = 'Falta';
+    notaEl.style.color   = '#F87171';
+    quick.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
+    updateProgress();
 
-    if (barEl)  barEl.style.width = percent + '%';
-    if (ctEl)   ctEl.textContent  = `${resolved}/${total}`;
-    if (legP)   legP.textContent  = `${doneEls} presente${doneEls !== 1 ? 's' : ''}`;
-    if (legF)   legF.textContent  = `${faltaEls} falta${faltaEls !== 1 ? 's' : ''}`;
-    if (legN)   legN.textContent  = `${pending} pendente${pending !== 1 ? 's' : ''}`;
-
-    // Mostrar botão principal só quando 100% resolvido
-    if (actionsEl)  actionsEl.style.display  = (resolved === total && total > 0) ? 'block' : 'none';
-    // Mostrar botão parcial quando há pelo menos 1 avaliado mas ainda há pendentes
-    if (partialEl)  partialEl.style.display  = (doneEls > 0 && pending > 0) ? 'block' : 'none';
+    requestAnimationFrame(() => {
+      const todos = document.querySelectorAll('.sw-item');
+      for (let i = 0; i < todos.length; i++) {
+        if (!todos[i].classList.contains('done') && !todos[i].classList.contains('falta')) {
+          todos[i].classList.add('open');
+          todos[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
+    });
   }
 
-  // ══════════════════════════════════════════════════════
-  // VARREDURA — enviar (incluindo faltas)
-  // ══════════════════════════════════════════════════════
-  function enviarVarredura(apenasAvaliados) {
+  function updateProgress() {
+    const alunos  = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
+    const total   = alunos.length;
+    const doneN   = document.querySelectorAll('.sw-item.done').length;
+    const faltaN  = document.querySelectorAll('.sw-item.falta').length;
+    const pend    = total - doneN - faltaN;
+    const resolved= doneN + faltaN;
+    const pct     = total > 0 ? resolved / total * 100 : 0;
+
+    $('swBar').style.width       = pct + '%';
+    $('swCt').textContent        = `${resolved}/${total}`;
+    $('swLegP').textContent      = `${doneN} presente${doneN !== 1 ? 's' : ''}`;
+    $('swLegF').textContent      = `${faltaN} falta${faltaN !== 1 ? 's' : ''}`;
+    $('swLegN').textContent      = `${pend} pendente${pend !== 1 ? 's' : ''}`;
+    $('swActions').style.display = resolved > 0 ? 'block' : 'none';
+  }
+
+  /* ── Enviar varredura ──────────────────────────── */
+  function enviarVarredura() {
     const alunos = state.turmaAtual ? (state.dados.alunos[state.turmaAtual] || []) : [];
-    const registros = [];
+    const regs   = [];
 
     alunos.forEach(nome => {
       if (state.swFaltas[nome]) {
-        // ← NOVO: Registrar falta (sem nota de avaliação)
-        registros.push({
-          data:        getCurrentDate(),
-          turma:       state.turmaAtual || '',
-          aluno:       nome,
-          uc:          state.swCfg.uc,
-          vetor:       state.swCfg.vetor,
-          instrumento: state.swCfg.instrumento,
-          criterio:    state.swCfg.criterio,
-          nota:        null,
-          observacao:  'Falta registrada via varredura',
-          frequencia: 'Não'
+        regs.push({
+          data: today(), turma: state.turmaAtual || '', aluno: nome,
+          uc: state.swCfg.uc, vetor: state.swCfg.vetor,
+          instrumento: state.swCfg.instrumento, criterio: state.swCfg.criterio,
+          nota: null, observacao: 'Falta registrada via varredura', frequencia: 'Não'
         });
-      } else if (state.swNotas[nome] !== undefined) {
-        // Presente com nota — usa state.swConfirmados
-        const foiConfirmado = !!state.swConfirmados[nome];
-        if (!apenasAvaliados || foiConfirmado) {
-          registros.push({
-            data:        getCurrentDate(),
-            turma:       state.turmaAtual || '',
-            aluno:       nome,
-            uc:          state.swCfg.uc,
-            vetor:       state.swCfg.vetor,
-            instrumento: state.swCfg.instrumento,
-            criterio:    state.swCfg.criterio,
-            nota:        Number(state.swNotas[nome]),
-            observacao:  'Varredura de turma',
-            frequencia:  'Sim'
-          });
-        }
+      } else if (state.swConfirmados[nome] && state.swNotas[nome] !== undefined) {
+        regs.push({
+          data: today(), turma: state.turmaAtual || '', aluno: nome,
+          uc: state.swCfg.uc, vetor: state.swCfg.vetor,
+          instrumento: state.swCfg.instrumento, criterio: state.swCfg.criterio,
+          nota: Number(state.swNotas[nome]),
+          observacao: 'Varredura de turma', frequencia: 'Sim'
+        });
       }
     });
 
-    if (registros.length === 0) { showToast('⚠️ Nenhuma avaliação ou falta registrada', 'err'); return; }
+    if (!regs.length) { showToast('⚠️ Nenhuma avaliação registrada', 'err'); return; }
 
-    const btn = document.getElementById('btnEnviarTudo');
-    const btnP = document.getElementById('btnEnviarParcial');
-    if (btn)  { btn.disabled  = true; btn.textContent  = '⏳ Enviando...'; }
-    if (btnP) { btnP.disabled = true; }
+    const btn = $('btnEnviarTudo');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
 
-    sendBatch(registros, (status) => {
-      if (btn)  { btn.disabled  = false; btn.innerHTML  = '📤 Enviar tudo para o Sheets'; }
-      if (btnP) { btnP.disabled = false; }
+    sendBatch(regs, status => {
+      if (btn) { btn.disabled = false; btn.innerHTML = '📤 Enviar avaliados para o Sheets'; }
       showScreen('s6b'); updateDots(3);
 
-      const presentes = registros.filter(r => r.frequencia === 'Sim').length;
-      const faltas    = registros.filter(r => r.frequencia === 'Não').length;
+      const pres  = regs.filter(r => r.frequencia === 'Sim').length;
+      const faltas= regs.filter(r => r.frequencia === 'Não').length;
 
-      const infoEl = document.getElementById('sucSwInfo');
-      if (infoEl) infoEl.textContent = status === 'offline'
-        ? `⏳ ${registros.length} registros salvos localmente — enviarão ao reconectar.`
-        : `✅ ${registros.length} registros enviados ao Google Sheets.`;
+      $('sucSwInfo').textContent = status === 'offline'
+        ? `⏳ ${regs.length} registros salvos localmente — enviarão ao reconectar.`
+        : `✅ ${regs.length} registros enviados ao Google Sheets.`;
 
-      const cardEl = document.getElementById('sucSwCard');
-      if (cardEl) {
-        cardEl.innerHTML = '';
-        cardEl.appendChild(makeRowDOM('Turma',     state.turmaAtual || ''));
-        cardEl.appendChild(makeRowDOM('UC',        state.swCfg.uc));
-        cardEl.appendChild(makeRowDOM('Critério',  state.swCfg.criterio));
-        cardEl.appendChild(makeRowDOM('Presentes', presentes, '#059669'));
-        cardEl.appendChild(makeRowDOM('Faltas',    faltas,    faltas > 0 ? '#F87171' : undefined));
-      }
+      const c = $('sucSwCard'); c.innerHTML = '';
+      c.appendChild(row('Turma',     state.turmaAtual || ''));
+      c.appendChild(row('UC',        state.swCfg.uc));
+      c.appendChild(row('Critério',  state.swCfg.criterio));
+      c.appendChild(row('Presentes', pres,   '#059669'));
+      c.appendChild(row('Faltas',    faltas, faltas > 0 ? '#F87171' : undefined));
 
       state.swNotas = {}; state.swFaltas = {}; state.swConfirmados = {}; state.swCfg = {};
     });
   }
 
-  // ══════════════════════════════════════════════════════
-  // Comunicação com o Apps Script
-  // ══════════════════════════════════════════════════════
-  function sendToSheet(registro, callback) {
-    if (!navigator.onLine) { queueRegistro(registro); callback('offline'); return; }
-    fetch(state.config.url, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(registro)
-    })
-    .then(() => { showToast('✅ Enviado', 'ok'); callback('online'); syncOfflineQueue(); })
-    .catch(err => {
-      console.error('Erro ao enviar:', err);
-      showToast('⚠️ Erro de conexão. Salvo localmente.', 'wrn');
-      queueRegistro(registro); callback('offline');
-    });
+  /* ── Comunicação ───────────────────────────────── */
+  function sendOne(reg, cb) {
+    if (!navigator.onLine) { queue(reg); cb('offline'); return; }
+    fetch(state.config.url, { method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'}, body: JSON.stringify(reg) })
+    .then(() => { showToast('✅ Enviado', 'ok'); cb('online'); syncOfflineQueue(); })
+    .catch(() => { showToast('⚠️ Erro. Salvo localmente.','wrn'); queue(reg); cb('offline'); });
   }
 
-  function sendBatch(registros, callback) {
-    if (!navigator.onLine) { registros.forEach(r => queueRegistro(r)); callback('offline'); return; }
-    fetch(state.config.url, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ batch: registros })
-    })
-    .then(() => { showToast('✅ Batch enviado', 'ok'); callback('online'); syncOfflineQueue(); })
-    .catch(err => {
-      console.error('Erro ao enviar batch:', err);
-      showToast('⚠️ Erro de conexão. Salvo localmente.', 'wrn');
-      registros.forEach(r => queueRegistro(r)); callback('offline');
-    });
+  function sendBatch(regs, cb) {
+    if (!navigator.onLine) { regs.forEach(queue); cb('offline'); return; }
+    fetch(state.config.url, { method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ batch: regs }) })
+    .then(() => { showToast('✅ Enviado', 'ok'); cb('online'); syncOfflineQueue(); })
+    .catch(() => { showToast('⚠️ Erro. Salvo localmente.','wrn'); regs.forEach(queue); cb('offline'); });
   }
 
-  function queueRegistro(registro) {
-    state.queue.push(registro);
-    safeLocalStorageSet(LS_KEYS.QUEUE, JSON.stringify(state.queue));
+  function queue(reg) {
+    state.queue.push(reg);
+    lsSet(LS.QUEUE, JSON.stringify(state.queue));
     updatePendingUI();
   }
 
   function updatePendingUI() {
-    const pendEl = document.getElementById('pend');
-    const ctEl   = document.getElementById('pendCt');
+    const p = $('pend'), c = $('pendCt');
     if (state.queue.length > 0) {
-      if (pendEl) pendEl.style.display = 'block';
-      if (ctEl)   ctEl.textContent     = state.queue.length;
+      if (p) p.style.display = 'flex';
+      if (c) c.textContent   = state.queue.length;
     } else {
-      if (pendEl) pendEl.style.display = 'none';
+      if (p) p.style.display = 'none';
     }
   }
 
   function syncOfflineQueue() {
-    if (!navigator.onLine || state.isSyncing || state.queue.length === 0) return;
+    if (!navigator.onLine || state.isSyncing || !state.queue.length) return;
     state.isSyncing = true;
     showToast('🔄 Sincronizando...', 'wrn');
-    function processNext() {
-      if (state.queue.length === 0) {
+    const next = () => {
+      if (!state.queue.length) {
         state.isSyncing = false;
-        safeLocalStorageSet(LS_KEYS.QUEUE, JSON.stringify(state.queue));
+        lsSet(LS.QUEUE, JSON.stringify(state.queue));
         updatePendingUI();
         showToast('✅ Sincronização concluída', 'ok');
         return;
       }
-      const registro = state.queue[0];
-      fetch(state.config.url, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(registro)
-      })
-      .then(() => { state.queue.shift(); updatePendingUI(); setTimeout(processNext, 500); })
-      .catch(err => {
-        console.error('Erro na sync:', err);
-        state.isSyncing = false;
-        showToast('⚠️ Erro na sincronização. Tentará novamente.', 'err');
-      });
-    }
-    processNext();
+      fetch(state.config.url, { method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain'}, body: JSON.stringify(state.queue[0]) })
+      .then(() => { state.queue.shift(); updatePendingUI(); setTimeout(next, 500); })
+      .catch(() => { state.isSyncing = false; showToast('⚠️ Erro na sincronização.','err'); });
+    };
+    next();
   }
 
-  let toastTimer = null;
-  function showToast(message, type = '') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    if (toastTimer) clearTimeout(toastTimer);
-    toast.textContent = message;
-    toast.className = 'toast ' + type;
-    setTimeout(() => toast.classList.add('on'), 10);
-    toastTimer = setTimeout(() => toast.classList.remove('on'), 3000);
+  /* ── Toast ─────────────────────────────────────── */
+  let toastT = null;
+  function showToast(msg, type = '') {
+    const t = $('toast'); if (!t) return;
+    if (toastT) clearTimeout(toastT);
+    t.textContent = msg;
+    t.className   = 'toast ' + type;
+    setTimeout(() => t.classList.add('on'), 10);
+    toastT = setTimeout(() => t.classList.remove('on'), 3000);
   }
 
 })();
