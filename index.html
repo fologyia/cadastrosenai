@@ -602,6 +602,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 
   <!-- TELA 0: SETUP -->
   <div class="scr on" id="s0">
+    <button class="btn-back" id="btnBack0">← Voltar</button>
     <div class="scr-title">Configuração Inicial</div>
     <div class="scr-sub">Preencha uma vez, use sempre.</div>
     <div class="info-box">
@@ -938,6 +939,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 
   /* ── Listeners ─────────────────────────────────── */
   function registerListeners() {
+    on('btnBack0',       'click', () => { if (state.dados.turmas?.length) { showScreen('s2'); updateDots(1); } });
     on('btnSetup',       'click', setupConfig);
     on('btnTrocarTurma', 'click', () => { state.turmaAtual = null; updateTurmaBar(); goToTurmaSelect(); });
     on('btnRecarregar',  'click', reloadData);
@@ -990,6 +992,9 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     showScreen('s0'); updateDots(0);
     if (state.config.url)     $('fUrl').value     = state.config.url;
     if (state.config.sheetId) $('fSheetId').value = state.config.sheetId;
+    // Mostra botão voltar só se já tiver dados carregados
+    const backBtn = $('btnBack0');
+    if (backBtn) backBtn.style.display = state.dados.turmas?.length ? 'flex' : 'none';
   }
 
   function loadSavedConfig() {
