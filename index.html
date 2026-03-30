@@ -15,18 +15,8 @@
   --azul:#00539F;--azul-dk:#003d7a;--vermelho:#E30613;
   --verde:#059669;--amarelo:#F59E0B;--laranja:#EA580C;
   --cinza:#F1F5F9;--cinza2:#E2E8F0;--txt:#0F172A;--txt2:#64748B;
-  --tap:48px;
-  --r:14px;
-
-  /* Cores por nível de nota */
-  --lvl-insuf:#E30613;
-  --lvl-insuf-bg:rgba(227,6,19,.08);
-  --lvl-dev:#F59E0B;
-  --lvl-dev-bg:rgba(245,158,11,.08);
-  --lvl-sat:#3B82F6;
-  --lvl-sat-bg:rgba(59,130,246,.08);
-  --lvl-exc:#059669;
-  --lvl-exc-bg:rgba(5,150,105,.08);
+  --tap:48px; /* mínimo alvo de toque */
+  --r:14px;   /* border-radius padrão */
 }
 
 /* ── Reset ──────────────────────────────────────── */
@@ -49,6 +39,7 @@ body{font-family:'Sora',system-ui,sans-serif;background:#0a1628;color:var(--txt)
 .app{position:relative;z-index:1;max-width:600px;margin:0 auto;
      display:flex;flex-direction:column;min-height:100vh}
 
+/* Tablet/Desktop: dois paineis lado a lado quando largo */
 @media(min-width:900px){
   .app{max-width:900px;flex-direction:row;flex-wrap:wrap}
   .header{width:100%;flex-shrink:0}
@@ -88,6 +79,7 @@ body{font-family:'Sora',system-ui,sans-serif;background:#0a1628;color:var(--txt)
      -webkit-overflow-scrolling:touch;padding:0 20px 56px;
      scroll-behavior:smooth}
 .scr.on{display:flex}
+
 
 .scr-title{color:#fff;font-size:1.4rem;font-weight:700;margin-bottom:4px}
 .scr-sub{color:rgba(255,255,255,.4);font-size:.82rem;margin-bottom:18px}
@@ -227,172 +219,30 @@ body{font-family:'Sora',system-ui,sans-serif;background:#0a1628;color:var(--txt)
               color:var(--txt2);pointer-events:none;font-size:.9rem}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* ══════════════════════════════════════════════════
-   NOTA — Seção reformulada com níveis e cores
-   ══════════════════════════════════════════════════ */
-
-/* Label row com botão i */
-.nota-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+/* ── Nota slider ────────────────────────────────── */
 .nota-lbl{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;
-          letter-spacing:.08em;color:var(--txt2)}
-.btn-info{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--txt2);
-          background:transparent;display:flex;align-items:center;justify-content:center;
-          color:var(--txt2);font-size:.72rem;font-weight:700;cursor:pointer;
-          font-family:'Sora',system-ui,sans-serif;
-          -webkit-tap-highlight-color:transparent;touch-action:manipulation;
-          transition:border-color .2s,color .2s,background .2s;
-          line-height:1;padding:0;flex-shrink:0}
-.btn-info:hover,.btn-info:active{border-color:var(--azul);color:var(--azul);
-  background:rgba(0,83,159,.07)}
-
-/* Número + badge nível */
-.nota-row{display:flex;align-items:baseline;gap:10px;margin:8px 0 6px}
-.nota-num{font-size:3.2rem;font-weight:800;line-height:1;
-          transition:color .25s;will-change:color}
+          letter-spacing:.08em;color:var(--txt2);margin-bottom:4px}
+.nota-num{text-align:center;font-size:3.2rem;font-weight:800;line-height:1;
+          margin:8px 0 6px;transition:color .2s;will-change:color}
 .nota-num span{font-size:.92rem;color:var(--txt2);font-weight:400}
-.nota-nivel{font-size:.72rem;font-weight:700;letter-spacing:.04em;
-            opacity:.55;transition:color .25s,opacity .25s;
-            text-transform:uppercase;padding-bottom:4px;align-self:flex-end}
-
-/* Slider com gradiente dinâmico */
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;
-                  height:10px;border-radius:10px;outline:none;cursor:pointer;
-                  touch-action:manipulation;transition:background .25s}
+                  height:10px;border-radius:10px;background:var(--cinza2);
+                  outline:none;cursor:pointer;touch-action:manipulation}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
-  width:30px;height:30px;border-radius:50%;background:#fff;
-  border:3px solid var(--azul);box-shadow:0 2px 10px rgba(0,0,0,.18);
-  cursor:pointer;transition:border-color .25s,transform .15s}
-input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18)}
+  width:30px;height:30px;border-radius:50%;background:var(--azul);
+  border:3px solid #fff;box-shadow:0 2px 8px rgba(0,83,159,.4);cursor:pointer}
 input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
-  background:#fff;border:3px solid var(--azul);cursor:pointer}
+  background:var(--azul);border:3px solid #fff;cursor:pointer}
 .nota-labs{display:flex;justify-content:space-between;
            font-size:.67rem;color:var(--txt2);margin-top:4px}
-
-/* Legenda de faixas abaixo do slider */
-.nota-faixas{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
-             gap:4px;margin-top:8px}
-.faixa{border-radius:6px;padding:5px 4px;text-align:center;font-size:.6rem;
-       font-weight:700;letter-spacing:.03em;line-height:1.3}
-.faixa-insuf{background:rgba(227,6,19,.08);color:var(--lvl-insuf);border:1px solid rgba(227,6,19,.15)}
-.faixa-dev  {background:rgba(245,158,11,.08);color:var(--lvl-dev); border:1px solid rgba(245,158,11,.15)}
-.faixa-sat  {background:rgba(59,130,246,.08);color:var(--lvl-sat); border:1px solid rgba(59,130,246,.15)}
-.faixa-exc  {background:rgba(5,150,105,.08);color:var(--lvl-exc);  border:1px solid rgba(5,150,105,.15)}
-
-/* Quick notes coloridos */
 .nota-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
 .nb{-webkit-appearance:none;appearance:none;padding:10px 4px;
     border:2px solid var(--cinza2);border-radius:9px;background:#fff;
-    font-family:'Sora',system-ui,sans-serif;font-size:.82rem;font-weight:700;
-    cursor:pointer;min-height:42px;
+    font-family:'Sora',system-ui,sans-serif;font-size:.82rem;font-weight:600;
+    color:var(--txt2);cursor:pointer;min-height:42px;
     -webkit-tap-highlight-color:transparent;touch-action:manipulation;
-    transition:border-color .15s,background .15s,color .15s,transform .1s}
-.nb:active{transform:scale(.92)}
-
-/* Cores idle por nível */
-.nb[data-level="insuf"]{color:var(--lvl-insuf);border-color:rgba(227,6,19,.25);background:rgba(227,6,19,.04)}
-.nb[data-level="dev"]  {color:var(--lvl-dev);  border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.04)}
-.nb[data-level="sat"]  {color:var(--lvl-sat);  border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.04)}
-.nb[data-level="exc"]  {color:var(--lvl-exc);  border-color:rgba(5,150,105,.25); background:rgba(5,150,105,.04)}
-
-/* Estado ativo (selecionado) */
-.nb.on[data-level="insuf"]{background:var(--lvl-insuf);border-color:var(--lvl-insuf);color:#fff}
-.nb.on[data-level="dev"]  {background:var(--lvl-dev);  border-color:var(--lvl-dev);  color:#fff}
-.nb.on[data-level="sat"]  {background:var(--lvl-sat);  border-color:var(--lvl-sat);  color:#fff}
-.nb.on[data-level="exc"]  {background:var(--lvl-exc);  border-color:var(--lvl-exc);  color:#fff}
-
-/* ══════════════════════════════════════════════════
-   MODAL DE AJUDA — "i"
-   ══════════════════════════════════════════════════ */
-.modal-overlay{position:fixed;inset:0;z-index:300;
-               background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
-               display:flex;align-items:flex-end;justify-content:center;
-               opacity:0;pointer-events:none;
-               transition:opacity .28s ease}
-.modal-overlay.on{opacity:1;pointer-events:auto}
-
-.modal-sheet{background:#fff;border-radius:24px 24px 0 0;
-             width:100%;max-width:600px;max-height:88vh;
-             overflow-y:auto;-webkit-overflow-scrolling:touch;
-             padding:0 0 env(safe-area-inset-bottom,24px);
-             transform:translateY(100%);
-             transition:transform .32s cubic-bezier(.2,.85,.4,1)}
-.modal-overlay.on .modal-sheet{transform:translateY(0)}
-
-.modal-handle{width:40px;height:4px;border-radius:4px;background:#E2E8F0;
-              margin:14px auto 0}
-.modal-head{padding:18px 20px 14px;display:flex;align-items:center;
-            justify-content:space-between;border-bottom:1px solid #F1F5F9;
-            position:sticky;top:0;background:#fff;z-index:1}
-.modal-title{font-size:1rem;font-weight:800;color:var(--txt)}
-.modal-close{width:32px;height:32px;border-radius:50%;border:none;
-             background:var(--cinza);color:var(--txt2);
-             font-size:1.1rem;cursor:pointer;display:flex;
-             align-items:center;justify-content:center;
-             -webkit-tap-highlight-color:transparent;
-             font-family:'Sora',system-ui,sans-serif;font-weight:700;
-             transition:background .15s}
-.modal-close:active{background:var(--cinza2)}
-.modal-body{padding:16px 20px 28px}
-
-/* Cartões de nível */
-.lvl-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.lvl-card{border-radius:13px;padding:13px 13px;border:1.5px solid}
-.lvl-card-insuf{border-color:rgba(227,6,19,.2);background:rgba(227,6,19,.05)}
-.lvl-card-dev  {border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.05)}
-.lvl-card-sat  {border-color:rgba(59,130,246,.2);background:rgba(59,130,246,.05)}
-.lvl-card-exc  {border-color:rgba(5,150,105,.2);background:rgba(5,150,105,.05)}
-.lvl-card-badge{display:inline-flex;align-items:center;gap:5px;
-                font-size:.72rem;font-weight:800;letter-spacing:.04em;
-                text-transform:uppercase;margin-bottom:5px}
-.lvl-card-range{font-size:1.05rem;font-weight:800;line-height:1;margin-bottom:4px}
-.lvl-card-insuf .lvl-card-range,.lvl-card-insuf .lvl-card-badge{color:var(--lvl-insuf)}
-.lvl-card-dev   .lvl-card-range,.lvl-card-dev   .lvl-card-badge{color:var(--lvl-dev)}
-.lvl-card-sat   .lvl-card-range,.lvl-card-sat   .lvl-card-badge{color:var(--lvl-sat)}
-.lvl-card-exc   .lvl-card-range,.lvl-card-exc   .lvl-card-badge{color:var(--lvl-exc)}
-.lvl-card-desc{font-size:.72rem;color:var(--txt2);line-height:1.5}
-
-/* Seções do modal */
-.modal-section{margin-bottom:18px}
-.modal-section-title{font-size:.7rem;font-weight:800;text-transform:uppercase;
-                     letter-spacing:.08em;color:var(--txt2);margin-bottom:10px;
-                     display:flex;align-items:center;gap:7px}
-.modal-section-title::after{content:'';flex:1;height:1px;background:var(--cinza2)}
-
-/* Tabela de critérios */
-.crit-table{width:100%;border-collapse:collapse;font-size:.78rem}
-.crit-table th{background:var(--cinza);padding:7px 10px;text-align:left;
-               font-size:.65rem;font-weight:700;text-transform:uppercase;
-               letter-spacing:.06em;color:var(--txt2)}
-.crit-table th:first-child{border-radius:8px 0 0 8px}
-.crit-table th:last-child{border-radius:0 8px 8px 0}
-.crit-table td{padding:8px 10px;border-bottom:1px solid var(--cinza);
-               color:var(--txt);vertical-align:top;line-height:1.5}
-.crit-table tr:last-child td{border-bottom:none}
-.crit-vetor{display:inline-block;padding:2px 7px;border-radius:4px;
-            font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.vt-fazer{background:rgba(59,130,246,.1);color:#2563EB}
-.vt-saber{background:rgba(124,58,237,.1);color:#7C3AED}
-.vt-comp {background:rgba(234,88,12,.1);color:#C2410C}
-
-/* Dicas rápidas */
-.tip-list{display:flex;flex-direction:column;gap:8px}
-.tip{display:flex;gap:10px;align-items:flex-start;
-     background:var(--cinza);border-radius:10px;padding:10px 12px}
-.tip-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
-.tip-txt{font-size:.78rem;color:var(--txt);line-height:1.55}
-.tip-txt strong{color:var(--txt);font-weight:700}
-
-/* Fórmula de nota */
-.formula-box{background:linear-gradient(135deg,rgba(0,83,159,.06),rgba(0,83,159,.03));
-             border:1.5px solid rgba(0,83,159,.15);border-radius:12px;
-             padding:14px 16px}
-.formula-row{display:flex;align-items:center;justify-content:space-between;
-             padding:5px 0;border-bottom:1px solid rgba(0,83,159,.08)}
-.formula-row:last-child{border:none;padding-top:8px;margin-top:2px}
-.formula-lbl{font-size:.78rem;color:var(--txt2)}
-.formula-val{font-size:.82rem;font-weight:700;color:var(--azul)}
-.formula-total{font-size:.9rem;font-weight:800;color:var(--txt)}
-.formula-total-val{font-size:.95rem;font-weight:800;color:var(--azul)}
+    transition:border-color .12s,background .12s,color .12s}
+.nb:active{transform:scale(.92)}.nb.on{border-color:var(--azul);background:var(--azul);color:#fff}
 
 /* ── Tags ───────────────────────────────────────── */
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
@@ -449,6 +299,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
          transition:border-color .15s,background .15s;contain:layout}
 .sw-item.done{border-color:var(--verde);background:rgba(5,150,105,.12)}
 .sw-item.falta{border-color:var(--vermelho);background:rgba(227,6,19,.1)}
+/* highlight quando aberto */
 .sw-item.open{border-color:rgba(0,83,159,.5);background:rgba(0,83,159,.1)}
 
 .sw-top{display:flex;align-items:center;gap:10px;cursor:pointer;
@@ -466,31 +317,23 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 .sw-nota-atual{font-size:.9rem;font-weight:700;min-width:36px;text-align:right;
                transition:color .15s}
 
+/* controles de nota — ficam visíveis quando .open */
 .sw-nota-ctrl{display:none;padding-top:12px}
 .sw-item.open .sw-nota-ctrl{display:block}
 
+/* grid de notas — 5 colunas no mobile, 10 no desktop */
 .sw-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:4px}
 @media(min-width:480px){.sw-quick{grid-template-columns:repeat(9,1fr)}}
 .sw-btn{-webkit-appearance:none;appearance:none;padding:10px 2px;
         border:2px solid var(--cinza2);border-radius:8px;background:#fff;
-        font-family:'Sora',system-ui,sans-serif;font-size:.78rem;font-weight:700;
+        font-family:'Sora',system-ui,sans-serif;font-size:.78rem;font-weight:600;
         color:var(--txt2);cursor:pointer;min-height:42px;
         -webkit-tap-highlight-color:transparent;touch-action:manipulation;
-        transition:border-color .12s,background .12s,color .12s}
+        transition:border-color .1s,background .1s,color .1s}
 .sw-btn:active{transform:scale(.9)}
+.sw-btn.on{border-color:var(--azul);background:var(--azul);color:#fff}
 
-/* Cores idle por nível */
-.sw-btn[data-level="insuf"]{color:var(--lvl-insuf);border-color:rgba(227,6,19,.28);background:rgba(227,6,19,.05)}
-.sw-btn[data-level="dev"]  {color:var(--lvl-dev);  border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.05)}
-.sw-btn[data-level="sat"]  {color:var(--lvl-sat);  border-color:rgba(59,130,246,.28); background:rgba(59,130,246,.05)}
-.sw-btn[data-level="exc"]  {color:var(--lvl-exc);  border-color:rgba(5,150,105,.28);  background:rgba(5,150,105,.05)}
-
-/* Estado ativo */
-.sw-btn.on[data-level="insuf"]{background:var(--lvl-insuf);border-color:var(--lvl-insuf);color:#fff}
-.sw-btn.on[data-level="dev"]  {background:var(--lvl-dev);  border-color:var(--lvl-dev);  color:#fff}
-.sw-btn.on[data-level="sat"]  {background:var(--lvl-sat);  border-color:var(--lvl-sat);  color:#fff}
-.sw-btn.on[data-level="exc"]  {background:var(--lvl-exc);  border-color:var(--lvl-exc);  color:#fff}
-
+/* botão falta dentro do card */
 .sw-falta-btn{-webkit-appearance:none;appearance:none;width:100%;
               margin-top:8px;padding:10px;border:none;border-radius:10px;
               background:rgba(227,6,19,.12);border:1.5px solid rgba(227,6,19,.3);
@@ -500,6 +343,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
               transition:background .12s}
 .sw-falta-btn:active{background:rgba(227,6,19,.25)}
 
+/* desfazer falta */
 .sw-desfazer{display:none;padding-top:8px}
 .sw-item.falta .sw-desfazer{display:block}
 .sw-desfazer-btn{-webkit-appearance:none;appearance:none;width:100%;padding:9px;
@@ -557,77 +401,109 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 .clink{text-align:center;margin-top:18px}
 .clink a{color:rgba(255,255,255,.28);font-size:.74rem;text-decoration:none;cursor:pointer}
 
-/* ── Scrollbar ──────────────────────────────────── */
+/* ── Scrollbar oculta ───────────────────────────── */
 ::-webkit-scrollbar{width:0;background:transparent}
-*{scrollbar-width:none}
+* { scrollbar-width:none }
 
 /* ══════════════════════════════════════════════════
-   ANIMAÇÕES
+   ANIMAÇÕES — fluidas e sutis
    ══════════════════════════════════════════════════ */
+
+/* Respeitamos prefers-reduced-motion */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;
     animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 
+/* ── Transição de tela ──────────────────────────── */
+/* Saída suave da tela atual */
 .scr{opacity:0;transform:translateY(8px);
-     transition:opacity .22s ease,transform .22s ease;pointer-events:none}
-.scr.on{opacity:1;transform:translateY(0);pointer-events:auto}
+     transition:opacity .22s ease,transform .22s ease;
+     pointer-events:none}
+.scr.on{opacity:1;transform:translateY(0);pointer-events:auto;
+        animation:none} /* remove o fadeIn anterior, transição CSS basta */
 
+/* ── Header stagger ─────────────────────────────── */
 .header{animation:slideDown .4s cubic-bezier(.2,.8,.4,1) both}
 @keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
 
+/* ── Fundo: segunda bolha sutil ─────────────────── */
 .bg::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;
   background:radial-gradient(circle,rgba(234,88,12,.15) 0%,transparent 70%);
-  bottom:-80px;left:-80px;animation:pulse2 8s ease-in-out infinite 2s;will-change:transform}
+  bottom:-80px;left:-80px;
+  animation:pulse2 8s ease-in-out infinite 2s;
+  will-change:transform}
 @keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
 
-.dot{transition:background .45s cubic-bezier(.4,0,.2,1),transform .25s ease}
+/* ── Steps dots ─────────────────────────────────── */
+.dot{transition:background .45s cubic-bezier(.4,0,.2,1),
+               transform .25s ease}
 .dot.a{transform:scaleX(1.08)}
 
+/* ── Turma card ─────────────────────────────────── */
 .turma-card{transition:background .18s ease,border-color .18s ease,
-                        transform .18s cubic-bezier(.2,.8,.4,1),box-shadow .18s ease}
-.turma-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,83,159,.25)}
+                        transform .18s cubic-bezier(.2,.8,.4,1),
+                        box-shadow .18s ease}
+.turma-card:hover{transform:translateY(-2px);
+                  box-shadow:0 8px 24px rgba(0,83,159,.25)}
 .turma-card:active{transform:scale(.97) translateY(0)}
 
+/* ── Modo card ──────────────────────────────────── */
 .modo-card{transition:background .18s,border-color .18s,
-                       transform .18s cubic-bezier(.2,.8,.4,1),box-shadow .18s}
-.modo-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+                       transform .18s cubic-bezier(.2,.8,.4,1),
+                       box-shadow .18s}
+.modo-card:hover{transform:translateY(-3px);
+                 box-shadow:0 10px 28px rgba(0,0,0,.25)}
 .modo-card:active{transform:scale(.95)}
 
+/* ── Item aluno (lista) ─────────────────────────── */
 .ai{transition:background .12s,border-color .12s,transform .12s}
 .ai:hover{transform:translateX(3px)}
 .ai:active{transform:scale(.98)}
 
-.btn{transition:opacity .15s,transform .15s cubic-bezier(.2,.8,.4,1),box-shadow .15s}
-.btn-primary:hover,.btn-orange:hover{box-shadow:0 6px 28px rgba(0,83,159,.5);transform:translateY(-1px)}
+/* ── Botões principais ──────────────────────────── */
+.btn{transition:opacity .15s,transform .15s cubic-bezier(.2,.8,.4,1),
+               box-shadow .15s}
+.btn-primary:hover,.btn-orange:hover{box-shadow:0 6px 28px rgba(0,83,159,.5);
+  transform:translateY(-1px)}
 .btn-orange:hover{box-shadow:0 6px 28px rgba(234,88,12,.5)}
 .btn:active{transform:scale(.97)!important}
 
-.btn-salvar{transition:opacity .15s,transform .15s cubic-bezier(.2,.8,.4,1),box-shadow .15s}
-.btn-salvar:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,83,159,.5)}
+/* ── Botão salvar ───────────────────────────────── */
+.btn-salvar{transition:opacity .15s,transform .15s cubic-bezier(.2,.8,.4,1),
+                        box-shadow .15s}
+.btn-salvar:hover{transform:translateY(-1px);
+                  box-shadow:0 6px 28px rgba(0,83,159,.5)}
 
-.nb{transition:border-color .15s,background .15s,color .15s,transform .1s}
+/* ── Quick notes (.nb) ──────────────────────────── */
+.nb{transition:border-color .12s,background .12s,color .12s,transform .1s}
 .nb.on{animation:notaPop .22s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes notaPop{from{transform:scale(.85)}to{transform:scale(1)}}
 
+/* ── Tags ───────────────────────────────────────── */
 .tag{transition:border-color .14s,background .14s,color .14s,transform .1s}
 .tag:active{transform:scale(.92)}
 .tag.on{animation:tagPop .18s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes tagPop{from{transform:scale(.9)}to{transform:scale(1)}}
 
-.sw-item{transition:border-color .2s ease,background .2s ease,transform .15s ease}
+/* ── Varredura item ─────────────────────────────── */
+.sw-item{transition:border-color .2s ease,background .2s ease,
+                     transform .15s ease}
 .sw-item.open{transform:scale(1.01)}
 .sw-item.done{animation:itemDone .3s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes itemDone{from{transform:scale(.98)}to{transform:scale(1)}}
 .sw-item.falta{animation:itemFalta .25s ease both}
 @keyframes itemFalta{from{opacity:.6}to{opacity:1}}
 
+/* ── sw-btn (notas varredura) ───────────────────── */
 .sw-btn{transition:border-color .1s,background .1s,color .1s,transform .1s}
 .sw-btn.on{animation:swBtnOn .2s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes swBtnOn{from{transform:scale(.8)}to{transform:scale(1)}}
 
+/* ── Barra de progresso ─────────────────────────── */
 .sweep-bar{transition:width .35s cubic-bezier(.4,0,.2,1)}
 
+/* ── Ícone de sucesso ───────────────────────────── */
 .suc-icon{animation:sucBounce .5s cubic-bezier(.34,1.56,.64,1) both .05s}
 @keyframes sucBounce{
   0%{transform:scale(0) rotate(-12deg);opacity:0}
@@ -640,25 +516,37 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 .suc-wrap .btn{animation:fadeUp .35s ease both .34s;opacity:0}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
+/* ── Nota (número grande) ───────────────────────── */
 .nota-num{transition:color .2s ease}
-.nota-nivel{transition:color .25s ease,opacity .25s ease}
 
+/* ── Presença badge ─────────────────────────────── */
 .presenca-badge{animation:badgeIn .3s cubic-bezier(.34,1.56,.64,1) both .1s;opacity:0}
 @keyframes badgeIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
 
+/* ── Sweep header legendas ──────────────────────── */
+#swLegP,#swLegF,#swLegN{transition:color .2s}
+
+/* ── Toast ──────────────────────────────────────── */
 .toast{transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s}
 .toast:not(.on){opacity:0}
 .toast.on{opacity:1}
 
+/* ── Spinner ────────────────────────────────────── */
 .spinner{animation:spin .7s cubic-bezier(.5,0,.5,1) infinite}
 
+/* ── Select focus ring ──────────────────────────── */
 .swrap select{transition:border-color .2s,background .2s,box-shadow .2s}
 .swrap select:focus{box-shadow:0 0 0 3px rgba(0,83,159,.2)}
+
+/* ── Input focus ring ───────────────────────────── */
 .inp{transition:border-color .2s,background .2s,box-shadow .2s}
 .inp:focus{box-shadow:0 0 0 3px rgba(0,83,159,.25)}
+
+/* ── Obs textarea ───────────────────────────────── */
 .obs-ta{transition:border-color .2s,background .2s,box-shadow .2s}
 .obs-ta:focus{box-shadow:0 0 0 3px rgba(0,83,159,.15)}
 
+/* ── Stagger na lista de alunos ─────────────────── */
 .ai-stagger .ai{opacity:0;animation:fadeUp .22s ease both}
 .ai-stagger .ai:nth-child(1){animation-delay:.03s}
 .ai-stagger .ai:nth-child(2){animation-delay:.06s}
@@ -668,6 +556,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 .ai-stagger .ai:nth-child(6){animation-delay:.18s}
 .ai-stagger .ai:nth-child(n+7){animation-delay:.2s}
 
+/* ── Stagger na lista de turmas ─────────────────── */
 .turma-stagger .turma-card{opacity:0;animation:fadeUp .25s ease both}
 .turma-stagger .turma-card:nth-child(1){animation-delay:.04s}
 .turma-stagger .turma-card:nth-child(2){animation-delay:.08s}
@@ -675,6 +564,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 .turma-stagger .turma-card:nth-child(4){animation-delay:.16s}
 .turma-stagger .turma-card:nth-child(n+5){animation-delay:.18s}
 
+/* ── Stagger varredura ──────────────────────────── */
 .sw-stagger .sw-item{opacity:0;animation:swItemIn .2s ease both}
 @keyframes swItemIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
 .sw-stagger .sw-item:nth-child(1){animation-delay:.03s}
@@ -689,140 +579,6 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 <div class="bg"></div>
 <div class="pend" id="pend">⏳ <span id="pendCt">0</span></div>
 <div class="toast" id="toast"></div>
-
-<!-- ══ MODAL DE AJUDA ══════════════════════════════ -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-sheet" id="modalSheet">
-    <div class="modal-handle"></div>
-    <div class="modal-head">
-      <div class="modal-title">📋 Guia de Avaliação</div>
-      <button class="modal-close" id="modalClose">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <!-- Níveis de desempenho -->
-      <div class="modal-section">
-        <div class="modal-section-title">Níveis de Desempenho</div>
-        <div class="lvl-cards">
-          <div class="lvl-card lvl-card-insuf">
-            <div class="lvl-card-badge">● Insatisfatório</div>
-            <div class="lvl-card-range">0,0 – 4,0</div>
-            <div class="lvl-card-desc">Não atinge o mínimo. Precisa de intervenção direta e imediata.</div>
-          </div>
-          <div class="lvl-card lvl-card-dev">
-            <div class="lvl-card-badge">● Em Desenvolvimento</div>
-            <div class="lvl-card-range">4,5 – 6,0</div>
-            <div class="lvl-card-desc">Atende parcialmente. Executa com apoio e orientação constante.</div>
-          </div>
-          <div class="lvl-card lvl-card-sat">
-            <div class="lvl-card-badge">● Satisfatório</div>
-            <div class="lvl-card-range">6,5 – 8,5</div>
-            <div class="lvl-card-desc">Atinge o esperado. Executa com pequenas correções pontuais.</div>
-          </div>
-          <div class="lvl-card lvl-card-exc">
-            <div class="lvl-card-badge">● Excelente</div>
-            <div class="lvl-card-range">9,0 – 10,0</div>
-            <div class="lvl-card-desc">Supera o esperado. Executa com autonomia e consistência total.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fórmula da nota -->
-      <div class="modal-section">
-        <div class="modal-section-title">Como a Nota é Calculada</div>
-        <div class="formula-box">
-          <div class="formula-row">
-            <span class="formula-lbl">⚙️ Fazer (execução prática)</span>
-            <span class="formula-val">× 40%</span>
-          </div>
-          <div class="formula-row">
-            <span class="formula-lbl">🧠 Saber (conhecimento teórico)</span>
-            <span class="formula-val">× 30%</span>
-          </div>
-          <div class="formula-row">
-            <span class="formula-lbl">🤝 Comportamento (postura)</span>
-            <span class="formula-val">× 30%</span>
-          </div>
-          <div class="formula-row">
-            <span class="formula-total">Nota Final</span>
-            <span class="formula-total-val">= Σ pesos</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Critérios e vetores -->
-      <div class="modal-section">
-        <div class="modal-section-title">Critérios por Vetor</div>
-        <table class="crit-table">
-          <thead>
-            <tr>
-              <th>Critério</th>
-              <th>Vetor</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Exatidão Dimensional</td><td><span class="crit-vetor vt-fazer">Fazer</span></td></tr>
-            <tr><td>Organização / 5S</td><td><span class="crit-vetor vt-fazer">Fazer</span></td></tr>
-            <tr><td>Planejamento / Lógica</td><td><span class="crit-vetor vt-fazer">Fazer</span></td></tr>
-            <tr><td>Retenção Teórica</td><td><span class="crit-vetor vt-saber">Saber</span></td></tr>
-            <tr><td>Resolução de Problemas</td><td><span class="crit-vetor vt-saber">Saber</span></td></tr>
-            <tr><td>Aplicação de Normas</td><td><span class="crit-vetor vt-saber">Saber</span></td></tr>
-            <tr><td>Segurança e EPI</td><td><span class="crit-vetor vt-comp">Comportamento</span></td></tr>
-            <tr><td>Trabalho em Equipe</td><td><span class="crit-vetor vt-comp">Comportamento</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- O que observar -->
-      <div class="modal-section">
-        <div class="modal-section-title">O Que Observar em Cada Nível</div>
-        <div class="tip-list">
-          <div class="tip">
-            <span class="tip-icon">🔴</span>
-            <div class="tip-txt"><strong>Insatisfatório (0–4):</strong> Não executa sem intervenção, ignora normas de segurança, não identifica erros próprios, precisa de correção constante.</div>
-          </div>
-          <div class="tip">
-            <span class="tip-icon">🟡</span>
-            <div class="tip-txt"><strong>Em Desenvolvimento (4,5–6):</strong> Executa com orientação, aplica parcialmente os 5S, comete erros que corrige quando apontado, EPI com lembretes.</div>
-          </div>
-          <div class="tip">
-            <span class="tip-icon">🔵</span>
-            <div class="tip-txt"><strong>Satisfatório (6,5–8,5):</strong> Executa corretamente na maioria das situações, com falhas pontuais e pequenas correções. Autônomo na rotina.</div>
-          </div>
-          <div class="tip">
-            <span class="tip-icon">🟢</span>
-            <div class="tip-txt"><strong>Excelente (9–10):</strong> Supera o esperado, antecipa problemas, lidera pelo exemplo, executa com precisão e autonomia total sem necessidade de lembretes.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dicas de uso -->
-      <div class="modal-section">
-        <div class="modal-section-title">Dicas de Uso</div>
-        <div class="tip-list">
-          <div class="tip">
-            <span class="tip-icon">👁️</span>
-            <div class="tip-txt"><strong>Avalie o que você viu,</strong> não o que você sente. A nota deve refletir comportamentos observados nesta aula/atividade específica.</div>
-          </div>
-          <div class="tip">
-            <span class="tip-icon">🏷️</span>
-            <div class="tip-txt"><strong>Use as tags de observação</strong> para registrar comportamentos específicos. Elas ajudam o aluno a saber exatamente o que melhorar.</div>
-          </div>
-          <div class="tip">
-            <span class="tip-icon">⚡</span>
-            <div class="tip-txt"><strong>Modo Varredura</strong> é ideal para registrar a turma toda no mesmo critério — toque uma vez na nota e já está confirmado.</div>
-          </div>
-          <div class="tip">
-            <span class="tip-icon">📊</span>
-            <div class="tip-txt"><strong>Registre por aula,</strong> não só ao final do módulo. A consistência ao longo do tempo é o que revela o real progresso do aluno.</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-<!-- ══════════════════════════════════════════════ -->
 
 <div class="app">
   <div class="header">
@@ -865,7 +621,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     </div>
     <button class="btn btn-primary" id="btnSetup">✅ Salvar e Carregar Dados</button>
     <div class="error-banner" id="errorBanner"></div>
-    <div class="clink"><a>v5.0 · SENAI Avaliador</a></div>
+    <div class="clink"><a>v4.0 · SENAI Avaliador</a></div>
   </div>
 
   <!-- TELA 1: LOADING -->
@@ -959,42 +715,19 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
         <div class="swrap"><label>📝 Instrumento</label><select id="instSel"><option value="">Instrumento...</option></select></div>
       </div>
       <div class="swrap"><label>🔬 Critério</label><select id="critSel"><option value="">Critério...</option></select></div>
-
-      <!-- NOTA — reformulada -->
       <div style="margin-bottom:14px">
-        <div class="nota-header">
-          <label class="nota-lbl">⭐ Nota</label>
-          <button class="btn-info" id="btnGuia" title="Guia de avaliação">i</button>
-        </div>
-
-        <!-- Número + nível -->
-        <div class="nota-row">
-          <div class="nota-num" id="notaNum">7,0<span>/10</span></div>
-          <div class="nota-nivel" id="notaNivel">Satisfatório</div>
-        </div>
-
-        <!-- Slider -->
+        <label class="nota-lbl">⭐ Nota</label>
+        <div class="nota-num" id="notaNum">7,0<span>/10</span></div>
         <input type="range" id="slider" min="0" max="10" step="0.5" value="7">
         <div class="nota-labs"><span>0</span><span>2,5</span><span>5</span><span>7,5</span><span>10</span></div>
-
-        <!-- Faixas visuais -->
-        <div class="nota-faixas">
-          <div class="faixa faixa-insuf">Insatisfatório<br>0 – 4</div>
-          <div class="faixa faixa-dev">Em Desenv.<br>4,5 – 6</div>
-          <div class="faixa faixa-sat">Satisfatório<br>6,5 – 8,5</div>
-          <div class="faixa faixa-exc">Excelente<br>9 – 10</div>
-        </div>
-
-        <!-- Atalhos coloridos -->
         <div class="nota-quick">
-          <button class="nb" data-v="4"   data-level="insuf">4,0</button>
-          <button class="nb" data-v="5"   data-level="dev">5,0</button>
-          <button class="nb" data-v="6"   data-level="dev">6,0</button>
-          <button class="nb" data-v="7.5" data-level="sat">7,5</button>
-          <button class="nb" data-v="9"   data-level="exc">9,0</button>
+          <button class="nb" data-v="4">4,0</button>
+          <button class="nb" data-v="5">5,0</button>
+          <button class="nb" data-v="6">6,0</button>
+          <button class="nb" data-v="7.5">7,5</button>
+          <button class="nb" data-v="9">9,0</button>
         </div>
       </div>
-
       <div style="margin-bottom:14px">
         <label class="nota-lbl">💬 Observação (opcional)</label>
         <div class="tags" id="tagsCont"></div>
@@ -1069,7 +802,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     CONFIG: 'senai_config_v2',
     QUEUE:  'senai_queue_v2',
     DATA:   'senai_data_v2',
-    LAST:   'senai_last_sel'
+    LAST:   'senai_last_sel'   // última seleção de UC/vetor/instrumento/critério
   };
 
   const state = {
@@ -1084,51 +817,6 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     swCfg: {},
     isSyncing: false
   };
-
-  /* ── Níveis de nota ────────────────────────────── */
-  function getLevel(v) {
-    if (v <= 4.0) return { key:'insuf', label:'Insatisfatório', color:'#E30613' };
-    if (v <= 6.0) return { key:'dev',   label:'Em Desenvolvimento', color:'#F59E0B' };
-    if (v <= 8.5) return { key:'sat',   label:'Satisfatório', color:'#3B82F6' };
-    return             { key:'exc',   label:'Excelente', color:'#059669' };
-  }
-
-  /* Gradiente do slider: mapeia 0-10 para cores de nível */
-  function sliderGradient(v) {
-    // Pontos: 0=insuf, 4=insuf, 4.5=dev, 6=dev, 6.5=sat, 8.5=sat, 9=exc, 10=exc
-    const stops = [
-      { p:  0, c:'#E30613' },
-      { p: 40, c:'#E30613' },
-      { p: 45, c:'#F59E0B' },
-      { p: 60, c:'#F59E0B' },
-      { p: 65, c:'#3B82F6' },
-      { p: 85, c:'#3B82F6' },
-      { p: 90, c:'#059669' },
-      { p:100, c:'#059669' },
-    ];
-    const filled = (v / 10) * 100;
-    let gradient = stops.map(s => `${s.c} ${s.p}%`).join(', ');
-    return `linear-gradient(to right, ${gradient})`;
-  }
-
-  /* Thumb border color via CSS variable */
-  function updateSliderThumb(color) {
-    const slider = document.getElementById('slider');
-    if (slider) {
-      slider.style.setProperty('--thumb-color', color);
-      // update via style injection
-      let style = document.getElementById('slider-thumb-style');
-      if (!style) {
-        style = document.createElement('style');
-        style.id = 'slider-thumb-style';
-        document.head.appendChild(style);
-      }
-      style.textContent = `
-        #slider::-webkit-slider-thumb { border-color: ${color}; box-shadow: 0 2px 10px ${color}44; }
-        #slider::-moz-range-thumb { border-color: ${color}; }
-      `;
-    }
-  }
 
   /* ── Init ──────────────────────────────────────── */
   window.addEventListener('load', init);
@@ -1146,18 +834,25 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 
   /* ── Helpers DOM ───────────────────────────────── */
   function $(id) { return document.getElementById(id); }
-  function on(id, ev, fn) { const el = $(id); if (el) el.addEventListener(ev, fn); }
+
+  function on(id, ev, fn) {
+    const el = $(id);
+    if (el) el.addEventListener(ev, fn);
+  }
+
   function el(tag, cls, text) {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
     if (text !== undefined) e.textContent = text;
     return e;
   }
+
   function debounce(fn, ms) {
-    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
 
-  /* ── LocalStorage ──────────────────────────────── */
+  /* ── LocalStorage seguro ───────────────────────── */
   function lsSet(key, val) {
     try { localStorage.setItem(key, val); return true; }
     catch (e) {
@@ -1168,21 +863,23 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
       return false;
     }
   }
+
   function lsGet(key) {
     try { return localStorage.getItem(key); } catch (_) { return null; }
   }
 
   /* ── Data ──────────────────────────────────────── */
   function today() { return new Date().toLocaleDateString('pt-BR'); }
+
   function updateHeaderDate() {
     const n = new Date();
-    const e = $('hdate');
-    if (e) e.innerHTML =
+    const el = $('hdate');
+    if (el) el.innerHTML =
       n.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) +
       '<br>' + n.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  /* ── Última seleção ────────────────────────────── */
+  /* ── Última seleção (memória entre sessões) ────── */
   function saveLastSel() {
     const sel = {
       uc:          $('ucSel')?.value   || $('swUcSel')?.value   || '',
@@ -1192,17 +889,22 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     };
     lsSet(LS.LAST, JSON.stringify(sel));
   }
+
   function loadLastSel() {
     try { return JSON.parse(lsGet(LS.LAST) || '{}'); } catch (_) { return {}; }
   }
+
   function applyLastSel(prefix) {
     const last = loadLastSel();
-    const mapInd = { uc:'ucSel', vetor:'vetSel', instrumento:'instSel', criterio:'critSel' };
-    const mapSw  = { uc:'swUcSel', vetor:'swVetSel', instrumento:'swInstSel', criterio:'swCritSel' };
-    const m = prefix === 'sw' ? mapSw : mapInd;
+    const map = { uc: prefix + 'UcSel', vetor: prefix + 'VetSel',
+                  instrumento: prefix + 'InstSel', criterio: prefix + 'CritSel' };
+    // para individual os ids são sem prefixo sw
+    const mapInd = { uc: 'ucSel', vetor: 'vetSel', instrumento: 'instSel', criterio: 'critSel' };
+    const m = prefix === 'sw' ? map : mapInd;
     Object.keys(m).forEach(k => {
       const sel = $(m[k]);
       if (sel && last[k]) {
+        // só aplica se a opção existir
         const opts = Array.from(sel.options).map(o => o.value);
         if (opts.includes(last[k])) sel.value = last[k];
       }
@@ -1211,34 +913,28 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 
   /* ── Telas ─────────────────────────────────────── */
   const SCREENS = ['s0','s1','s2','s3','s4a','s4b','s5a','s5b','s6a','s6b'];
+
   function showScreen(id) {
     SCREENS.forEach(s => { const e = $(s); if (e) e.classList.remove('on'); });
     const t = $(id);
     if (t) { t.classList.add('on'); t.scrollTop = 0; }
     hideErr('errorBanner'); hideErr('loadErrorBanner');
   }
+
   function updateDots(step) {
     for (let i = 1; i <= 3; i++) {
-      const d = $('d' + i); if (!d) continue;
+      const d = $('d' + i);
+      if (!d) continue;
       d.className = 'dot';
       if (i < step) d.classList.add('d');
       else if (i === step) d.classList.add('a');
     }
   }
-  function showErr(id, msg) { const b = $(id); if (b) { b.textContent = '⚠️ ' + msg; b.classList.add('on'); } }
-  function hideErr(id)      { const b = $(id); if (b) b.classList.remove('on'); }
 
-  /* ── Modal Guia ────────────────────────────────── */
-  function openModal() {
-    const ov = $('modalOverlay');
-    if (ov) ov.classList.add('on');
-    document.body.style.overflow = 'hidden';
+  function showErr(id, msg) {
+    const b = $(id); if (b) { b.textContent = '⚠️ ' + msg; b.classList.add('on'); }
   }
-  function closeModal() {
-    const ov = $('modalOverlay');
-    if (ov) ov.classList.remove('on');
-    document.body.style.overflow = '';
-  }
+  function hideErr(id) { const b = $(id); if (b) b.classList.remove('on'); }
 
   /* ── Listeners ─────────────────────────────────── */
   function registerListeners() {
@@ -1262,16 +958,9 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     on('btnCancelarSw',  'click', () => { showScreen('s3'); updateDots(2); });
     on('btnNovaVarredura','click',() => { showScreen('s4b'); updateDots(3); fillForms(); applyLastSel('sw'); });
     on('btnVoltarModo',  'click', () => { showScreen('s3'); updateDots(2); });
-    on('slider',         'input', e => updateNotaUI(parseFloat(e.target.value)));
-    on('pend',           'click', syncOfflineQueue);
+    on('slider', 'input', e => updateNotaUI(parseFloat(e.target.value)));
+    on('pend',   'click', syncOfflineQueue);
 
-    // Modal
-    on('btnGuia',    'click', openModal);
-    on('modalClose', 'click', closeModal);
-    const ov = $('modalOverlay');
-    if (ov) ov.addEventListener('click', e => { if (e.target === ov) closeModal(); });
-
-    // Quick note buttons
     document.querySelectorAll('.nb').forEach(b =>
       b.addEventListener('click', function () {
         const v = parseFloat(this.dataset.v);
@@ -1314,7 +1003,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
       updatePendingUI();
       if (state.dados.turmas?.length) {
         goToTurmaSelect();
-        loadData(true).then(ok => { if (ok) { renderTurmas(); fillForms(); } });
+        loadData().then(ok => { if (ok) { renderTurmas(); fillForms(); } });
       } else {
         showScreen('s1'); setLoading('Carregando dados...');
         loadData().then(ok => ok ? goToTurmaSelect() : (showScreen('s0'), updateDots(0)));
@@ -1326,12 +1015,12 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     state.dados = {};
     try { localStorage.removeItem(LS.DATA); } catch (_) {}
     showScreen('s1'); setLoading('Recarregando...'); $('btnRetryLoad').style.display = 'none';
-    loadData(true).then(ok => ok ? goToTurmaSelect() : void 0);
+    loadData().then(ok => ok ? goToTurmaSelect() : void 0);
   }
 
   function setLoading(t) { const e = $('loadingTxt'); if (e) e.textContent = t; }
 
-  /* ── CSV ────────────────────────────────────────── */
+  /* ── Carregar planilha ─────────────────────────── */
   function csvUrl(aba) {
     return `https://docs.google.com/spreadsheets/d/${state.config.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(aba)}`;
   }
@@ -1372,8 +1061,8 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     if (!d.tags.length)        d.tags        = ['Fora da tolerância','Sem EPI','Bancada desorganizada','Erro procedimental','Boa evolução','Esforço notável','Liderança'];
   }
 
-  function loadData(silent = false) {
-    if (!silent) { showScreen('s1'); setLoading('Carregando dados...'); }
+  function loadData() {
+    showScreen('s1'); setLoading('Carregando dados...');
     return new Promise(resolve => {
       const nd = { turmas:[], alunos:{}, ucs:[], vetores:[], instrumentos:[], criterios:[], tags:[] };
       const tid = setTimeout(() => {
@@ -1440,6 +1129,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
   /* ── Turmas ─────────────────────────────────────── */
   function goToTurmaSelect() {
     updateTurmaBar(); renderTurmas(); showScreen('s2'); updateDots(1);
+    // Se só há uma turma, seleciona automaticamente e vai direto ao modo
     const turmas = state.dados.turmas || [];
     if (turmas.length === 1) {
       state.turmaAtual = turmas[0];
@@ -1469,7 +1159,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     const total = turmas.reduce((a, t) => a + (state.dados.alunos[t]||[]).length, 0);
     const s = $('s2sub'); if (s) s.textContent = `${turmas.length} turma(s) · ${total} aluno(s)`;
     const icons = ['🏭','⚙️','🔧','📐','🛠️','💡','🔩','📊'];
-    void grid.offsetWidth;
+    void grid.offsetWidth; // trigger reflow for stagger
     grid.classList.add('turma-stagger');
     turmas.forEach((turma, i) => {
       const al = state.dados.alunos[turma] || [];
@@ -1576,35 +1266,12 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     cont.appendChild(frag);
   }
 
-  /* ── Nota UI — atualiza cor, nível e gradiente ─── */
   function updateNotaUI(v) {
-    const lvl = getLevel(v);
-
-    // Número grande
     const ne = $('notaNum');
     if (ne) {
       ne.innerHTML = v.toFixed(1).replace('.', ',') + '<span>/10</span>';
-      ne.style.color = lvl.color;
+      ne.style.color = v < 5 ? '#E30613' : v < 7 ? '#F59E0B' : '#059669';
     }
-
-    // Nível discreto
-    const nl = $('notaNivel');
-    if (nl) {
-      nl.textContent = lvl.label;
-      nl.style.color = lvl.color;
-      nl.style.opacity = '0.55';
-    }
-
-    // Slider gradiente
-    const slider = $('slider');
-    if (slider) {
-      slider.style.background = sliderGradient(v);
-    }
-
-    // Thumb color
-    updateSliderThumb(lvl.color);
-
-    // Quick buttons — marca o ativo
     document.querySelectorAll('.nb').forEach(b =>
       b.classList.toggle('on', parseFloat(b.dataset.v) === v)
     );
@@ -1626,14 +1293,11 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 
     saveLastSel();
 
-    const nota = parseFloat($('slider').value);
-    const lvl  = getLevel(nota);
-
     const reg = {
       data: today(), turma: state.turmaAtual || '',
       aluno: state.alunoAtual, uc, vetor,
       instrumento: ins, criterio: crit,
-      nota, nivel: lvl.label,
+      nota: parseFloat($('slider').value),
       observacao: obs, frequencia: 'Sim'
     };
 
@@ -1649,8 +1313,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
       c.appendChild(row('Aluno',      reg.aluno));
       c.appendChild(row('UC',         reg.uc));
       c.appendChild(row('Critério',   reg.criterio));
-      c.appendChild(row('Nota',       reg.nota.toFixed(1).replace('.', ','), lvl.color));
-      c.appendChild(row('Nível',      lvl.label, lvl.color));
+      c.appendChild(row('Nota',       reg.nota.toFixed(1).replace('.', ','), reg.nota >= 6 ? '#059669' : '#E30613'));
       c.appendChild(row('Frequência', '✅ Presente', '#059669'));
     });
   }
@@ -1706,10 +1369,10 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
       const ctrl     = el('div', 'sw-nota-ctrl');
       const quick    = el('div', 'sw-quick');
 
+      // Notas de 0 a 10 em 0.5 — agora um toque = confirmado direto
       [0,1,2,3,4,5,6,7,8,9,10].forEach(v => {
         const btn = el('button', 'sw-btn', v.toFixed(0));
         btn.setAttribute('data-v', String(v));
-        btn.setAttribute('data-level', getLevel(v).key);
         btn.addEventListener('click', e => {
           e.stopPropagation();
           confirmarNota(nome, v, item, statusEl, nomeEl, notaEl, quick);
@@ -1717,6 +1380,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
         quick.appendChild(btn);
       });
 
+      // Botão falta
       const faltaBtn = el('button', 'sw-falta-btn', '❌ Marcar como Falta');
       faltaBtn.addEventListener('click', e => {
         e.stopPropagation();
@@ -1726,6 +1390,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
       ctrl.appendChild(quick);
       ctrl.appendChild(faltaBtn);
 
+      // Desfazer falta
       const desfWrap = el('div', 'sw-desfazer');
       const desfBtn  = el('button', 'sw-desfazer-btn', '↩ Desfazer falta');
       desfBtn.addEventListener('click', e => {
@@ -1743,6 +1408,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
       });
       desfWrap.appendChild(desfBtn);
 
+      // Expandir ao tocar no topo (só se pendente)
       top.addEventListener('click', () => {
         if (!item.classList.contains('done') && !item.classList.contains('falta'))
           item.classList.toggle('open');
@@ -1758,6 +1424,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     updateProgress();
   }
 
+  // Toque numa nota = confirma na hora (sem botão extra)
   function confirmarNota(nome, nota, item, statusEl, nomeEl, notaEl, quick) {
     state.swNotas[nome]       = nota;
     state.swConfirmados[nome] = true;
@@ -1774,6 +1441,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     );
     updateProgress();
 
+    // Auto-scroll para o próximo aluno pendente
     requestAnimationFrame(() => {
       const todos = document.querySelectorAll('.sw-item');
       for (let i = 0; i < todos.length; i++) {
@@ -1800,6 +1468,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     quick.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('on'));
     updateProgress();
 
+    // Auto-scroll para o próximo pendente
     requestAnimationFrame(() => {
       const todos = document.querySelectorAll('.sw-item');
       for (let i = 0; i < todos.length; i++) {
@@ -1854,6 +1523,10 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
     });
 
     if (!regs.length) { showToast('⚠️ Nenhuma avaliação registrada', 'err'); return; }
+
+    // Log para diagnóstico — abra o DevTools (F12) e veja o Console
+    console.log('=== SENAI VARREDURA — dados a enviar ===');
+    regs.forEach((r, i) => console.log('[' + i + ']', r.aluno, '| nota:', r.nota, '| tipo:', typeof r.nota, '| freq:', r.frequencia));
 
     const btn = $('btnEnviarTudo');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
