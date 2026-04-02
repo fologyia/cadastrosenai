@@ -1991,6 +1991,7 @@ function sendBatch(regs, cb) {
     if (!navigator.onLine || state.isSyncing || !state.queue.length) return;
     state.isSyncing = true;
     showToast('🔄 Sincronizando...', 'wrn');
+
     const next = () => {
       if (!state.queue.length) {
         state.isSyncing = false;
@@ -1999,10 +2000,28 @@ function sendBatch(regs, cb) {
         showToast('✅ Sincronização concluída', 'ok');
         return;
       }
-      fetch(state.config.url, { method:'POST', mode:'no-cors',
-        headers:{'Content-Type':'text/plain'}, body: JSON.stringify(state.queue[0]) })
-      .then(() => { state.queue.shift(); updatePendingUI(); setTimeout(next, 500); })
-      .catch(() => { state.isSyncing = false; showToast('⚠️ Erro na sincronização.','err'); });
+
+      // Correção: Removido o 'no-cors' para podermos ler o status real de sucesso/erro
+      fetch(state.config.url, {
+        method: 'POST',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify(state.queue[0])
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (json.status === 'ok') {
+          state.queue.shift(); // Só remove da fila se a gravação no Sheets foi confirmada
+          updatePendingUI();
+          setTimeout(next, 500);
+        } else {
+          throw new Error(json.msg || 'Erro no servidor');
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        state.isSyncing = false;
+        showToast('⚠️ Erro na sincronização. Mantendo na fila.', 'err');
+      });
     };
     next();
   }
