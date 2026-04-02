@@ -1805,7 +1805,6 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
   function confirmarNota(nome, nota, item, statusEl, nomeEl, notaEl, quick) {
     state.swNotas[nome]       = nota;
     state.swConfirmados[nome] = true;
-    delete state.swFaltas[nome];
 
     item.classList.remove('open','falta');
     item.classList.add('done');
@@ -1833,7 +1832,6 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
   function marcarFalta(nome, item, statusEl, nomeEl, notaEl, quick) {
     state.swFaltas[nome]      = true;
     state.swConfirmados[nome] = true;
-    delete state.swFaltas[nome];
 
     item.classList.remove('open','done');
     item.classList.add('falta');
@@ -1926,20 +1924,52 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
 
   /* ── Comunicação ───────────────────────────────── */
   function sendOne(reg, cb) {
-    if (!navigator.onLine) { queue(reg); cb('offline'); return; }
-    fetch(state.config.url, { method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'text/plain'}, body: JSON.stringify(reg) })
-    .then(() => { showToast('✅ Enviado', 'ok'); cb('online'); syncOfflineQueue(); })
-    .catch(() => { showToast('⚠️ Erro. Salvo localmente.','wrn'); queue(reg); cb('offline'); });
-  }
+  if (!navigator.onLine) { queue(reg); cb('offline'); return; }
+  fetch(state.config.url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(reg)
+  })
+  .then(r => r.json())
+  .then(json => {
+    if (json.status === 'ok') {
+      showToast('✅ Enviado', 'ok'); cb('online'); syncOfflineQueue();
+    } else {
+      console.error('Apps Script erro:', json.msg);
+      showToast('⚠️ Erro no servidor: ' + (json.msg || '?'), 'err');
+      queue(reg); cb('offline');
+    }
+  })
+  .catch(err => {
+    console.error('Fetch erro:', err);
+    showToast('⚠️ Erro. Salvo localmente.', 'wrn');
+    queue(reg); cb('offline');
+  });
+}
 
-  function sendBatch(regs, cb) {
-    if (!navigator.onLine) { regs.forEach(queue); cb('offline'); return; }
-    fetch(state.config.url, { method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ batch: regs }) })
-    .then(() => { showToast('✅ Enviado', 'ok'); cb('online'); syncOfflineQueue(); })
-    .catch(() => { showToast('⚠️ Erro. Salvo localmente.','wrn'); regs.forEach(queue); cb('offline'); });
-  }
+function sendBatch(regs, cb) {
+  if (!navigator.onLine) { regs.forEach(queue); cb('offline'); return; }
+  fetch(state.config.url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ batch: regs })
+  })
+  .then(r => r.json())
+  .then(json => {
+    if (json.status === 'ok') {
+      showToast('✅ Enviado', 'ok'); cb('online'); syncOfflineQueue();
+    } else {
+      console.error('Apps Script erro:', json.msg);
+      showToast('⚠️ Erro no servidor: ' + (json.msg || '?'), 'err');
+      regs.forEach(queue); cb('offline');
+    }
+  })
+  .catch(err => {
+    console.error('Fetch erro:', err);
+    showToast('⚠️ Erro. Salvo localmente.', 'wrn');
+    regs.forEach(queue); cb('offline');
+  });
+}
 
   function queue(reg) {
     state.queue.push(reg);
