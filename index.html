@@ -2013,9 +2013,10 @@ function sendBatch(regs, cb) {
       }
     })
     .catch((err) => {
-      console.error(err);
+      console.error("ERRO DETALHADO:", err);
       state.isSyncing = false;
-      showToast('⚠️ Erro na sincronização. Mantendo na fila.', 'err');
+      // Agora o Toast vai cuspir o erro real na tela do celular
+      showToast('⚠️ Erro: ' + err.message, 'err');
     });
   }
 
